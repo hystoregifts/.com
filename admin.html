@@ -1,0 +1,1442 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>HY STORE — ERP Control Panel</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+<link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@500;600;700&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<script>
+tailwind.config = {
+    theme: {
+        extend: {
+            fontFamily: {
+                display: ['Fredoka', 'sans-serif'],
+                sans: ['Plus Jakarta Sans', 'sans-serif']
+            },
+            colors: {
+                brandBlue: '#1D4ED8',
+                brandBlueDark: '#1E3A8A',
+                brandOrange: '#EA580C',
+                brandOrangeDark: '#C2410C'
+            }
+        }
+    }
+}
+</script>
+<style>
+    body { background: #FFFFFF; color: #0F172A; font-family: 'Plus Jakarta Sans', sans-serif; }
+    .erp-gradient-btn { background: linear-gradient(135deg, #EA580C 0%, #1D4ED8 100%); }
+    .erp-gradient-btn:hover { background: linear-gradient(135deg, #C2410C 0%, #1E3A8A 100%); }
+    .erp-badge-accent { background: linear-gradient(90deg, rgba(234,88,12,0.12), rgba(29,78,216,0.12)); }
+    ::-webkit-scrollbar { width: 6px; height: 6px; }
+    ::-webkit-scrollbar-thumb { background: #CBD5E1; border-radius: 999px; }
+</style>
+</head>
+<body class="bg-white text-slate-900 min-h-screen antialiased">
+
+<!-- Toast Notification -->
+<div id="toastBox" class="fixed bottom-5 right-5 z-[100] hidden max-w-sm bg-slate-900 text-white px-4 py-3 rounded-2xl shadow-xl border border-slate-700 text-xs sm:text-sm font-semibold flex items-center gap-2.5">
+    <i id="toastIcon" class="fa-solid fa-circle-check text-orange-400 text-base"></i>
+    <span id="toastText">Synced</span>
+</div>
+
+<!-- LOGIN GATE -->
+<section id="loginScreen" class="min-h-screen flex items-center justify-center p-4 bg-white">
+    <div class="w-full max-w-md bg-white border-2 border-slate-200 rounded-3xl shadow-xl p-6 sm:p-8">
+        <div class="flex items-center justify-between mb-6">
+            <div class="flex items-center gap-3">
+                <div class="w-12 h-12 rounded-2xl erp-gradient-btn text-white flex items-center justify-center font-display font-bold text-xl shadow-md">
+                    HY
+                </div>
+                <div>
+                    <h1 class="font-display font-bold text-2xl tracking-tight text-slate-900">HY STORE ERP</h1>
+                    <p class="text-xs font-semibold text-blue-700">Restricted Staff & Admin Access</p>
+                </div>
+            </div>
+            <span class="px-3 py-1 rounded-full text-[11px] font-bold bg-orange-50 text-orange-700 border border-orange-200">
+                SECURE
+            </span>
+        </div>
+
+        <form id="loginForm" onsubmit="handleLogin(event)" class="space-y-4">
+            <div>
+                <label class="block text-xs font-bold uppercase tracking-wider text-slate-600 mb-1.5">Username</label>
+                <div class="relative">
+                    <i class="fa-solid fa-user absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400 text-sm"></i>
+                    <input id="loginUsername" type="text" required autocomplete="username" placeholder="Enter admin username"
+                        class="w-full pl-10 pr-4 py-3 rounded-xl border border-slate-300 focus:border-blue-600 focus:ring-2 focus:ring-blue-100 outline-none text-sm font-medium bg-white">
+                </div>
+            </div>
+
+            <div>
+                <label class="block text-xs font-bold uppercase tracking-wider text-slate-600 mb-1.5">Password</label>
+                <div class="relative">
+                    <i class="fa-solid fa-lock absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400 text-sm"></i>
+                    <input id="loginPassword" type="password" required autocomplete="current-password" placeholder="Enter password"
+                        class="w-full pl-10 pr-11 py-3 rounded-xl border border-slate-300 focus:border-blue-600 focus:ring-2 focus:ring-blue-100 outline-none text-sm font-medium bg-white">
+                    <button type="button" onclick="togglePasswordVisibility()" class="absolute right-3.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-700">
+                        <i id="passEyeIcon" class="fa-solid fa-eye text-sm"></i>
+                    </button>
+                </div>
+            </div>
+
+            <div id="loginError" class="hidden text-xs font-bold text-red-600 bg-red-50 border border-red-200 px-3.5 py-2.5 rounded-xl">
+                Invalid username or password.
+            </div>
+
+            <button type="submit" id="loginBtn" class="w-full py-3.5 rounded-xl erp-gradient-btn text-white font-display font-bold text-base shadow-lg transition flex items-center justify-center gap-2">
+                <i class="fa-solid fa-right-to-bracket"></i>
+                <span>Sign In to ERP</span>
+            </button>
+        </form>
+
+        <div class="mt-6 pt-4 border-t border-slate-100 flex items-center justify-between text-[11px] text-slate-500 font-medium">
+            <span>HY STORE Operations</span>
+            <span>Protected Sheet Bridge</span>
+        </div>
+    </div>
+</section>
+
+<!-- MAIN ERP SHELL (HIDDEN UNTIL AUTHENTICATED) -->
+<div id="erpShell" class="hidden min-h-screen bg-white">
+    <!-- Mobile Sidebar Backdrop -->
+    <div id="sidebarBackdrop" onclick="toggleMobileSidebar(false)" class="fixed inset-0 bg-slate-900/40 z-40 hidden lg:hidden"></div>
+
+    <!-- LEFT SIDEBAR -->
+    <aside id="leftSidebar" class="fixed top-0 left-0 bottom-0 w-68 bg-white border-r border-slate-200 z-50 transform -translate-x-full lg:translate-x-0 transition-transform duration-200 flex flex-col w-64">
+        <div class="p-5 border-b border-slate-200 flex items-center justify-between">
+            <div class="flex items-center gap-2.5">
+                <div class="w-10 h-10 rounded-xl erp-gradient-btn text-white flex items-center justify-center font-display font-bold text-lg shadow">
+                    HY
+                </div>
+                <div>
+                    <div class="font-display font-bold text-base leading-tight text-slate-900">HY STORE ERP</div>
+                    <div id="activeUserBadge" class="text-[11px] font-semibold text-blue-700">Admin</div>
+                </div>
+            </div>
+            <button onclick="toggleMobileSidebar(false)" class="lg:hidden text-slate-500 hover:text-slate-900 p-1">
+                <i class="fa-solid fa-xmark text-lg"></i>
+            </button>
+        </div>
+
+        <nav class="flex-1 p-3 space-y-1 overflow-y-auto">
+            <button data-page="overview" onclick="switchPage('overview')" class="nav-link w-full flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-sm font-bold text-left transition">
+                <i class="fa-solid fa-chart-pie w-4 text-center"></i>
+                <span>Dashboard Overview</span>
+            </button>
+            <button data-page="orders" onclick="switchPage('orders')" class="nav-link w-full flex items-center justify-between px-3.5 py-2.5 rounded-xl text-sm font-bold text-left transition">
+                <span class="flex items-center gap-3">
+                    <i class="fa-solid fa-box-open w-4 text-center"></i>
+                    <span>Orders</span>
+                </span>
+                <span id="sidebarOrdersCount" class="text-[11px] px-2 py-0.5 rounded-full bg-orange-100 text-orange-800 font-extrabold">0</span>
+            </button>
+            <button data-page="products" onclick="switchPage('products')" class="nav-link w-full flex items-center justify-between px-3.5 py-2.5 rounded-xl text-sm font-bold text-left transition">
+                <span class="flex items-center gap-3">
+                    <i class="fa-solid fa-tags w-4 text-center"></i>
+                    <span>Products</span>
+                </span>
+                <span id="sidebarProductsCount" class="text-[11px] px-2 py-0.5 rounded-full bg-blue-100 text-blue-800 font-extrabold">0</span>
+            </button>
+            <button data-page="catalog" onclick="switchPage('catalog')" class="nav-link w-full flex items-center justify-between px-3.5 py-2.5 rounded-xl text-sm font-bold text-left transition">
+                <span class="flex items-center gap-3">
+                    <i class="fa-solid fa-book-open w-4 text-center"></i>
+                    <span>Gift Catalog</span>
+                </span>
+                <span id="sidebarCatalogCount" class="text-[11px] px-2 py-0.5 rounded-full bg-orange-100 text-orange-800 font-extrabold">0</span>
+            </button>
+            <button data-page="collections" onclick="switchPage('collections')" class="nav-link w-full flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-sm font-bold text-left transition">
+                <i class="fa-solid fa-layer-group w-4 text-center"></i>
+                <span>Collections</span>
+            </button>
+            <button data-page="users" onclick="switchPage('users')" class="nav-link w-full flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-sm font-bold text-left transition">
+                <i class="fa-solid fa-users-gear w-4 text-center"></i>
+                <span>Customers & Accounts</span>
+            </button>
+            <button data-page="settings" onclick="switchPage('settings')" class="nav-link w-full flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-sm font-bold text-left transition">
+                <i class="fa-solid fa-sliders w-4 text-center"></i>
+                <span>ERP Connection</span>
+            </button>
+        </nav>
+
+        <div class="p-3 border-t border-slate-200 space-y-2">
+            <button onclick="refreshAllERPData(true)" class="w-full py-2.5 px-3 rounded-xl border border-slate-200 hover:border-blue-500 text-slate-700 hover:text-blue-700 text-xs font-bold flex items-center justify-center gap-2 transition">
+                <i id="syncSpinIcon" class="fa-solid fa-rotate"></i>
+                <span>Sync Live Sheet Data</span>
+            </button>
+            <button onclick="logoutERP()" class="w-full py-2.5 px-3 rounded-xl bg-slate-100 hover:bg-red-50 text-slate-700 hover:text-red-700 text-xs font-bold flex items-center justify-center gap-2 transition">
+                <i class="fa-solid fa-right-from-bracket"></i>
+                <span>Logout</span>
+            </button>
+        </div>
+    </aside>
+
+    <!-- RIGHT MAIN CONTENT AREA -->
+    <div class="lg:pl-64 min-h-screen flex flex-col">
+        <!-- Top Header -->
+        <header class="sticky top-0 z-30 bg-white/95 backdrop-blur border-b border-slate-200 px-4 sm:px-6 py-3.5 flex items-center justify-between gap-3">
+            <div class="flex items-center gap-3">
+                <button onclick="toggleMobileSidebar(true)" class="lg:hidden p-2 rounded-xl border border-slate-200 text-slate-700 hover:bg-slate-50">
+                    <i class="fa-solid fa-bars text-base"></i>
+                </button>
+                <div>
+                    <h2 id="pageTitle" class="font-display font-bold text-lg sm:text-xl text-slate-900">Dashboard Overview</h2>
+                    <p id="syncStatusLabel" class="text-[11px] font-semibold text-slate-500">Ready to sync</p>
+                </div>
+            </div>
+
+            <div class="flex items-center gap-2 sm:gap-3">
+                <div class="hidden sm:flex items-center gap-1.5 px-3 py-1.5 rounded-full erp-badge-accent text-xs font-bold text-slate-800">
+                    <span class="w-2 h-2 rounded-full bg-orange-600 animate-pulse"></span>
+                    <span>Live Sheet ERP</span>
+                </div>
+                <button onclick="refreshAllERPData(true)" class="px-3.5 py-2 rounded-xl erp-gradient-btn text-white text-xs font-bold shadow flex items-center gap-1.5">
+                    <i class="fa-solid fa-arrows-rotate"></i>
+                    <span class="hidden sm:inline">Refresh</span>
+                </button>
+            </div>
+        </header>
+
+        <!-- Dynamic Pages Container -->
+        <main class="flex-1 p-4 sm:p-6 max-w-7xl w-full mx-auto">
+
+            <!-- 1. OVERVIEW PAGE -->
+            <section id="page-overview" class="erp-page space-y-6">
+                <div class="grid grid-cols-2 lg:grid-cols-4 gap-4">
+                    <div class="bg-white border border-slate-200 rounded-2xl p-4 shadow-xs">
+                        <div class="flex items-center justify-between text-xs font-bold text-slate-500 mb-2">
+                            <span>TOTAL ORDERS</span>
+                            <i class="fa-solid fa-box text-orange-600 text-base"></i>
+                        </div>
+                        <div id="statOrdersCount" class="font-display font-bold text-2xl sm:text-3xl text-slate-900">0</div>
+                        <div class="text-[11px] font-semibold text-blue-700 mt-1">From Orders Tab</div>
+                    </div>
+
+                    <div class="bg-white border border-slate-200 rounded-2xl p-4 shadow-xs">
+                        <div class="flex items-center justify-between text-xs font-bold text-slate-500 mb-2">
+                            <span>REVENUE (PKR)</span>
+                            <i class="fa-solid fa-wallet text-blue-700 text-base"></i>
+                        </div>
+                        <div id="statRevenue" class="font-display font-bold text-2xl sm:text-3xl text-slate-900">Rs. 0</div>
+                        <div class="text-[11px] font-semibold text-orange-600 mt-1">Recorded Order Totals</div>
+                    </div>
+
+                    <div class="bg-white border border-slate-200 rounded-2xl p-4 shadow-xs">
+                        <div class="flex items-center justify-between text-xs font-bold text-slate-500 mb-2">
+                            <span>PRODUCTS</span>
+                            <i class="fa-solid fa-tags text-orange-600 text-base"></i>
+                        </div>
+                        <div id="statProductsCount" class="font-display font-bold text-2xl sm:text-3xl text-slate-900">0</div>
+                        <div class="text-[11px] font-semibold text-blue-700 mt-1">Storefront Inventory</div>
+                    </div>
+
+                    <div class="bg-white border border-slate-200 rounded-2xl p-4 shadow-xs">
+                        <div class="flex items-center justify-between text-xs font-bold text-slate-500 mb-2">
+                            <span>CATALOG ITEMS</span>
+                            <i class="fa-solid fa-book-open text-blue-700 text-base"></i>
+                        </div>
+                        <div id="statCatalogCount" class="font-display font-bold text-2xl sm:text-3xl text-slate-900">0</div>
+                        <div class="text-[11px] font-semibold text-orange-600 mt-1">Gift Catalog List</div>
+                    </div>
+                </div>
+
+                <!-- Recent Order Cards Snapshot -->
+                <div class="bg-white border border-slate-200 rounded-2xl p-5">
+                    <div class="flex items-center justify-between mb-4">
+                        <div>
+                            <h3 class="font-display font-bold text-lg text-slate-900">Recent Order Cards</h3>
+                            <p class="text-xs text-slate-500">Quick view and status control for latest orders</p>
+                        </div>
+                        <button onclick="switchPage('orders')" class="text-xs font-extrabold text-blue-700 hover:text-orange-600 flex items-center gap-1">
+                            <span>All Orders</span>
+                            <i class="fa-solid fa-arrow-right"></i>
+                        </button>
+                    </div>
+                    <div id="overviewRecentOrders" class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4"></div>
+                </div>
+            </section>
+
+            <!-- 2. ORDERS PAGE (CARDS WITH VIEW & EDIT ICONS) -->
+            <section id="page-orders" class="erp-page hidden space-y-5">
+                <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 bg-white border border-slate-200 rounded-2xl p-4">
+                    <div class="flex flex-wrap items-center gap-2">
+                        <button onclick="setOrderFilter('ALL')" data-ofilter="ALL" class="ofilter-btn px-3.5 py-1.5 rounded-full text-xs font-extrabold transition">All</button>
+                        <button onclick="setOrderFilter('PENDING')" data-ofilter="PENDING" class="ofilter-btn px-3.5 py-1.5 rounded-full text-xs font-extrabold transition">Pending</button>
+                        <button onclick="setOrderFilter('VERIFIED')" data-ofilter="VERIFIED" class="ofilter-btn px-3.5 py-1.5 rounded-full text-xs font-extrabold transition">Payment Verified</button>
+                        <button onclick="setOrderFilter('DELIVERED')" data-ofilter="DELIVERED" class="ofilter-btn px-3.5 py-1.5 rounded-full text-xs font-extrabold transition">Delivered</button>
+                    </div>
+                    <div class="relative w-full sm:w-64">
+                        <i class="fa-solid fa-magnifying-glass absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-xs"></i>
+                        <input id="orderSearchInput" oninput="renderOrdersCards()" type="text" placeholder="Search order ID, name, city..."
+                            class="w-full pl-8 pr-3 py-2 rounded-xl border border-slate-300 focus:border-blue-600 outline-none text-xs font-medium">
+                    </div>
+                </div>
+
+                <div id="ordersCardsGrid" class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4"></div>
+            </section>
+
+            <!-- 3. PRODUCTS PAGE (CARDS + GALLERY UPLOAD + VIEW & EDIT ICONS) -->
+            <section id="page-products" class="erp-page hidden space-y-5">
+                <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 bg-white border border-slate-200 rounded-2xl p-4">
+                    <div>
+                        <h3 class="font-display font-bold text-lg text-slate-900">Products Inventory Cards</h3>
+                        <p class="text-xs text-slate-500">Upload pictures from gallery, view item cards, or edit details & prices</p>
+                    </div>
+                    <button onclick="openProductModal(null)" class="px-4 py-2.5 rounded-xl erp-gradient-btn text-white text-xs font-extrabold shadow flex items-center justify-center gap-2">
+                        <i class="fa-solid fa-plus"></i>
+                        <span>Add Product (Gallery Upload)</span>
+                    </button>
+                </div>
+
+                <div id="productsCardsGrid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4"></div>
+            </section>
+
+            <!-- 4. GIFT CATALOG PAGE (CARDS + GALLERY UPLOAD + VIEW & EDIT ICONS) -->
+            <section id="page-catalog" class="erp-page hidden space-y-5">
+                <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 bg-white border border-slate-200 rounded-2xl p-4">
+                    <div>
+                        <h3 class="font-display font-bold text-lg text-slate-900">Gift Catalog Cards</h3>
+                        <p class="text-xs text-slate-500">Manage catalog cards with gallery image upload, view preview, and edit actions</p>
+                    </div>
+                    <button onclick="openCatalogModal(null)" class="px-4 py-2.5 rounded-xl erp-gradient-btn text-white text-xs font-extrabold shadow flex items-center justify-center gap-2">
+                        <i class="fa-solid fa-plus"></i>
+                        <span>Add Catalog Item (Gallery Upload)</span>
+                    </button>
+                </div>
+
+                <div id="catalogCardsGrid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4"></div>
+            </section>
+
+            <!-- 5. COLLECTIONS PAGE (CARDS + GALLERY UPLOAD + VIEW & EDIT ICONS) -->
+            <section id="page-collections" class="erp-page hidden space-y-5">
+                <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 bg-white border border-slate-200 rounded-2xl p-4">
+                    <div>
+                        <h3 class="font-display font-bold text-lg text-slate-900">Collections Cards</h3>
+                        <p class="text-xs text-slate-500">Manage collection circles with gallery photos, view, and edit</p>
+                    </div>
+                    <button onclick="openCollectionModal(null)" class="px-4 py-2.5 rounded-xl erp-gradient-btn text-white text-xs font-extrabold shadow flex items-center justify-center gap-2">
+                        <i class="fa-solid fa-plus"></i>
+                        <span>Add Collection</span>
+                    </button>
+                </div>
+
+                <div id="collectionsCardsGrid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4"></div>
+            </section>
+
+            <!-- 6. CUSTOMERS & ACCOUNTS PAGE -->
+            <section id="page-users" class="erp-page hidden space-y-5">
+                <div class="bg-white border border-slate-200 rounded-2xl p-4">
+                    <h3 class="font-display font-bold text-lg text-slate-900">Customer Accounts & Records</h3>
+                    <p class="text-xs text-slate-500">View customer profiles synced from Google Sheet</p>
+                </div>
+                <div id="usersCardsGrid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4"></div>
+            </section>
+
+            <!-- 7. ERP CONNECTION SETTINGS -->
+            <section id="page-settings" class="erp-page hidden space-y-5">
+                <div class="bg-white border border-slate-200 rounded-2xl p-5 max-w-2xl space-y-4">
+                    <div>
+                        <h3 class="font-display font-bold text-lg text-slate-900">Google Apps Script Web App Endpoint</h3>
+                        <p class="text-xs text-slate-500">Connected endpoint used to fetch and update Orders, Products, Catalog, and Collections</p>
+                    </div>
+
+                    <div>
+                        <label class="block text-xs font-bold text-slate-700 mb-1.5">Web App URL</label>
+                        <input id="endpointInput" type="url" class="w-full px-3.5 py-2.5 rounded-xl border border-slate-300 text-xs font-mono">
+                    </div>
+
+                    <div class="flex flex-wrap items-center gap-3">
+                        <button onclick="saveEndpointConfig()" class="px-4 py-2.5 rounded-xl erp-gradient-btn text-white text-xs font-extrabold shadow">
+                            Save & Re-Sync
+                        </button>
+                        <button onclick="testEndpointConnection()" class="px-4 py-2.5 rounded-xl border border-blue-600 text-blue-700 hover:bg-blue-50 text-xs font-extrabold">
+                            Test Connection
+                        </button>
+                    </div>
+                </div>
+            </section>
+
+        </main>
+    </div>
+</div>
+
+<!-- VIEW MODAL (ORDERS / PRODUCTS / CATALOG / COLLECTIONS) -->
+<div id="viewModal" class="fixed inset-0 z-[80] hidden bg-slate-900/60 backdrop-blur-xs flex items-center justify-center p-4">
+    <div class="bg-white border border-slate-200 rounded-3xl max-w-lg w-full max-h-[88vh] overflow-y-auto p-6 shadow-2xl space-y-4">
+        <div class="flex items-center justify-between border-b border-slate-100 pb-3">
+            <h3 id="viewModalTitle" class="font-display font-bold text-lg text-slate-900">Details</h3>
+            <button onclick="closeModal('viewModal')" class="w-8 h-8 rounded-full bg-slate-100 hover:bg-slate-200 text-slate-700 flex items-center justify-center">
+                <i class="fa-solid fa-xmark"></i>
+            </button>
+        </div>
+        <div id="viewModalBody" class="space-y-3 text-sm"></div>
+    </div>
+</div>
+
+<!-- ORDER EDIT MODAL -->
+<div id="orderEditModal" class="fixed inset-0 z-[80] hidden bg-slate-900/60 backdrop-blur-xs flex items-center justify-center p-4">
+    <div class="bg-white border border-slate-200 rounded-3xl max-w-md w-full p-6 shadow-2xl">
+        <div class="flex items-center justify-between border-b border-slate-100 pb-3 mb-4">
+            <h3 class="font-display font-bold text-lg text-slate-900">Edit Order Status</h3>
+            <button onclick="closeModal('orderEditModal')" class="w-8 h-8 rounded-full bg-slate-100 text-slate-700 flex items-center justify-center">
+                <i class="fa-solid fa-xmark"></i>
+            </button>
+        </div>
+        <form onsubmit="submitOrderEdit(event)" class="space-y-4">
+            <input id="editOrderId" type="hidden">
+            <div>
+                <label class="block text-xs font-bold text-slate-600 mb-1">Order ID</label>
+                <input id="editOrderIdDisplay" type="text" disabled class="w-full px-3.5 py-2 rounded-xl bg-slate-100 border border-slate-200 text-xs font-bold text-slate-700">
+            </div>
+            <div>
+                <label class="block text-xs font-bold text-slate-600 mb-1">Order Fulfillment Status</label>
+                <select id="editOrderStatus" class="w-full px-3.5 py-2.5 rounded-xl border border-slate-300 text-xs font-bold bg-white">
+                    <option value="Order Placed">Order Placed</option>
+                    <option value="Confirmed">Confirmed</option>
+                    <option value="In Production">In Production</option>
+                    <option value="Packed">Packed</option>
+                    <option value="Shipped">Shipped</option>
+                    <option value="Delivered">Delivered</option>
+                    <option value="Cancelled">Cancelled</option>
+                </select>
+            </div>
+            <div>
+                <label class="block text-xs font-bold text-slate-600 mb-1">Payment Status</label>
+                <select id="editPaymentStatus" class="w-full px-3.5 py-2.5 rounded-xl border border-slate-300 text-xs font-bold bg-white">
+                    <option value="Pending">Pending</option>
+                    <option value="Verified">Verified</option>
+                    <option value="PAYMENT PAID">PAYMENT PAID</option>
+                    <option value="COD">COD</option>
+                    <option value="Rejected">Rejected</option>
+                </select>
+            </div>
+            <div class="flex justify-end gap-2 pt-2">
+                <button type="button" onclick="closeModal('orderEditModal')" class="px-4 py-2 rounded-xl border border-slate-200 text-xs font-bold text-slate-700">Cancel</button>
+                <button type="submit" class="px-5 py-2 rounded-xl erp-gradient-btn text-white text-xs font-extrabold shadow">Save & Sync</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- PRODUCT ADD / EDIT MODAL (WITH GALLERY IMAGE UPLOAD) -->
+<div id="productModal" class="fixed inset-0 z-[80] hidden bg-slate-900/60 backdrop-blur-xs flex items-center justify-center p-4">
+    <div class="bg-white border border-slate-200 rounded-3xl max-w-lg w-full max-h-[90vh] overflow-y-auto p-6 shadow-2xl">
+        <div class="flex items-center justify-between border-b border-slate-100 pb-3 mb-4">
+            <h3 id="productModalTitle" class="font-display font-bold text-lg text-slate-900">Product Card</h3>
+            <button onclick="closeModal('productModal')" class="w-8 h-8 rounded-full bg-slate-100 text-slate-700 flex items-center justify-center">
+                <i class="fa-solid fa-xmark"></i>
+            </button>
+        </div>
+        <form onsubmit="submitProductForm(event)" class="space-y-3.5">
+            <input id="prodEditIndex" type="hidden">
+            <input id="prodId" type="hidden">
+            <div>
+                <label class="block text-xs font-bold text-slate-600 mb-1">Product Name</label>
+                <input id="prodName" type="text" required placeholder="e.g. Magic Photo Frame" class="w-full px-3.5 py-2.5 rounded-xl border border-slate-300 text-xs font-semibold">
+            </div>
+            <div class="grid grid-cols-2 gap-3">
+                <div>
+                    <label class="block text-xs font-bold text-slate-600 mb-1">Category</label>
+                    <input id="prodCategory" type="text" required placeholder="PERSONALIZED GIFTS" class="w-full px-3.5 py-2.5 rounded-xl border border-slate-300 text-xs font-semibold">
+                </div>
+                <div>
+                    <label class="block text-xs font-bold text-slate-600 mb-1">Badge</label>
+                    <input id="prodBadge" type="text" placeholder="BESTSELLER" class="w-full px-3.5 py-2.5 rounded-xl border border-slate-300 text-xs font-semibold">
+                </div>
+            </div>
+            <div class="grid grid-cols-2 gap-3">
+                <div>
+                    <label class="block text-xs font-bold text-slate-600 mb-1">Price (PKR)</label>
+                    <input id="prodPrice" type="number" min="0" required class="w-full px-3.5 py-2.5 rounded-xl border border-slate-300 text-xs font-bold">
+                </div>
+                <div>
+                    <label class="block text-xs font-bold text-slate-600 mb-1">Old Price (Optional)</label>
+                    <input id="prodOldPrice" type="number" min="0" class="w-full px-3.5 py-2.5 rounded-xl border border-slate-300 text-xs font-semibold">
+                </div>
+            </div>
+
+            <!-- Gallery Upload for Product -->
+            <div class="p-3.5 rounded-2xl border-2 border-dashed border-blue-200 bg-blue-50/40 space-y-2.5">
+                <div class="flex items-center justify-between">
+                    <label class="text-xs font-extrabold text-blue-900 flex items-center gap-1.5">
+                        <i class="fa-solid fa-images text-orange-600"></i>
+                        <span>Upload Picture from Gallery</span>
+                    </label>
+                    <label class="cursor-pointer px-3 py-1.5 rounded-lg bg-blue-700 hover:bg-blue-800 text-white text-[11px] font-bold">
+                        <span>Choose Photo</span>
+                        <input type="file" accept="image/*" class="hidden" onchange="handleGalleryFile(event, 'prodImage', 'prodPreview')">
+                    </label>
+                </div>
+                <input id="prodImage" type="text" placeholder="Selected gallery photo or image URL" class="w-full px-3 py-2 rounded-xl border border-slate-300 bg-white text-xs">
+                <div class="flex items-center gap-3">
+                    <img id="prodPreview" src="" alt="Preview" class="w-16 h-16 rounded-xl object-cover border border-slate-200 bg-white hidden">
+                    <span id="prodFileInfo" class="text-[11px] text-slate-600 font-medium">No gallery file selected yet</span>
+                </div>
+            </div>
+
+            <div>
+                <label class="block text-xs font-bold text-slate-600 mb-1">Description</label>
+                <textarea id="prodDesc" rows="2" class="w-full px-3.5 py-2 rounded-xl border border-slate-300 text-xs"></textarea>
+            </div>
+
+            <div class="flex justify-end gap-2 pt-2">
+                <button type="button" onclick="closeModal('productModal')" class="px-4 py-2 rounded-xl border border-slate-200 text-xs font-bold text-slate-700">Cancel</button>
+                <button type="submit" class="px-5 py-2 rounded-xl erp-gradient-btn text-white text-xs font-extrabold shadow">Save Product</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- CATALOG ADD / EDIT MODAL (WITH GALLERY IMAGE UPLOAD) -->
+<div id="catalogModal" class="fixed inset-0 z-[80] hidden bg-slate-900/60 backdrop-blur-xs flex items-center justify-center p-4">
+    <div class="bg-white border border-slate-200 rounded-3xl max-w-lg w-full max-h-[90vh] overflow-y-auto p-6 shadow-2xl">
+        <div class="flex items-center justify-between border-b border-slate-100 pb-3 mb-4">
+            <h3 id="catalogModalTitle" class="font-display font-bold text-lg text-slate-900">Catalog Item Card</h3>
+            <button onclick="closeModal('catalogModal')" class="w-8 h-8 rounded-full bg-slate-100 text-slate-700 flex items-center justify-center">
+                <i class="fa-solid fa-xmark"></i>
+            </button>
+        </div>
+        <form onsubmit="submitCatalogForm(event)" class="space-y-3.5">
+            <input id="catEditIndex" type="hidden">
+            <div>
+                <label class="block text-xs font-bold text-slate-600 mb-1">Catalog Item Name</label>
+                <input id="catName" type="text" required placeholder="e.g. Custom Mug Set" class="w-full px-3.5 py-2.5 rounded-xl border border-slate-300 text-xs font-semibold">
+            </div>
+            <div class="grid grid-cols-2 gap-3">
+                <div>
+                    <label class="block text-xs font-bold text-slate-600 mb-1">Category</label>
+                    <input id="catCategory" type="text" required placeholder="CUSTOM GIFTS" class="w-full px-3.5 py-2.5 rounded-xl border border-slate-300 text-xs font-semibold">
+                </div>
+                <div>
+                    <label class="block text-xs font-bold text-slate-600 mb-1">Price (PKR)</label>
+                    <input id="catPrice" type="number" min="0" required class="w-full px-3.5 py-2.5 rounded-xl border border-slate-300 text-xs font-bold">
+                </div>
+            </div>
+
+            <!-- Gallery Upload for Catalog -->
+            <div class="p-3.5 rounded-2xl border-2 border-dashed border-orange-200 bg-orange-50/40 space-y-2.5">
+                <div class="flex items-center justify-between">
+                    <label class="text-xs font-extrabold text-orange-950 flex items-center gap-1.5">
+                        <i class="fa-solid fa-images text-blue-700"></i>
+                        <span>Upload Catalog Photo from Gallery</span>
+                    </label>
+                    <label class="cursor-pointer px-3 py-1.5 rounded-lg bg-orange-600 hover:bg-orange-700 text-white text-[11px] font-bold">
+                        <span>Choose Photo</span>
+                        <input type="file" accept="image/*" class="hidden" onchange="handleGalleryFile(event, 'catImage', 'catPreview')">
+                    </label>
+                </div>
+                <input id="catImage" type="text" placeholder="Selected gallery photo or image URL" class="w-full px-3 py-2 rounded-xl border border-slate-300 bg-white text-xs">
+                <div class="flex items-center gap-3">
+                    <img id="catPreview" src="" alt="Preview" class="w-16 h-16 rounded-xl object-cover border border-slate-200 bg-white hidden">
+                    <span id="catFileInfo" class="text-[11px] text-slate-600 font-medium">No gallery file selected yet</span>
+                </div>
+            </div>
+
+            <div>
+                <label class="block text-xs font-bold text-slate-600 mb-1">Description</label>
+                <textarea id="catDesc" rows="2" class="w-full px-3.5 py-2 rounded-xl border border-slate-300 text-xs"></textarea>
+            </div>
+
+            <div class="flex justify-end gap-2 pt-2">
+                <button type="button" onclick="closeModal('catalogModal')" class="px-4 py-2 rounded-xl border border-slate-200 text-xs font-bold text-slate-700">Cancel</button>
+                <button type="submit" class="px-5 py-2 rounded-xl erp-gradient-btn text-white text-xs font-extrabold shadow">Save Catalog Item</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- COLLECTION ADD / EDIT MODAL (WITH GALLERY IMAGE UPLOAD) -->
+<div id="collectionModal" class="fixed inset-0 z-[80] hidden bg-slate-900/60 backdrop-blur-xs flex items-center justify-center p-4">
+    <div class="bg-white border border-slate-200 rounded-3xl max-w-md w-full p-6 shadow-2xl">
+        <div class="flex items-center justify-between border-b border-slate-100 pb-3 mb-4">
+            <h3 id="collectionModalTitle" class="font-display font-bold text-lg text-slate-900">Collection Card</h3>
+            <button onclick="closeModal('collectionModal')" class="w-8 h-8 rounded-full bg-slate-100 text-slate-700 flex items-center justify-center">
+                <i class="fa-solid fa-xmark"></i>
+            </button>
+        </div>
+        <form onsubmit="submitCollectionForm(event)" class="space-y-3.5">
+            <input id="colEditIndex" type="hidden">
+            <div>
+                <label class="block text-xs font-bold text-slate-600 mb-1">Collection Name</label>
+                <input id="colName" type="text" required class="w-full px-3.5 py-2.5 rounded-xl border border-slate-300 text-xs font-semibold">
+            </div>
+            <div>
+                <label class="block text-xs font-bold text-slate-600 mb-1">Filter Tag</label>
+                <input id="colFilter" type="text" class="w-full px-3.5 py-2.5 rounded-xl border border-slate-300 text-xs font-semibold">
+            </div>
+            <div class="p-3 rounded-2xl border border-slate-200 bg-slate-50 space-y-2">
+                <div class="flex items-center justify-between">
+                    <span class="text-xs font-bold text-slate-700">Collection Photo</span>
+                    <label class="cursor-pointer px-3 py-1 rounded-lg bg-blue-700 text-white text-[11px] font-bold">
+                        <span>Gallery</span>
+                        <input type="file" accept="image/*" class="hidden" onchange="handleGalleryFile(event, 'colImage', 'colPreview')">
+                    </label>
+                </div>
+                <input id="colImage" type="text" required placeholder="Image URL or gallery photo" class="w-full px-3 py-2 rounded-xl border border-slate-300 bg-white text-xs">
+                <img id="colPreview" src="" alt="Preview" class="w-16 h-16 rounded-full object-cover border border-slate-300 hidden">
+            </div>
+            <div class="flex justify-end gap-2 pt-2">
+                <button type="button" onclick="closeModal('collectionModal')" class="px-4 py-2 rounded-xl border border-slate-200 text-xs font-bold text-slate-700">Cancel</button>
+                <button type="submit" class="px-5 py-2 rounded-xl erp-gradient-btn text-white text-xs font-extrabold shadow">Save Collection</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<script>
+const DEFAULT_ENDPOINT = "https://script.google.com/macros/s/AKfycbxDmDvjqGJRUWoLrWlY6M0T7XTW9N3nfSdEnE2Dycm8B7Jg_qdLjtj0YR0ca2Ghjs2a/exec";
+let API_ENDPOINT = localStorage.getItem("hy_erp_endpoint") || DEFAULT_ENDPOINT;
+
+const ERP_SESSION_KEY = "hy_erp_session_v1";
+const FALLBACK_ADMINS = [
+    { user: "admin", pass: "hystore123", role: "Super Admin" },
+    { user: "hystore", pass: "erp2026", role: "Operations Manager" }
+];
+
+let ERP_DATA = {
+    orders: [],
+    products: [],
+    catalog: [],
+    collections: [],
+    users: []
+};
+
+let currentOrderFilter = "ALL";
+let currentPage = "overview";
+
+function showToast(msg, isError = false) {
+    const box = document.getElementById("toastBox");
+    const txt = document.getElementById("toastText");
+    const icon = document.getElementById("toastIcon");
+    txt.textContent = msg;
+    icon.className = isError
+        ? "fa-solid fa-circle-exclamation text-red-400 text-base"
+        : "fa-solid fa-circle-check text-orange-400 text-base";
+    box.classList.remove("hidden");
+    clearTimeout(window._toastTimer);
+    window._toastTimer = setTimeout(() => box.classList.add("hidden"), 3200);
+}
+
+function togglePasswordVisibility() {
+    const inp = document.getElementById("loginPassword");
+    const ic = document.getElementById("passEyeIcon");
+    if (inp.type === "password") {
+        inp.type = "text";
+        ic.className = "fa-solid fa-eye-slash text-sm";
+    } else {
+        inp.type = "password";
+        ic.className = "fa-solid fa-eye text-sm";
+    }
+}
+
+async function handleLogin(e) {
+    e.preventDefault();
+    const u = document.getElementById("loginUsername").value.trim();
+    const p = document.getElementById("loginPassword").value;
+    const errBox = document.getElementById("loginError");
+    const btn = document.getElementById("loginBtn");
+
+    errBox.classList.add("hidden");
+    if (!u || !p) {
+        errBox.textContent = "Please enter both username and password.";
+        errBox.classList.remove("hidden");
+        return;
+    }
+
+    btn.disabled = true;
+    btn.innerHTML = `<i class="fa-solid fa-spinner fa-spin"></i><span>Verifying...</span>`;
+
+    let authenticated = null;
+
+    // 1. Check backend users if endpoint responds
+    try {
+        const res = await fetch(`${API_ENDPOINT}?action=getUsers`);
+        if (res.ok) {
+            const data = await res.json();
+            const list = Array.isArray(data.users) ? data.users : (Array.isArray(data) ? data : []);
+            const match = list.find(acc => {
+                const accUser = String(acc.username || acc.user || acc.email || "").trim().toLowerCase();
+                const accPass = String(acc.password || acc.pass || "");
+                const role = String(acc.role || acc.type || "").toLowerCase();
+                return accUser === u.toLowerCase() && accPass === p && (!role || role.includes("admin") || role.includes("staff") || role.includes("manager"));
+            });
+            if (match) {
+                authenticated = { user: u, role: match.role || "ERP Staff" };
+            }
+        }
+    } catch (err) {
+        // Fallback to configured admin credentials below
+    }
+
+    // 2. Check configured admin accounts
+    if (!authenticated) {
+        const localMatch = FALLBACK_ADMINS.find(a => a.user.toLowerCase() === u.toLowerCase() && a.pass === p);
+        if (localMatch) {
+            authenticated = { user: localMatch.user, role: localMatch.role };
+        }
+    }
+
+    btn.disabled = false;
+    btn.innerHTML = `<i class="fa-solid fa-right-to-bracket"></i><span>Sign In to ERP</span>`;
+
+    if (!authenticated) {
+        errBox.textContent = "Incorrect username or password.";
+        errBox.classList.remove("hidden");
+        return;
+    }
+
+    sessionStorage.setItem(ERP_SESSION_KEY, JSON.stringify({ ...authenticated, loginAt: Date.now() }));
+    enterERP(authenticated);
+}
+
+function enterERP(session) {
+    document.getElementById("loginScreen").classList.add("hidden");
+    document.getElementById("erpShell").classList.remove("hidden");
+    document.getElementById("activeUserBadge").textContent = `${session.user} • ${session.role}`;
+    document.getElementById("endpointInput").value = API_ENDPOINT;
+    switchPage("overview");
+    refreshAllERPData(false);
+}
+
+function logoutERP() {
+    sessionStorage.removeItem(ERP_SESSION_KEY);
+    document.getElementById("erpShell").classList.add("hidden");
+    document.getElementById("loginScreen").classList.remove("hidden");
+    document.getElementById("loginPassword").value = "";
+}
+
+function toggleMobileSidebar(open) {
+    const sb = document.getElementById("leftSidebar");
+    const bd = document.getElementById("sidebarBackdrop");
+    if (open) {
+        sb.classList.remove("-translate-x-full");
+        bd.classList.remove("hidden");
+    } else {
+        sb.classList.add("-translate-x-full");
+        bd.classList.add("hidden");
+    }
+}
+
+function switchPage(pageKey) {
+    currentPage = pageKey;
+    document.querySelectorAll(".erp-page").forEach(el => el.classList.add("hidden"));
+    const target = document.getElementById("page-" + pageKey);
+    if (target) target.classList.remove("hidden");
+
+    const titles = {
+        overview: "Dashboard Overview",
+        orders: "Orders Management",
+        products: "Products Inventory",
+        catalog: "Gift Catalog",
+        collections: "Collections",
+        users: "Customers & Accounts",
+        settings: "ERP Connection"
+    };
+    document.getElementById("pageTitle").textContent = titles[pageKey] || "HY STORE ERP";
+
+    document.querySelectorAll(".nav-link").forEach(btn => {
+        const active = btn.dataset.page === pageKey;
+        btn.className = active
+            ? "nav-link w-full flex items-center justify-between px-3.5 py-2.5 rounded-xl text-sm font-extrabold text-left erp-gradient-btn text-white shadow-sm transition"
+            : "nav-link w-full flex items-center justify-between px-3.5 py-2.5 rounded-xl text-sm font-bold text-left text-slate-700 hover:bg-slate-100 transition";
+    });
+
+    toggleMobileSidebar(false);
+    renderCurrentPageViews();
+}
+
+function closeModal(id) {
+    document.getElementById(id).classList.add("hidden");
+}
+
+function openViewModal(title, htmlContent) {
+    document.getElementById("viewModalTitle").textContent = title;
+    document.getElementById("viewModalBody").innerHTML = htmlContent;
+    document.getElementById("viewModal").classList.remove("hidden");
+}
+
+function handleGalleryFile(e, targetInputId, previewImgId) {
+    const file = e.target.files && e.target.files[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = function(evt) {
+        const dataUrl = evt.target.result;
+        const inp = document.getElementById(targetInputId);
+        if (inp) inp.value = dataUrl;
+        const prev = document.getElementById(previewImgId);
+        if (prev) {
+            prev.src = dataUrl;
+            prev.classList.remove("hidden");
+        }
+        if (targetInputId === "prodImage") {
+            document.getElementById("prodFileInfo").textContent = `${file.name} (${Math.round(file.size / 1024)} KB)`;
+        } else if (targetInputId === "catImage") {
+            document.getElementById("catFileInfo").textContent = `${file.name} (${Math.round(file.size / 1024)} KB)`;
+        }
+    };
+    reader.readAsDataURL(file);
+}
+
+async function safeFetchJson(url) {
+    const res = await fetch(url);
+    if (!res.ok) throw new Error("Network error");
+    return await res.json();
+}
+
+async function postToSheet(payload) {
+    try {
+        await fetch(API_ENDPOINT, {
+            method: "POST",
+            mode: "no-cors",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(payload)
+        });
+        return true;
+    } catch (err) {
+        return false;
+    }
+}
+
+async function refreshAllERPData(notify = false) {
+    const spin = document.getElementById("syncSpinIcon");
+    const statusLbl = document.getElementById("syncStatusLabel");
+    if (spin) spin.classList.add("fa-spin");
+    if (statusLbl) statusLbl.textContent = "Syncing with Google Sheet...";
+
+    // Load cached records first so UI stays immediate
+    const cached = localStorage.getItem("hy_erp_cache_v1");
+    if (cached) {
+        try {
+            const parsed = JSON.parse(cached);
+            ERP_DATA = { ...ERP_DATA, ...parsed };
+        } catch (err) {}
+    }
+
+    try {
+        const [prodData, catData, colData, ordData, usrData] = await Promise.allSettled([
+            safeFetchJson(`${API_ENDPOINT}?action=getProducts`),
+            safeFetchJson(`${API_ENDPOINT}?action=getCatalog`),
+            safeFetchJson(`${API_ENDPOINT}?action=getCollections`),
+            safeFetchJson(`${API_ENDPOINT}?action=getOrders`),
+            safeFetchJson(`${API_ENDPOINT}?action=getUsers`)
+        ]);
+
+        if (prodData.status === "fulfilled" && prodData.value) {
+            const list = Array.isArray(prodData.value.products) ? prodData.value.products : (Array.isArray(prodData.value) ? prodData.value : []);
+            ERP_DATA.products = list.map((p, i) => ({
+                id: p.id || (i + 1),
+                name: String(p.name || "").trim(),
+                category: String(p.category || "PERSONALIZED GIFTS").trim(),
+                badge: String(p.badge || "LIVE").trim(),
+                price: Number(p.price) || 0,
+                oldPrice: Number(p.oldPrice) || 0,
+                image: String(p.img || p.image || "").trim(),
+                desc: String(p.desc || "").trim()
+            })).filter(x => x.name);
+        }
+
+        if (catData.status === "fulfilled" && catData.value) {
+            const list = Array.isArray(catData.value.catalog) ? catData.value.catalog : (Array.isArray(catData.value.items) ? catData.value.items : (Array.isArray(catData.value) ? catData.value : []));
+            ERP_DATA.catalog = list.map((c, i) => ({
+                sr: c.sr || (i + 1),
+                name: String(c.name || c.title || "").trim(),
+                category: String(c.category || "CUSTOM GIFTS").trim(),
+                price: Number(c.price) || 0,
+                image: String(c.image || c.img || "").trim(),
+                desc: String(c.desc || "").trim()
+            })).filter(x => x.name);
+        }
+
+        if (colData.status === "fulfilled" && colData.value) {
+            const list = Array.isArray(colData.value.collections) ? colData.value.collections : (Array.isArray(colData.value) ? colData.value : []);
+            ERP_DATA.collections = list.map(c => ({
+                name: String(c.name || c.title || "").trim(),
+                filter: String(c.filter || c.category || c.name || "All").trim(),
+                image: String(c.image || c.img || "").trim()
+            })).filter(x => x.name);
+        }
+
+        if (ordData.status === "fulfilled" && ordData.value) {
+            const list = Array.isArray(ordData.value.orders) ? ordData.value.orders : (Array.isArray(ordData.value) ? ordData.value : []);
+            ERP_DATA.orders = list.map((o, idx) => ({
+                id: String(o.id || o.orderId || `ORD-${idx + 1}`).trim(),
+                name: String(o.name || o.customerName || "Customer").trim(),
+                phone: String(o.phone || o.mobile || "").trim(),
+                city: String(o.city || "").trim(),
+                address: String(o.address || "").trim(),
+                items: o.items || o.summary || o.product || "",
+                total: Number(o.total || o.amount || 0),
+                orderStatus: String(o.orderStatus || o.status || "Order Placed").trim(),
+                paymentStatus: String(o.paymentStatus || o.payStatus || "Pending").trim(),
+                method: String(o.method || o.paymentMethod || "").trim(),
+                trxId: String(o.trxId || o.transactionId || "").trim(),
+                date: String(o.date || o.createdAt || "").trim()
+            }));
+        }
+
+        if (usrData.status === "fulfilled" && usrData.value) {
+            const list = Array.isArray(usrData.value.users) ? usrData.value.users : (Array.isArray(usrData.value) ? usrData.value : []);
+            ERP_DATA.users = list;
+        }
+
+        localStorage.setItem("hy_erp_cache_v1", JSON.stringify(ERP_DATA));
+        if (statusLbl) statusLbl.textContent = `Synced at ${new Date().toLocaleTimeString()}`;
+        if (notify) showToast("ERP synced with Google Sheet");
+    } catch (err) {
+        if (statusLbl) statusLbl.textContent = "Showing local cached sheet records";
+        if (notify) showToast("Using cached records; check connection", true);
+    } finally {
+        if (spin) spin.classList.remove("fa-spin");
+        updateCountsAndStats();
+        renderCurrentPageViews();
+    }
+}
+
+function updateCountsAndStats() {
+    const ordersCount = ERP_DATA.orders.length;
+    const prodCount = ERP_DATA.products.length;
+    const catCount = ERP_DATA.catalog.length;
+    const revenue = ERP_DATA.orders.reduce((sum, o) => sum + (Number(o.total) || 0), 0);
+
+    document.getElementById("sidebarOrdersCount").textContent = ordersCount;
+    document.getElementById("sidebarProductsCount").textContent = prodCount;
+    document.getElementById("sidebarCatalogCount").textContent = catCount;
+
+    document.getElementById("statOrdersCount").textContent = ordersCount;
+    document.getElementById("statRevenue").textContent = `Rs. ${revenue.toLocaleString()}`;
+    document.getElementById("statProductsCount").textContent = prodCount;
+    document.getElementById("statCatalogCount").textContent = catCount;
+}
+
+function renderCurrentPageViews() {
+    if (currentPage === "overview") renderOverview();
+    if (currentPage === "orders") renderOrdersCards();
+    if (currentPage === "products") renderProductsCards();
+    if (currentPage === "catalog") renderCatalogCards();
+    if (currentPage === "collections") renderCollectionsCards();
+    if (currentPage === "users") renderUsersCards();
+}
+
+function paymentBadgeHTML(status) {
+    const s = String(status || "Pending");
+    const up = s.toUpperCase();
+    if (up.includes("VERIFIED") || up.includes("PAID")) {
+        return `<span class="px-2.5 py-1 rounded-full text-[11px] font-extrabold bg-blue-100 text-blue-800">${s}</span>`;
+    }
+    if (up.includes("REJECT")) {
+        return `<span class="px-2.5 py-1 rounded-full text-[11px] font-extrabold bg-red-100 text-red-700">${s}</span>`;
+    }
+    return `<span class="px-2.5 py-1 rounded-full text-[11px] font-extrabold bg-orange-100 text-orange-800">${s}</span>`;
+}
+
+function buildOrderCardHTML(order, index) {
+    const itemsText = Array.isArray(order.items)
+        ? order.items.map(i => `${i.name || i.title || "Item"} × ${i.qty || 1}`).join(", ")
+        : String(order.items || "Custom Order");
+
+    return `
+        <div class="bg-white border border-slate-200 hover:border-blue-400 rounded-2xl p-4 shadow-xs transition flex flex-col justify-between gap-3">
+            <div>
+                <div class="flex items-start justify-between gap-2 mb-2">
+                    <div>
+                        <span class="text-[11px] font-extrabold uppercase tracking-wider text-blue-700">Order #${order.id}</span>
+                        <h4 class="font-display font-bold text-base text-slate-900">${order.name}</h4>
+                    </div>
+                    <div class="flex items-center gap-1.5">
+                        <button onclick="viewOrderCard(${index})" title="View Order" aria-label="View Order" class="w-8 h-8 rounded-xl bg-blue-50 hover:bg-blue-600 text-blue-700 hover:text-white flex items-center justify-center transition">
+                            <i class="fa-solid fa-eye text-xs"></i>
+                        </button>
+                        <button onclick="openOrderEditModal(${index})" title="Edit Order" aria-label="Edit Order" class="w-8 h-8 rounded-xl bg-orange-50 hover:bg-orange-600 text-orange-700 hover:text-white flex items-center justify-center transition">
+                            <i class="fa-solid fa-pen-to-square text-xs"></i>
+                        </button>
+                    </div>
+                </div>
+
+                <div class="flex flex-wrap items-center gap-1.5 mb-2.5">
+                    <span class="px-2.5 py-1 rounded-full text-[11px] font-extrabold bg-slate-100 text-slate-800">${order.orderStatus}</span>
+                    ${paymentBadgeHTML(order.paymentStatus)}
+                </div>
+
+                <p class="text-xs text-slate-600 line-clamp-2 mb-2">${itemsText}</p>
+            </div>
+
+            <div class="pt-2.5 border-t border-slate-100 flex items-center justify-between text-xs">
+                <span class="text-slate-500 font-semibold"><i class="fa-solid fa-location-dot text-orange-600 mr-1"></i>${order.city || "Pakistan"}</span>
+                <span class="font-display font-bold text-sm text-slate-900">Rs. ${(Number(order.total) || 0).toLocaleString()}</span>
+            </div>
+        </div>
+    `;
+}
+
+function renderOverview() {
+    const box = document.getElementById("overviewRecentOrders");
+    const recent = ERP_DATA.orders.slice(0, 6);
+    if (!recent.length) {
+        box.innerHTML = `<div class="col-span-full py-8 text-center text-xs font-semibold text-slate-500 border border-dashed border-slate-200 rounded-2xl">No orders found yet. Orders placed on the store or synced from Google Sheet appear here as cards.</div>`;
+        return;
+    }
+    box.innerHTML = recent.map((o, i) => buildOrderCardHTML(o, i)).join("");
+}
+
+function setOrderFilter(filter) {
+    currentOrderFilter = filter;
+    document.querySelectorAll(".ofilter-btn").forEach(btn => {
+        const active = btn.dataset.ofilter === filter;
+        btn.className = active
+            ? "ofilter-btn px-3.5 py-1.5 rounded-full text-xs font-extrabold erp-gradient-btn text-white shadow-xs transition"
+            : "ofilter-btn px-3.5 py-1.5 rounded-full text-xs font-extrabold bg-slate-100 text-slate-700 hover:bg-slate-200 transition";
+    });
+    renderOrdersCards();
+}
+
+function renderOrdersCards() {
+    setOrderFilterStylesOnly();
+    const grid = document.getElementById("ordersCardsGrid");
+    const q = (document.getElementById("orderSearchInput")?.value || "").trim().toLowerCase();
+
+    const filtered = ERP_DATA.orders
+        .map((o, originalIndex) => ({ o, originalIndex }))
+        .filter(({ o }) => {
+            const payUp = String(o.paymentStatus || "").toUpperCase();
+            const ordUp = String(o.orderStatus || "").toUpperCase();
+            if (currentOrderFilter === "PENDING" && !(payUp.includes("PEND") || ordUp.includes("PLACED"))) return false;
+            if (currentOrderFilter === "VERIFIED" && !(payUp.includes("VERIF") || payUp.includes("PAID"))) return false;
+            if (currentOrderFilter === "DELIVERED" && !ordUp.includes("DELIVER")) return false;
+            if (!q) return true;
+            return [o.id, o.name, o.phone, o.city, o.orderStatus, o.paymentStatus].some(v => String(v || "").toLowerCase().includes(q));
+        });
+
+    if (!filtered.length) {
+        grid.innerHTML = `<div class="col-span-full py-10 text-center text-xs font-semibold text-slate-500 border border-dashed border-slate-200 rounded-2xl">No matching orders found.</div>`;
+        return;
+    }
+    grid.innerHTML = filtered.map(({ o, originalIndex }) => buildOrderCardHTML(o, originalIndex)).join("");
+}
+
+function setOrderFilterStylesOnly() {
+    document.querySelectorAll(".ofilter-btn").forEach(btn => {
+        const active = btn.dataset.ofilter === currentOrderFilter;
+        btn.className = active
+            ? "ofilter-btn px-3.5 py-1.5 rounded-full text-xs font-extrabold erp-gradient-btn text-white shadow-xs transition"
+            : "ofilter-btn px-3.5 py-1.5 rounded-full text-xs font-extrabold bg-slate-100 text-slate-700 hover:bg-slate-200 transition";
+    });
+}
+
+function viewOrderCard(index) {
+    const o = ERP_DATA.orders[index];
+    if (!o) return;
+    const itemsText = Array.isArray(o.items)
+        ? o.items.map(i => `• ${i.name || i.title || "Item"} × ${i.qty || 1}`).join("<br>")
+        : String(o.items || "Custom Order");
+
+    openViewModal(`Order #${o.id}`, `
+        <div class="space-y-2.5 text-xs">
+            <div class="flex justify-between py-1.5 border-b border-slate-100"><span class="font-bold text-slate-500">Customer</span><span class="font-extrabold text-slate-900">${o.name}</span></div>
+            <div class="flex justify-between py-1.5 border-b border-slate-100"><span class="font-bold text-slate-500">Phone</span><span class="font-semibold">${o.phone || "-"}</span></div>
+            <div class="flex justify-between py-1.5 border-b border-slate-100"><span class="font-bold text-slate-500">City / Address</span><span class="font-semibold text-right max-w-[65%]">${o.city || ""} ${o.address || ""}</span></div>
+            <div class="flex justify-between py-1.5 border-b border-slate-100"><span class="font-bold text-slate-500">Order Status</span><span class="font-extrabold text-blue-700">${o.orderStatus}</span></div>
+            <div class="flex justify-between py-1.5 border-b border-slate-100"><span class="font-bold text-slate-500">Payment</span><span class="font-extrabold text-orange-700">${o.paymentStatus} ${o.method ? `(${o.method})` : ""}</span></div>
+            <div class="flex justify-between py-1.5 border-b border-slate-100"><span class="font-bold text-slate-500">Transaction ID</span><span class="font-mono font-bold">${o.trxId || "-"}</span></div>
+            <div class="py-1.5"><div class="font-bold text-slate-500 mb-1">Items</div><div class="p-3 rounded-xl bg-slate-50 text-slate-800 leading-relaxed">${itemsText}</div></div>
+            <div class="flex justify-between pt-2 border-t border-slate-200 text-sm"><span class="font-extrabold">Total Amount</span><span class="font-display font-bold text-blue-800">Rs. ${(Number(o.total) || 0).toLocaleString()}</span></div>
+        </div>
+    `);
+}
+
+function openOrderEditModal(index) {
+    const o = ERP_DATA.orders[index];
+    if (!o) return;
+    document.getElementById("editOrderId").value = index;
+    document.getElementById("editOrderIdDisplay").value = o.id;
+    document.getElementById("editOrderStatus").value = o.orderStatus || "Order Placed";
+    document.getElementById("editPaymentStatus").value = o.paymentStatus || "Pending";
+    document.getElementById("orderEditModal").classList.remove("hidden");
+}
+
+async function submitOrderEdit(e) {
+    e.preventDefault();
+    const idx = Number(document.getElementById("editOrderId").value);
+    const o = ERP_DATA.orders[idx];
+    if (!o) return;
+
+    o.orderStatus = document.getElementById("editOrderStatus").value;
+    o.paymentStatus = document.getElementById("editPaymentStatus").value;
+
+    localStorage.setItem("hy_erp_cache_v1", JSON.stringify(ERP_DATA));
+    closeModal("orderEditModal");
+    updateCountsAndStats();
+    renderCurrentPageViews();
+    showToast(`Order #${o.id} updated`);
+
+    await postToSheet({
+        action: "updateOrderStatus",
+        orderId: o.id,
+        status: o.orderStatus,
+        paymentStatus: o.paymentStatus
+    });
+}
+
+function renderProductsCards() {
+    const grid = document.getElementById("productsCardsGrid");
+    if (!ERP_DATA.products.length) {
+        grid.innerHTML = `<div class="col-span-full py-10 text-center text-xs font-semibold text-slate-500 border border-dashed border-slate-200 rounded-2xl">No products in sheet yet. Click "Add Product (Gallery Upload)" to create one.</div>`;
+        return;
+    }
+
+    grid.innerHTML = ERP_DATA.products.map((p, idx) => `
+        <div class="bg-white border border-slate-200 hover:border-orange-400 rounded-2xl overflow-hidden shadow-xs flex flex-col justify-between transition">
+            <div>
+                <div class="h-44 bg-slate-100 relative overflow-hidden">
+                    ${p.image ? `<img src="${p.image}" alt="${p.name}" class="w-full h-full object-cover">` : `<div class="w-full h-full flex items-center justify-center text-xs font-bold text-slate-400">No Image</div>`}
+                    <span class="absolute top-2.5 left-2.5 px-2.5 py-0.5 rounded-full text-[10px] font-extrabold bg-white/95 text-blue-800 shadow">${p.badge || "LIVE"}</span>
+                </div>
+                <div class="p-4">
+                    <div class="flex items-start justify-between gap-2">
+                        <div class="min-w-0">
+                            <span class="text-[10px] font-extrabold uppercase tracking-wider text-orange-600">${p.category}</span>
+                            <h4 class="font-display font-bold text-base text-slate-900 truncate">${p.name}</h4>
+                        </div>
+                        <div class="flex items-center gap-1 flex-shrink-0">
+                            <button onclick="viewProductCard(${idx})" title="View Product" aria-label="View Product" class="w-8 h-8 rounded-xl bg-blue-50 hover:bg-blue-600 text-blue-700 hover:text-white flex items-center justify-center transition">
+                                <i class="fa-solid fa-eye text-xs"></i>
+                            </button>
+                            <button onclick="openProductModal(${idx})" title="Edit Product" aria-label="Edit Product" class="w-8 h-8 rounded-xl bg-orange-50 hover:bg-orange-600 text-orange-700 hover:text-white flex items-center justify-center transition">
+                                <i class="fa-solid fa-pen-to-square text-xs"></i>
+                            </button>
+                        </div>
+                    </div>
+                    <p class="text-xs text-slate-500 line-clamp-2 mt-1.5">${p.desc || ""}</p>
+                </div>
+            </div>
+            <div class="px-4 py-3 bg-slate-50 border-t border-slate-100 flex items-center justify-between">
+                <span class="font-display font-bold text-sm text-slate-900">Rs. ${(Number(p.price) || 0).toLocaleString()}</span>
+                ${p.oldPrice ? `<span class="text-xs line-through text-slate-400">Rs. ${Number(p.oldPrice).toLocaleString()}</span>` : `<span class="text-[11px] font-bold text-blue-700">Active</span>`}
+            </div>
+        </div>
+    `).join("");
+}
+
+function viewProductCard(idx) {
+    const p = ERP_DATA.products[idx];
+    if (!p) return;
+    openViewModal(p.name, `
+        <div class="space-y-3 text-xs">
+            ${p.image ? `<img src="${p.image}" alt="${p.name}" class="w-full h-52 object-cover rounded-2xl border border-slate-200">` : ""}
+            <div class="flex justify-between"><span class="font-bold text-slate-500">Category</span><span class="font-extrabold text-blue-800">${p.category}</span></div>
+            <div class="flex justify-between"><span class="font-bold text-slate-500">Price</span><span class="font-extrabold text-orange-700">Rs. ${(Number(p.price) || 0).toLocaleString()}</span></div>
+            <p class="text-slate-700 bg-slate-50 p-3 rounded-xl leading-relaxed">${p.desc || "No description provided."}</p>
+        </div>
+    `);
+}
+
+function openProductModal(idx) {
+    document.getElementById("prodEditIndex").value = idx === null ? "" : idx;
+    document.getElementById("productModalTitle").textContent = idx === null ? "Add Product" : "Edit Product";
+    const prev = document.getElementById("prodPreview");
+
+    if (idx === null) {
+        document.getElementById("prodId").value = Date.now();
+        document.getElementById("prodName").value = "";
+        document.getElementById("prodCategory").value = "PERSONALIZED GIFTS";
+        document.getElementById("prodBadge").value = "BESTSELLER";
+        document.getElementById("prodPrice").value = "";
+        document.getElementById("prodOldPrice").value = "";
+        document.getElementById("prodImage").value = "";
+        document.getElementById("prodDesc").value = "";
+        document.getElementById("prodFileInfo").textContent = "No gallery file selected yet";
+        prev.classList.add("hidden");
+    } else {
+        const p = ERP_DATA.products[idx];
+        document.getElementById("prodId").value = p.id;
+        document.getElementById("prodName").value = p.name;
+        document.getElementById("prodCategory").value = p.category;
+        document.getElementById("prodBadge").value = p.badge || "";
+        document.getElementById("prodPrice").value = p.price;
+        document.getElementById("prodOldPrice").value = p.oldPrice || "";
+        document.getElementById("prodImage").value = p.image || "";
+        document.getElementById("prodDesc").value = p.desc || "";
+        document.getElementById("prodFileInfo").textContent = p.image ? "Current photo loaded" : "No photo";
+        if (p.image) {
+            prev.src = p.image;
+            prev.classList.remove("hidden");
+        } else {
+            prev.classList.add("hidden");
+        }
+    }
+    document.getElementById("productModal").classList.remove("hidden");
+}
+
+async function submitProductForm(e) {
+    e.preventDefault();
+    const rawIdx = document.getElementById("prodEditIndex").value;
+    const item = {
+        id: document.getElementById("prodId").value || Date.now(),
+        name: document.getElementById("prodName").value.trim(),
+        category: document.getElementById("prodCategory").value.trim(),
+        badge: document.getElementById("prodBadge").value.trim() || "LIVE",
+        price: Number(document.getElementById("prodPrice").value) || 0,
+        oldPrice: Number(document.getElementById("prodOldPrice").value) || 0,
+        image: document.getElementById("prodImage").value.trim(),
+        desc: document.getElementById("prodDesc").value.trim()
+    };
+
+    if (rawIdx === "") {
+        ERP_DATA.products.unshift(item);
+    } else {
+        ERP_DATA.products[Number(rawIdx)] = item;
+    }
+
+    localStorage.setItem("hy_erp_cache_v1", JSON.stringify(ERP_DATA));
+    closeModal("productModal");
+    updateCountsAndStats();
+    renderProductsCards();
+    showToast("Product card saved & synced");
+
+    await postToSheet({ action: rawIdx === "" ? "addProduct" : "updateProduct", product: item });
+}
+
+function renderCatalogCards() {
+    const grid = document.getElementById("catalogCardsGrid");
+    if (!ERP_DATA.catalog.length) {
+        grid.innerHTML = `<div class="col-span-full py-10 text-center text-xs font-semibold text-slate-500 border border-dashed border-slate-200 rounded-2xl">No catalog items found. Click "Add Catalog Item (Gallery Upload)" to add one.</div>`;
+        return;
+    }
+
+    grid.innerHTML = ERP_DATA.catalog.map((c, idx) => `
+        <div class="bg-white border border-slate-200 hover:border-blue-400 rounded-2xl overflow-hidden shadow-xs flex flex-col justify-between transition">
+            <div>
+                <div class="h-44 bg-slate-100 overflow-hidden">
+                    ${c.image ? `<img src="${c.image}" alt="${c.name}" class="w-full h-full object-cover">` : `<div class="w-full h-full flex items-center justify-center text-xs font-bold text-slate-400">No Photo</div>`}
+                </div>
+                <div class="p-4">
+                    <div class="flex items-start justify-between gap-2">
+                        <div class="min-w-0">
+                            <span class="text-[10px] font-extrabold uppercase tracking-wider text-blue-700">${c.category}</span>
+                            <h4 class="font-display font-bold text-base text-slate-900 truncate">${c.name}</h4>
+                        </div>
+                        <div class="flex items-center gap-1 flex-shrink-0">
+                            <button onclick="viewCatalogCard(${idx})" title="View Catalog Item" aria-label="View Catalog Item" class="w-8 h-8 rounded-xl bg-blue-50 hover:bg-blue-600 text-blue-700 hover:text-white flex items-center justify-center transition">
+                                <i class="fa-solid fa-eye text-xs"></i>
+                            </button>
+                            <button onclick="openCatalogModal(${idx})" title="Edit Catalog Item" aria-label="Edit Catalog Item" class="w-8 h-8 rounded-xl bg-orange-50 hover:bg-orange-600 text-orange-700 hover:text-white flex items-center justify-center transition">
+                                <i class="fa-solid fa-pen-to-square text-xs"></i>
+                            </button>
+                        </div>
+                    </div>
+                    <p class="text-xs text-slate-500 line-clamp-2 mt-1.5">${c.desc || ""}</p>
+                </div>
+            </div>
+            <div class="px-4 py-3 bg-slate-50 border-t border-slate-100 flex items-center justify-between">
+                <span class="text-[11px] font-bold text-slate-500">#${c.sr || (idx + 1)}</span>
+                <span class="font-display font-bold text-sm text-orange-700">Rs. ${(Number(c.price) || 0).toLocaleString()}</span>
+            </div>
+        </div>
+    `).join("");
+}
+
+function viewCatalogCard(idx) {
+    const c = ERP_DATA.catalog[idx];
+    if (!c) return;
+    openViewModal(c.name, `
+        <div class="space-y-3 text-xs">
+            ${c.image ? `<img src="${c.image}" alt="${c.name}" class="w-full h-52 object-cover rounded-2xl border border-slate-200">` : ""}
+            <div class="flex justify-between"><span class="font-bold text-slate-500">Category</span><span class="font-extrabold text-blue-800">${c.category}</span></div>
+            <div class="flex justify-between"><span class="font-bold text-slate-500">Price</span><span class="font-extrabold text-orange-700">Rs. ${(Number(c.price) || 0).toLocaleString()}</span></div>
+            <p class="text-slate-700 bg-slate-50 p-3 rounded-xl leading-relaxed">${c.desc || ""}</p>
+        </div>
+    `);
+}
+
+function openCatalogModal(idx) {
+    document.getElementById("catEditIndex").value = idx === null ? "" : idx;
+    document.getElementById("catalogModalTitle").textContent = idx === null ? "Add Catalog Item" : "Edit Catalog Item";
+    const prev = document.getElementById("catPreview");
+
+    if (idx === null) {
+        document.getElementById("catName").value = "";
+        document.getElementById("catCategory").value = "CUSTOM GIFTS";
+        document.getElementById("catPrice").value = "";
+        document.getElementById("catImage").value = "";
+        document.getElementById("catDesc").value = "";
+        document.getElementById("catFileInfo").textContent = "No gallery file selected yet";
+        prev.classList.add("hidden");
+    } else {
+        const c = ERP_DATA.catalog[idx];
+        document.getElementById("catName").value = c.name;
+        document.getElementById("catCategory").value = c.category;
+        document.getElementById("catPrice").value = c.price;
+        document.getElementById("catImage").value = c.image || "";
+        document.getElementById("catDesc").value = c.desc || "";
+        document.getElementById("catFileInfo").textContent = c.image ? "Photo loaded" : "No photo";
+        if (c.image) {
+            prev.src = c.image;
+            prev.classList.remove("hidden");
+        } else {
+            prev.classList.add("hidden");
+        }
+    }
+    document.getElementById("catalogModal").classList.remove("hidden");
+}
+
+async function submitCatalogForm(e) {
+    e.preventDefault();
+    const rawIdx = document.getElementById("catEditIndex").value;
+    const item = {
+        sr: rawIdx === "" ? ERP_DATA.catalog.length + 1 : (ERP_DATA.catalog[Number(rawIdx)].sr || Number(rawIdx) + 1),
+        name: document.getElementById("catName").value.trim(),
+        category: document.getElementById("catCategory").value.trim(),
+        price: Number(document.getElementById("catPrice").value) || 0,
+        image: document.getElementById("catImage").value.trim(),
+        desc: document.getElementById("catDesc").value.trim()
+    };
+
+    if (rawIdx === "") {
+        ERP_DATA.catalog.unshift(item);
+    } else {
+        ERP_DATA.catalog[Number(rawIdx)] = item;
+    }
+
+    localStorage.setItem("hy_erp_cache_v1", JSON.stringify(ERP_DATA));
+    closeModal("catalogModal");
+    updateCountsAndStats();
+    renderCatalogCards();
+    showToast("Catalog card saved & synced");
+
+    await postToSheet({ action: rawIdx === "" ? "addCatalog" : "updateCatalog", catalog: item });
+}
+
+function renderCollectionsCards() {
+    const grid = document.getElementById("collectionsCardsGrid");
+    if (!ERP_DATA.collections.length) {
+        grid.innerHTML = `<div class="col-span-full py-10 text-center text-xs font-semibold text-slate-500 border border-dashed border-slate-200 rounded-2xl">No collections synced yet.</div>`;
+        return;
+    }
+
+    grid.innerHTML = ERP_DATA.collections.map((col, idx) => `
+        <div class="bg-white border border-slate-200 rounded-2xl p-4 flex items-center justify-between gap-3 shadow-xs">
+            <div class="flex items-center gap-3 min-w-0">
+                ${col.image ? `<img src="${col.image}" alt="${col.name}" class="w-14 h-14 rounded-full object-cover border-2 border-orange-500 flex-shrink-0">` : `<div class="w-14 h-14 rounded-full bg-slate-100 flex items-center justify-center text-xs font-bold text-slate-400 flex-shrink-0">HY</div>`}
+                <div class="min-w-0">
+                    <h4 class="font-display font-bold text-sm text-slate-900 truncate">${col.name}</h4>
+                    <p class="text-[11px] font-semibold text-blue-700 truncate">${col.filter || col.name}</p>
+                </div>
+            </div>
+            <div class="flex items-center gap-1 flex-shrink-0">
+                <button onclick="viewCollectionCard(${idx})" title="View" class="w-8 h-8 rounded-xl bg-blue-50 text-blue-700 hover:bg-blue-600 hover:text-white flex items-center justify-center transition">
+                    <i class="fa-solid fa-eye text-xs"></i>
+                </button>
+                <button onclick="openCollectionModal(${idx})" title="Edit" class="w-8 h-8 rounded-xl bg-orange-50 text-orange-700 hover:bg-orange-600 hover:text-white flex items-center justify-center transition">
+                    <i class="fa-solid fa-pen-to-square text-xs"></i>
+                </button>
+            </div>
+        </div>
+    `).join("");
+}
+
+function viewCollectionCard(idx) {
+    const col = ERP_DATA.collections[idx];
+    if (!col) return;
+    openViewModal(col.name, `
+        <div class="space-y-3 text-xs text-center">
+            ${col.image ? `<img src="${col.image}" alt="${col.name}" class="w-28 h-28 rounded-full object-cover mx-auto border-2 border-blue-600">` : ""}
+            <div class="font-extrabold text-slate-900 text-sm">${col.name}</div>
+            <div class="text-blue-700 font-bold">Filter: ${col.filter || col.name}</div>
+        </div>
+    `);
+}
+
+function openCollectionModal(idx) {
+    document.getElementById("colEditIndex").value = idx === null ? "" : idx;
+    document.getElementById("collectionModalTitle").textContent = idx === null ? "Add Collection" : "Edit Collection";
+    const prev = document.getElementById("colPreview");
+    if (idx === null) {
+        document.getElementById("colName").value = "";
+        document.getElementById("colFilter").value = "";
+        document.getElementById("colImage").value = "";
+        prev.classList.add("hidden");
+    } else {
+        const col = ERP_DATA.collections[idx];
+        document.getElementById("colName").value = col.name;
+        document.getElementById("colFilter").value = col.filter || col.name;
+        document.getElementById("colImage").value = col.image || "";
+        if (col.image) {
+            prev.src = col.image;
+            prev.classList.remove("hidden");
+        } else {
+            prev.classList.add("hidden");
+        }
+    }
+    document.getElementById("collectionModal").classList.remove("hidden");
+}
+
+async function submitCollectionForm(e) {
+    e.preventDefault();
+    const rawIdx = document.getElementById("colEditIndex").value;
+    const item = {
+        name: document.getElementById("colName").value.trim(),
+        filter: document.getElementById("colFilter").value.trim() || document.getElementById("colName").value.trim(),
+        image: document.getElementById("colImage").value.trim()
+    };
+    if (rawIdx === "") {
+        ERP_DATA.collections.unshift(item);
+    } else {
+        ERP_DATA.collections[Number(rawIdx)] = item;
+    }
+    localStorage.setItem("hy_erp_cache_v1", JSON.stringify(ERP_DATA));
+    closeModal("collectionModal");
+    renderCollectionsCards();
+    showToast("Collection saved");
+    await postToSheet({ action: "saveCollection", collection: item });
+}
+
+function renderUsersCards() {
+    const grid = document.getElementById("usersCardsGrid");
+    if (!ERP_DATA.users.length) {
+        grid.innerHTML = `<div class="col-span-full py-10 text-center text-xs font-semibold text-slate-500 border border-dashed border-slate-200 rounded-2xl">No customer records returned from sheet yet.</div>`;
+        return;
+    }
+    grid.innerHTML = ERP_DATA.users.map(u => `
+        <div class="bg-white border border-slate-200 rounded-2xl p-4 shadow-xs space-y-1.5">
+            <div class="font-display font-bold text-base text-slate-900">${u.name || u.username || "Customer"}</div>
+            <div class="text-xs text-slate-600"><i class="fa-solid fa-phone text-blue-700 mr-1.5"></i>${u.phone || "-"}</div>
+            <div class="text-xs text-slate-600"><i class="fa-solid fa-envelope text-orange-600 mr-1.5"></i>${u.email || "-"}</div>
+            <div class="text-[11px] font-bold text-blue-800 pt-1">${u.role || "Customer Account"}</div>
+        </div>
+    `).join("");
+}
+
+function saveEndpointConfig() {
+    const val = document.getElementById("endpointInput").value.trim();
+    if (!val) return;
+    API_ENDPOINT = val;
+    localStorage.setItem("hy_erp_endpoint", val);
+    showToast("Endpoint saved");
+    refreshAllERPData(true);
+}
+
+async function testEndpointConnection() {
+    try {
+        await fetch(`${API_ENDPOINT}?action=getProducts`);
+        showToast("Endpoint reachable");
+    } catch (err) {
+        showToast("Check Web App URL or deployment access", true);
+    }
+}
+
+(function init() {
+    const rawSession = sessionStorage.getItem(ERP_SESSION_KEY);
+    if (rawSession) {
+        try {
+            const parsed = JSON.parse(rawSession);
+            if (parsed && parsed.user) {
+                enterERP(parsed);
+                return;
+            }
+        } catch (err) {}
+    }
+})();
+</script>
+</body>
+</html>
