@@ -121,17 +121,77 @@
                 width: 65%;
             }
         }
+    
+        /* ==================== GIFT BOX & FALLING SPARKLES ANIMATION ==================== */
+        @keyframes giftSparkleFall {
+            0% { transform: translateY(-28px) scale(0.5) rotate(0deg); opacity: 0; }
+            20% { opacity: 1; }
+            85% { opacity: 1; }
+            100% { transform: translateY(58px) scale(1.15) rotate(180deg); opacity: 0; }
+        }
+        @keyframes giftBounceSoft {
+            0%, 100% { transform: translateY(0) scale(1); }
+            50% { transform: translateY(-7px) scale(1.06); }
+        }
+        @keyframes drawerReveal {
+            from { opacity: 0; transform: translateY(-8px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .gift-sparkle-item {
+            position: absolute;
+            animation: giftSparkleFall 1.35s cubic-bezier(0.22, 1, 0.36, 1) infinite;
+        }
+        .gift-box-anim {
+            animation: giftBounceSoft 1.5s ease-in-out infinite;
+        }
+        .inline-review-drawer-anim {
+            animation: drawerReveal 0.26s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+        }
+        .top-nav-btn {
+            color: #FFFFFF !important;
+            background: transparent;
+            border: 1px solid rgba(255, 255, 255, 0.22);
+            border-radius: 9999px;
+            transition: all 0.22s ease;
+        }
+        .top-nav-btn:hover {
+            background: rgba(255, 255, 255, 0.16);
+            color: #FFFFFF !important;
+        }
+        .top-nav-btn.is-active-yellow {
+            background-color: #FDE047 !important;
+            color: #8A0404 !important;
+            border-color: #FDE047 !important;
+            box-shadow: 0 6px 18px rgba(253, 224, 71, 0.38);
+        }
+        .catalog-luxury-card {
+            transition: transform 0.28s cubic-bezier(0.22, 1, 0.36, 1), box-shadow 0.28s ease, border-color 0.28s ease;
+        }
+        .catalog-luxury-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 18px 36px -10px rgba(185, 8, 8, 0.16);
+            border-color: #D90B0B;
+        }
     </style>
 </head>
 <body class="bg-white text-[#8A0404] font-sans antialiased overflow-x-hidden selection:bg-[#D90B0B] selection:text-white min-h-screen flex flex-col justify-between">
 
-    <!-- GLOBAL LOADER (ONLY FOR LONG NETWORK/BACKEND ACTIONS) -->
-    <div id="global-loader" class="fixed inset-0 bg-[#9E0606]/95 backdrop-blur-md z-50 flex-col items-center justify-center space-y-4">
-        <div class="w-24 h-24 rounded-full bg-white shadow-xl flex items-center justify-center overflow-hidden p-2">
-            <img src="./favicon.png" alt="HY GIFTS Logo" class="w-full h-full object-contain">
+    <!-- GLOBAL LOADER (ANIMATED GIFT BOX + FALLING SPARKLES FOR LOGIN, AUTH & ACTIONS) -->
+    <div id="global-loader" class="fixed inset-0 bg-[#9E0606]/95 backdrop-blur-md z-50 flex-col items-center justify-center space-y-3 px-4">
+        <div class="relative w-28 h-28 flex items-center justify-center">
+            <!-- Falling sparkles / confetti -->
+            <span class="gift-sparkle-item top-1 left-4 text-hyGold text-xs" style="animation-delay: 0s;"><i class="fa-solid fa-sparkles"></i></span>
+            <span class="gift-sparkle-item top-0 left-1/2 text-white text-[11px]" style="animation-delay: 0.25s;"><i class="fa-solid fa-star"></i></span>
+            <span class="gift-sparkle-item top-2 right-4 text-hyGold text-xs" style="animation-delay: 0.5s;"><i class="fa-solid fa-sparkles"></i></span>
+            <span class="gift-sparkle-item top-4 left-8 text-amber-200 text-[10px]" style="animation-delay: 0.75s;"><i class="fa-solid fa-circle"></i></span>
+            <span class="gift-sparkle-item top-3 right-8 text-white text-[10px]" style="animation-delay: 1.0s;"><i class="fa-solid fa-star"></i></span>
+
+            <!-- Gift Box Vector -->
+            <div class="gift-box-anim w-16 h-16 rounded-2xl bg-gradient-to-br from-[#FDE047] via-[#FACC15] to-[#EAB308] border-2 border-white shadow-2xl flex items-center justify-center relative">
+                <i class="fa-solid fa-gift text-3xl text-[#B90808]"></i>
+            </div>
         </div>
-        <span class="font-display font-extrabold text-sm tracking-[0.22em] text-white uppercase">HY GIFTS</span>
-        <p id="loader-text" class="text-xs font-display font-bold uppercase tracking-widest text-hyGold animate-pulse">Processing...</p>
+        <p id="loader-text" class="font-display font-semibold text-base sm:text-lg tracking-[0.14em] text-white text-center">Loading...</p>
     </div>
 
     <!-- TOAST NOTIFICATION CONTAINER -->
@@ -163,7 +223,7 @@
                 </div>
             </div>
 
-            <!-- Center: Custom Geometric 'HY' Monogram Logo + HY GIFTS (APNA DESIGN YAHAN BHI LAGAYEIN) -->
+            <!-- Center: Custom Geometric 'HY' Monogram Logo + HY GIFTS -->
             <a href="#/home" onclick="navigate('#/home')" class="flex flex-col items-center justify-center group focus:outline-none shrink-0 lg:px-4">
                 <div id="hyHeaderLogoBox" class="w-12 h-12 sm:w-14 sm:h-14 lg:w-11 lg:h-11 flex items-center justify-center transition-transform duration-300 group-hover:scale-105">
                     <img src="./favicon.png" onerror="this.style.display='none'; this.nextElementSibling.style.display='block';" alt="HY GIFTS" class="w-full h-full object-contain rounded-lg">
@@ -221,25 +281,13 @@
         <!-- DESKTOP SINGLE-LINE NAVIGATION STRIP DIRECTLY BELOW LOGO NAME -->
         <div class="hidden lg:block bg-[#A80505]/95 border-t border-white/20">
             <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-                <nav aria-label="Desktop Primary Navigation" class="flex flex-row flex-nowrap items-center justify-center gap-2 xl:gap-4 py-2 text-xs font-display font-bold uppercase tracking-wider">
-                    <a href="#/home" id="nav-home" onclick="navigate('#/home')" class="nav-link desktop-nav-link bg-white text-[#D90B0B] hover:bg-hyGold hover:text-[#8A0404] transition px-4 py-2 rounded-full whitespace-nowrap shrink-0 shadow-xs">
-                        <i class="fa-solid fa-house mr-1.5 text-[11px] text-[#D90B0B]"></i>Home
-                    </a>
-                    <a href="#/services" id="nav-services" onclick="navigate('#/services')" class="nav-link desktop-nav-link bg-white text-[#D90B0B] hover:bg-hyGold hover:text-[#8A0404] transition px-4 py-2 rounded-full whitespace-nowrap shrink-0 shadow-xs">
-                        <i class="fa-solid fa-layer-group mr-1.5 text-[11px] text-[#D90B0B]"></i>Catalog
-                    </a>
-                    <a href="#/products" id="nav-products" onclick="navigate('#/products')" class="nav-link desktop-nav-link bg-white text-[#D90B0B] hover:bg-hyGold hover:text-[#8A0404] transition px-4 py-2 rounded-full whitespace-nowrap shrink-0 shadow-xs">
-                        <i class="fa-solid fa-gift mr-1.5 text-[11px] text-[#D90B0B]"></i>Products
-                    </a>
-                    <a href="#/track" id="nav-track" onclick="navigate('#/track')" class="nav-link desktop-nav-link bg-white text-[#D90B0B] hover:bg-hyGold hover:text-[#8A0404] transition px-4 py-2 rounded-full whitespace-nowrap shrink-0 inline-flex items-center shadow-xs">
-                        <i class="fa-solid fa-location-dot mr-1.5 text-[11px] text-[#D90B0B]"></i>Track Order
-                    </a>
-                    <a href="#/contact" id="nav-contact" onclick="navigate('#/contact')" class="nav-link desktop-nav-link bg-white text-[#D90B0B] hover:bg-hyGold hover:text-[#8A0404] transition px-4 py-2 rounded-full whitespace-nowrap shrink-0 shadow-xs">
-                        <i class="fa-solid fa-headset mr-1.5 text-[11px] text-[#D90B0B]"></i>Contact
-                    </a>
-                    <a href="https://amzprints.com" target="_blank" rel="noopener noreferrer" class="desktop-nav-link bg-white text-[#D90B0B] hover:bg-hyGold hover:text-[#8A0404] transition px-4 py-2 rounded-full whitespace-nowrap shrink-0 inline-flex items-center shadow-xs">
-                        Printing Services <i class="fa-solid fa-arrow-up-right-from-square ml-1.5 text-[10px] text-[#D90B0B]"></i>
-                    </a>
+                <nav id="desktopTopNav" aria-label="Desktop Primary Navigation" class="flex flex-row flex-nowrap items-center justify-center gap-2 xl:gap-4 py-2 text-xs font-display font-bold uppercase tracking-wider">
+                    <a href="#/home" id="nav-home" onclick="handleTopNavClick(event, '#/home', this)" class="nav-link desktop-nav-link top-nav-btn is-active-yellow px-4 py-2 whitespace-nowrap shrink-0">Home</a>
+                    <a href="#/services" id="nav-services" onclick="handleTopNavClick(event, '#/services', this)" class="nav-link desktop-nav-link top-nav-btn px-4 py-2 whitespace-nowrap shrink-0">Catalog</a>
+                    <a href="#/products" id="nav-products" onclick="handleTopNavClick(event, '#/products', this)" class="nav-link desktop-nav-link top-nav-btn px-4 py-2 whitespace-nowrap shrink-0">Products</a>
+                    <a href="#/track" id="nav-track" onclick="handleTopNavClick(event, '#/track', this)" class="nav-link desktop-nav-link top-nav-btn px-4 py-2 whitespace-nowrap shrink-0 inline-flex items-center">Track Order</a>
+                    <a href="#/contact" id="nav-contact" onclick="handleTopNavClick(event, '#/contact', this)" class="nav-link desktop-nav-link top-nav-btn px-4 py-2 whitespace-nowrap shrink-0">Contact</a>
+                    <a href="https://amzprints.com" target="_blank" rel="noopener noreferrer" onclick="setActiveYellowNav(this)" class="desktop-nav-link top-nav-btn px-4 py-2 whitespace-nowrap shrink-0 inline-flex items-center">Printing Services</a>
                 </nav>
             </div>
         </div>
@@ -316,25 +364,13 @@
             <!-- MOBILE QUICK LINKS STRIP (Hidden on Desktop since top bar is directly below logo) -->
             <section class="lg:hidden max-w-7xl mx-auto px-3 sm:px-6 pt-4">
                 <div class="bg-gradient-to-r from-[#8A0404] via-[#9E0606] to-[#7A0303] border border-white/25 rounded-2xl px-4 py-3 shadow-xl flex items-center justify-between gap-3 overflow-x-auto no-scrollbar">
-                    <div class="flex items-center gap-2 sm:gap-3 mx-auto">
-                        <button onclick="filterCollection('All')" class="text-[11px] sm:text-xs font-display font-bold uppercase tracking-wider bg-white text-[#D90B0B] hover:bg-hyGold hover:text-[#8A0404] px-3.5 py-1.5 rounded-full whitespace-nowrap transition shadow-xs">
-                            All Gifts
-                        </button>
-                        <a href="#/services" onclick="navigate('#/services')" class="text-[11px] sm:text-xs font-display font-bold uppercase tracking-wider bg-white text-[#D90B0B] hover:bg-hyGold hover:text-[#8A0404] px-3.5 py-1.5 rounded-full whitespace-nowrap transition shadow-xs">
-                            Gift Catalog
-                        </a>
-                        <a href="#/products" onclick="navigate('#/products')" class="text-[11px] sm:text-xs font-display font-bold uppercase tracking-wider bg-white text-[#D90B0B] hover:bg-hyGold hover:text-[#8A0404] px-3.5 py-1.5 rounded-full whitespace-nowrap transition shadow-xs">
-                            All Products
-                        </a>
-                        <a href="#/track" onclick="navigate('#/track')" class="text-[11px] sm:text-xs font-display font-bold uppercase tracking-wider bg-white text-[#D90B0B] hover:bg-hyGold hover:text-[#8A0404] px-3.5 py-1.5 rounded-full whitespace-nowrap transition shadow-xs">
-                            <i class="fa-solid fa-location-dot mr-1"></i> Track Order
-                        </a>
-                        <a href="#/contact" onclick="navigate('#/contact')" class="text-[11px] sm:text-xs font-display font-bold uppercase tracking-wider bg-white text-[#D90B0B] hover:bg-hyGold hover:text-[#8A0404] px-3.5 py-1.5 rounded-full whitespace-nowrap transition shadow-xs">
-                            Contact Us
-                        </a>
-                        <a href="https://amzprints.com" target="_blank" rel="noopener noreferrer" class="text-[11px] sm:text-xs font-display font-bold uppercase tracking-wider bg-white text-[#D90B0B] hover:bg-hyGold hover:text-[#8A0404] px-3.5 py-1.5 rounded-full whitespace-nowrap transition shadow-xs">
-                            Printing Services <i class="fa-solid fa-arrow-up-right-from-square ml-1 text-[10px]"></i>
-                        </a>
+                    <div id="mobileQuickLinks" class="flex items-center gap-2 sm:gap-3 mx-auto">
+                        <button onclick="setActiveYellowMobile(this); filterCollection('All')" class="mobile-top-btn is-active-yellow text-[11px] sm:text-xs font-display font-bold uppercase tracking-wider text-white px-3.5 py-1.5 rounded-full whitespace-nowrap transition">All Gifts</button>
+                        <a href="#/services" onclick="setActiveYellowMobile(this); navigate('#/services')" class="mobile-top-btn text-[11px] sm:text-xs font-display font-bold uppercase tracking-wider text-white px-3.5 py-1.5 rounded-full whitespace-nowrap transition">Gift Catalog</a>
+                        <a href="#/products" onclick="setActiveYellowMobile(this); navigate('#/products')" class="mobile-top-btn text-[11px] sm:text-xs font-display font-bold uppercase tracking-wider text-white px-3.5 py-1.5 rounded-full whitespace-nowrap transition">All Products</a>
+                        <a href="#/track" onclick="setActiveYellowMobile(this); navigate('#/track')" class="mobile-top-btn text-[11px] sm:text-xs font-display font-bold uppercase tracking-wider text-white px-3.5 py-1.5 rounded-full whitespace-nowrap transition">Track Order</a>
+                        <a href="#/contact" onclick="setActiveYellowMobile(this); navigate('#/contact')" class="mobile-top-btn text-[11px] sm:text-xs font-display font-bold uppercase tracking-wider text-white px-3.5 py-1.5 rounded-full whitespace-nowrap transition">Contact Us</a>
+                        <a href="https://amzprints.com" target="_blank" rel="noopener noreferrer" onclick="setActiveYellowMobile(this)" class="mobile-top-btn text-[11px] sm:text-xs font-display font-bold uppercase tracking-wider text-white px-3.5 py-1.5 rounded-full whitespace-nowrap transition">Printing Services</a>
                     </div>
                 </div>
             </section>
@@ -350,118 +386,9 @@
                 </div>
 
                 <div class="collections-marquee-wrapper py-2">
-                    <div id="collectionsMarqueeTrack" class="collections-marquee-track">
-                        <div class="flex items-center gap-6 sm:gap-9 lg:gap-12 pr-6 sm:pr-9 lg:pr-12">
-                            <button onclick="filterCollection('PERSONALIZED GIFTS')" class="collection-item flex flex-col items-center flex-shrink-0 group focus:outline-none">
-                                <div class="w-28 h-28 sm:w-36 sm:h-36 lg:w-40 lg:h-40 rounded-full p-1.5 border-2 border-[#D90B0B] group-hover:border-[#8A0404] group-hover:scale-105 transition-all duration-300 shadow-[0_8px_22px_rgba(217,11,11,0.18)] bg-white">
-                                    <div class="w-full h-full rounded-full overflow-hidden bg-[#8A0404]">
-                                        <img src="https://images.unsplash.com/photo-1549465220-1a8b9238cd48?auto=format&fit=crop&w=400&q=80" alt="Personalized Gifts" class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500">
-                                    </div>
-                                </div>
-                                <span class="mt-3 font-display font-bold text-xs sm:text-sm lg:text-base text-[#8A0404] group-hover:text-[#D90B0B] transition">Personalized</span>
-                            </button>
-
-                            <button onclick="filterCollection('Photo Frames')" class="collection-item flex flex-col items-center flex-shrink-0 group focus:outline-none">
-                                <div class="w-28 h-28 sm:w-36 sm:h-36 lg:w-40 lg:h-40 rounded-full p-1.5 border-2 border-[#D90B0B] group-hover:border-[#8A0404] group-hover:scale-105 transition-all duration-300 shadow-[0_8px_22px_rgba(217,11,11,0.18)] bg-white">
-                                    <div class="w-full h-full rounded-full overflow-hidden bg-[#8A0404]">
-                                        <img src="https://images.unsplash.com/photo-1513519245088-0e12902e5a38?auto=format&fit=crop&w=400&q=80" alt="Photo Frames" class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500">
-                                    </div>
-                                </div>
-                                <span class="mt-3 font-display font-bold text-xs sm:text-sm lg:text-base text-[#8A0404] group-hover:text-[#D90B0B] transition">Photo Frames</span>
-                            </button>
-
-                            <button onclick="filterCollection('Magic Mugs')" class="collection-item flex flex-col items-center flex-shrink-0 group focus:outline-none">
-                                <div class="w-28 h-28 sm:w-36 sm:h-36 lg:w-40 lg:h-40 rounded-full p-1.5 border-2 border-[#D90B0B] group-hover:border-[#8A0404] group-hover:scale-105 transition-all duration-300 shadow-[0_8px_22px_rgba(217,11,11,0.18)] bg-white">
-                                    <div class="w-full h-full rounded-full overflow-hidden bg-[#8A0404]">
-                                        <img src="https://images.unsplash.com/photo-1514228742587-6b1558fcca3d?auto=format&fit=crop&w=400&q=80" alt="Magic Mugs" class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500">
-                                    </div>
-                                </div>
-                                <span class="mt-3 font-display font-bold text-xs sm:text-sm lg:text-base text-[#8A0404] group-hover:text-[#D90B0B] transition">Magic Mugs</span>
-                            </button>
-
-                            <button onclick="filterCollection('Plush & Teddy')" class="collection-item flex flex-col items-center flex-shrink-0 group focus:outline-none">
-                                <div class="w-28 h-28 sm:w-36 sm:h-36 lg:w-40 lg:h-40 rounded-full p-1.5 border-2 border-[#D90B0B] group-hover:border-[#8A0404] group-hover:scale-105 transition-all duration-300 shadow-[0_8px_22px_rgba(217,11,11,0.18)] bg-white">
-                                    <div class="w-full h-full rounded-full overflow-hidden bg-[#8A0404]">
-                                        <img src="https://images.unsplash.com/photo-1559454403-b8fb88521f11?auto=format&fit=crop&w=400&q=80" alt="Plush & Teddy" class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500">
-                                    </div>
-                                </div>
-                                <span class="mt-3 font-display font-bold text-xs sm:text-sm lg:text-base text-[#8A0404] group-hover:text-[#D90B0B] transition">Plush &amp; Teddy</span>
-                            </button>
-
-                            <button onclick="filterCollection('Couple Gifts')" class="collection-item flex flex-col items-center flex-shrink-0 group focus:outline-none">
-                                <div class="w-28 h-28 sm:w-36 sm:h-36 lg:w-40 lg:h-40 rounded-full p-1.5 border-2 border-[#D90B0B] group-hover:border-[#8A0404] group-hover:scale-105 transition-all duration-300 shadow-[0_8px_22px_rgba(217,11,11,0.18)] bg-white">
-                                    <div class="w-full h-full rounded-full overflow-hidden bg-[#8A0404]">
-                                        <img src="https://images.unsplash.com/photo-1518199266791-5375a83190b7?auto=format&fit=crop&w=400&q=80" alt="Couple Gifts" class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500">
-                                    </div>
-                                </div>
-                                <span class="mt-3 font-display font-bold text-xs sm:text-sm lg:text-base text-[#8A0404] group-hover:text-[#D90B0B] transition">Couple Gifts</span>
-                            </button>
-
-                            <button onclick="filterCollection('Gift Hampers')" class="collection-item flex flex-col items-center flex-shrink-0 group focus:outline-none">
-                                <div class="w-28 h-28 sm:w-36 sm:h-36 lg:w-40 lg:h-40 rounded-full p-1.5 border-2 border-[#D90B0B] group-hover:border-[#8A0404] group-hover:scale-105 transition-all duration-300 shadow-[0_8px_22px_rgba(217,11,11,0.18)] bg-white">
-                                    <div class="w-full h-full rounded-full overflow-hidden bg-[#8A0404]">
-                                        <img src="https://images.unsplash.com/photo-1512909006721-3d6018887383?auto=format&fit=crop&w=400&q=80" alt="Gift Hampers" class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500">
-                                    </div>
-                                </div>
-                                <span class="mt-3 font-display font-bold text-xs sm:text-sm lg:text-base text-[#8A0404] group-hover:text-[#D90B0B] transition">Gift Hampers</span>
-                            </button>
-                        </div>
-
-                        <!-- Seamless Clone -->
-                        <div aria-hidden="true" class="flex items-center gap-6 sm:gap-9 lg:gap-12 pr-6 sm:pr-9 lg:pr-12">
-                            <button onclick="filterCollection('PERSONALIZED GIFTS')" tabindex="-1" class="collection-item flex flex-col items-center flex-shrink-0 group focus:outline-none">
-                                <div class="w-28 h-28 sm:w-36 sm:h-36 lg:w-40 lg:h-40 rounded-full p-1.5 border-2 border-[#D90B0B] group-hover:border-[#8A0404] group-hover:scale-105 transition-all duration-300 shadow-[0_8px_22px_rgba(217,11,11,0.18)] bg-white">
-                                    <div class="w-full h-full rounded-full overflow-hidden bg-[#8A0404]">
-                                        <img src="https://images.unsplash.com/photo-1549465220-1a8b9238cd48?auto=format&fit=crop&w=400&q=80" alt="Personalized Gifts" class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500">
-                                    </div>
-                                </div>
-                                <span class="mt-3 font-display font-bold text-xs sm:text-sm lg:text-base text-[#8A0404] group-hover:text-[#D90B0B] transition">Personalized</span>
-                            </button>
-
-                            <button onclick="filterCollection('Photo Frames')" tabindex="-1" class="collection-item flex flex-col items-center flex-shrink-0 group focus:outline-none">
-                                <div class="w-28 h-28 sm:w-36 sm:h-36 lg:w-40 lg:h-40 rounded-full p-1.5 border-2 border-[#D90B0B] group-hover:border-[#8A0404] group-hover:scale-105 transition-all duration-300 shadow-[0_8px_22px_rgba(217,11,11,0.18)] bg-white">
-                                    <div class="w-full h-full rounded-full overflow-hidden bg-[#8A0404]">
-                                        <img src="https://images.unsplash.com/photo-1513519245088-0e12902e5a38?auto=format&fit=crop&w=400&q=80" alt="Photo Frames" class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500">
-                                    </div>
-                                </div>
-                                <span class="mt-3 font-display font-bold text-xs sm:text-sm lg:text-base text-[#8A0404] group-hover:text-[#D90B0B] transition">Photo Frames</span>
-                            </button>
-
-                            <button onclick="filterCollection('Magic Mugs')" tabindex="-1" class="collection-item flex flex-col items-center flex-shrink-0 group focus:outline-none">
-                                <div class="w-28 h-28 sm:w-36 sm:h-36 lg:w-40 lg:h-40 rounded-full p-1.5 border-2 border-[#D90B0B] group-hover:border-[#8A0404] group-hover:scale-105 transition-all duration-300 shadow-[0_8px_22px_rgba(217,11,11,0.18)] bg-white">
-                                    <div class="w-full h-full rounded-full overflow-hidden bg-[#8A0404]">
-                                        <img src="https://images.unsplash.com/photo-1514228742587-6b1558fcca3d?auto=format&fit=crop&w=400&q=80" alt="Magic Mugs" class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500">
-                                    </div>
-                                </div>
-                                <span class="mt-3 font-display font-bold text-xs sm:text-sm lg:text-base text-[#8A0404] group-hover:text-[#D90B0B] transition">Magic Mugs</span>
-                            </button>
-
-                            <button onclick="filterCollection('Plush & Teddy')" tabindex="-1" class="collection-item flex flex-col items-center flex-shrink-0 group focus:outline-none">
-                                <div class="w-28 h-28 sm:w-36 sm:h-36 lg:w-40 lg:h-40 rounded-full p-1.5 border-2 border-[#D90B0B] group-hover:border-[#8A0404] group-hover:scale-105 transition-all duration-300 shadow-[0_8px_22px_rgba(217,11,11,0.18)] bg-white">
-                                    <div class="w-full h-full rounded-full overflow-hidden bg-[#8A0404]">
-                                        <img src="https://images.unsplash.com/photo-1559454403-b8fb88521f11?auto=format&fit=crop&w=400&q=80" alt="Plush & Teddy" class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500">
-                                    </div>
-                                </div>
-                                <span class="mt-3 font-display font-bold text-xs sm:text-sm lg:text-base text-[#8A0404] group-hover:text-[#D90B0B] transition">Plush &amp; Teddy</span>
-                            </button>
-
-                            <button onclick="filterCollection('Couple Gifts')" tabindex="-1" class="collection-item flex flex-col items-center flex-shrink-0 group focus:outline-none">
-                                <div class="w-28 h-28 sm:w-36 sm:h-36 lg:w-40 lg:h-40 rounded-full p-1.5 border-2 border-[#D90B0B] group-hover:border-[#8A0404] group-hover:scale-105 transition-all duration-300 shadow-[0_8px_22px_rgba(217,11,11,0.18)] bg-white">
-                                    <div class="w-full h-full rounded-full overflow-hidden bg-[#8A0404]">
-                                        <img src="https://images.unsplash.com/photo-1518199266791-5375a83190b7?auto=format&fit=crop&w=400&q=80" alt="Couple Gifts" class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500">
-                                    </div>
-                                </div>
-                                <span class="mt-3 font-display font-bold text-xs sm:text-sm lg:text-base text-[#8A0404] group-hover:text-[#D90B0B] transition">Couple Gifts</span>
-                            </button>
-
-                            <button onclick="filterCollection('Gift Hampers')" tabindex="-1" class="collection-item flex flex-col items-center flex-shrink-0 group focus:outline-none">
-                                <div class="w-28 h-28 sm:w-36 sm:h-36 lg:w-40 lg:h-40 rounded-full p-1.5 border-2 border-[#D90B0B] group-hover:border-[#8A0404] group-hover:scale-105 transition-all duration-300 shadow-[0_8px_22px_rgba(217,11,11,0.18)] bg-white">
-                                    <div class="w-full h-full rounded-full overflow-hidden bg-[#8A0404]">
-                                        <img src="https://images.unsplash.com/photo-1512909006721-3d6018887383?auto=format&fit=crop&w=400&q=80" alt="Gift Hampers" class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500">
-                                    </div>
-                                </div>
-                                <span class="mt-3 font-display font-bold text-xs sm:text-sm lg:text-base text-[#8A0404] group-hover:text-[#D90B0B] transition">Gift Hampers</span>
-                            </button>
+                    <div id="collectionsMarqueeTrack" class="collections-marquee-track w-full justify-center">
+                        <div class="w-full max-w-2xl mx-auto px-4 py-6 text-center bg-[#FFF8F8] border-2 border-[#D90B0B]/15 rounded-2xl">
+                            <p class="text-xs sm:text-sm font-display font-bold text-[#8A0404]/75">Syncing live collections...</p>
                         </div>
                     </div>
                 </div>
@@ -480,15 +407,11 @@
 
                     <div id="dynamicFilterPills" class="flex items-center gap-2 lg:gap-2.5 overflow-x-auto no-scrollbar pb-1">
                         <button onclick="filterCollection('All')" data-filter="All" class="filter-pill bg-[#D90B0B] text-white text-xs font-bold px-4 lg:px-5 py-1.5 lg:py-2 rounded-full whitespace-nowrap transition shadow-xs">All</button>
-                        <button onclick="filterCollection('PERSONALIZED GIFTS')" data-filter="PERSONALIZED GIFTS" class="filter-pill bg-white hover:bg-red-50 text-[#8A0404] border border-[#D90B0B]/30 text-xs font-semibold px-4 lg:px-5 py-1.5 lg:py-2 rounded-full whitespace-nowrap transition">Personalized</button>
-                        <button onclick="filterCollection('Photo Frames')" data-filter="Photo Frames" class="filter-pill bg-white hover:bg-red-50 text-[#8A0404] border border-[#D90B0B]/30 text-xs font-semibold px-4 lg:px-5 py-1.5 lg:py-2 rounded-full whitespace-nowrap transition">Photo Frames</button>
-                        <button onclick="filterCollection('Magic Mugs')" data-filter="Magic Mugs" class="filter-pill bg-white hover:bg-red-50 text-[#8A0404] border border-[#D90B0B]/30 text-xs font-semibold px-4 lg:px-5 py-1.5 lg:py-2 rounded-full whitespace-nowrap transition">Magic Mugs</button>
-                        <button onclick="filterCollection('Gift Hampers')" data-filter="Gift Hampers" class="filter-pill bg-white hover:bg-red-50 text-[#8A0404] border border-[#D90B0B]/30 text-xs font-semibold px-4 lg:px-5 py-1.5 lg:py-2 rounded-full whitespace-nowrap transition">Gift Hampers</button>
                     </div>
                 </div>
 
                 <div id="productGrid" class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3.5 sm:gap-6 lg:gap-7">
-                    <!-- Live Products & Grid-Only Loading Injected via JS -->
+                    <!-- Live Products & Grid-Only Gift Animation Loading Injected via JS -->
                 </div>
             </section>
 
@@ -554,7 +477,7 @@
             <div class="text-center max-w-2xl mx-auto">
                 <span class="inline-block bg-[#FFF1F1] border border-[#D90B0B]/25 text-[#D90B0B] font-display font-bold text-[11px] uppercase tracking-widest px-4 py-1 rounded-full">Gift Services</span>
                 <h1 class="font-display font-extrabold text-2xl sm:text-3xl lg:text-4xl text-[#8A0404] mt-2">Custom Gifting Catalog</h1>
-                <p class="text-xs lg:text-sm text-[#8A0404]/85 mt-1.5">Explore our personalized, corporate &amp; handcrafted gifting items available across Pakistan.</p>
+                <p class="text-xs lg:text-sm text-[#8A0404]/85 mt-1.5">Tap the downward arrow on any gift to preview customer reviews below, or click Add Review to share your experience.</p>
             </div>
             <div id="services-cards-grid" class="space-y-8 lg:space-y-10"></div>
         </div>
@@ -1096,6 +1019,55 @@
         </div>
     </aside>
 
+    <!-- WRITE A REVIEW MODAL PANEL (HY GIFTS WHITE / BRIGHT RED / GOLD THEME) -->
+    <div id="catalogReviewsModal" class="fixed inset-0 bg-black/65 backdrop-blur-xs z-50 hidden items-center justify-center p-4">
+        <div class="bg-white border-2 border-[#D90B0B]/25 rounded-3xl w-full max-w-md max-h-[90vh] overflow-y-auto shadow-2xl p-6 sm:p-7 space-y-5 text-[#8A0404]">
+            <div class="flex items-start justify-between gap-3 border-b border-[#D90B0B]/15 pb-3.5">
+                <div class="w-full text-center">
+                    <span id="reviewModalSrBadge" class="inline-block bg-[#FDE047] text-[#8A0404] text-[10px] font-display font-extrabold uppercase px-3 py-0.5 rounded-full">Series No. 1</span>
+                    <h3 id="reviewModalItemTitle" class="font-display font-extrabold text-xl text-[#8A0404] mt-1.5">Write a Review</h3>
+                    <p id="reviewModalItemDesc" class="text-xs text-[#8A0404]/75 mt-0.5"></p>
+                </div>
+                <button type="button" onclick="closeCatalogReviewsModal()" aria-label="Close Write a Review Panel" class="w-8 h-8 rounded-full bg-[#FFF5F5] hover:bg-[#D90B0B] text-[#D90B0B] hover:text-white flex items-center justify-center border border-[#D90B0B]/20 transition shrink-0">
+                    <i class="fa-solid fa-xmark text-xs"></i>
+                </button>
+            </div>
+
+            <!-- Interactive Star Selector Row -->
+            <div class="space-y-1.5 text-center">
+                <p class="text-[11px] font-bold uppercase tracking-wider text-[#8A0404]/80">Tap to Rate This Gift</p>
+                <div id="starSelectorRow" class="flex items-center justify-center gap-2 py-1" role="radiogroup" aria-label="Star Rating">
+                    <button type="button" data-star="1" onclick="selectReviewStars(1)" class="review-star-btn text-2xl text-amber-400 transition transform hover:scale-110 focus:outline-none" aria-label="1 Star"><i class="fa-solid fa-star"></i></button>
+                    <button type="button" data-star="2" onclick="selectReviewStars(2)" class="review-star-btn text-2xl text-amber-400 transition transform hover:scale-110 focus:outline-none" aria-label="2 Stars"><i class="fa-solid fa-star"></i></button>
+                    <button type="button" data-star="3" onclick="selectReviewStars(3)" class="review-star-btn text-2xl text-amber-400 transition transform hover:scale-110 focus:outline-none" aria-label="3 Stars"><i class="fa-solid fa-star"></i></button>
+                    <button type="button" data-star="4" onclick="selectReviewStars(4)" class="review-star-btn text-2xl text-amber-400 transition transform hover:scale-110 focus:outline-none" aria-label="4 Stars"><i class="fa-solid fa-star"></i></button>
+                    <button type="button" data-star="5" onclick="selectReviewStars(5)" class="review-star-btn text-2xl text-amber-400 transition transform hover:scale-110 focus:outline-none" aria-label="5 Stars"><i class="fa-solid fa-star"></i></button>
+                </div>
+                <input type="hidden" id="revRating" value="5">
+            </div>
+
+            <!-- Add Review Form (Saves to localStorage & Google Sheet) -->
+            <form id="catalogReviewForm" onsubmit="submitCatalogReview(event)" class="space-y-3.5">
+                <div>
+                    <textarea id="revComment" rows="4" required placeholder="Tell us about your experience with this gift..." class="w-full bg-[#FFF8F8] border-2 border-[#D90B0B]/20 rounded-2xl px-4 py-3 text-xs sm:text-sm text-[#8A0404] placeholder-[#8A0404]/45 focus:border-[#D90B0B] focus:outline-none resize-none transition"></textarea>
+                </div>
+
+                <div>
+                    <input type="text" id="revCustomerName" required placeholder="Your name" class="w-full bg-[#FFF8F8] border-2 border-[#D90B0B]/20 rounded-2xl px-4 py-3 text-xs sm:text-sm text-[#8A0404] placeholder-[#8A0404]/45 focus:border-[#D90B0B] focus:outline-none transition">
+                </div>
+
+                <button type="submit" class="w-full bg-[#D90B0B] hover:bg-[#B90808] text-white font-display font-extrabold text-xs sm:text-sm py-3.5 rounded-2xl shadow-lg transition flex items-center justify-center gap-2 active:scale-98">
+                    <i class="fa-solid fa-paper-plane"></i>
+                    <span>Post Review</span>
+                </button>
+
+                <button type="button" onclick="closeCatalogReviewsModal()" class="w-full bg-[#FFF5F5] hover:bg-red-100 text-[#8A0404] border border-[#D90B0B]/25 font-display font-bold text-xs sm:text-sm py-3 rounded-2xl transition active:scale-98">
+                    Cancel
+                </button>
+            </form>
+        </div>
+    </div>
+
     <!-- QUICK VIEW PRODUCT MODAL (MOBILE & EXPLICIT QUICK VIEW) -->
     <div id="quickViewModal" class="fixed inset-0 bg-red-950/75 backdrop-blur-xs z-50 hidden items-center justify-center p-4">
         <div id="quickViewContent" class="bg-[#E10A0A] border border-white/30 rounded-2xl lg:rounded-3xl w-full max-w-lg lg:max-w-2xl overflow-hidden shadow-2xl"></div>
@@ -1124,7 +1096,7 @@
 
     <!-- FULL BACKEND & STORE JAVASCRIPT -->
     <script>
-const API_ENDPOINT = "https://script.google.com/macros/s/AKfycbxDmDvjqGJRUWoLrWlY6M0T7XTW9N3nfSdEnE2Dycm8B7Jg_qdLjtj0YR0ca2Ghjs2a/exec";
+        const API_ENDPOINT = "https://script.google.com/macros/s/AKfycbxDmDvjqGJRUWoLrWlY6M0T7XTW9N3nfSdEnE2Dycm8B7Jg_qdLjtj0YR0ca2Ghjs2a/exec";
         const GOOGLE_CLIENT_ID = "21998030518-8t3hlj709qfv273nd9124eebl1uudi7r.apps.googleusercontent.com";
 
         let PRODUCTS = [];
@@ -1198,8 +1170,8 @@ const API_ENDPOINT = "https://script.google.com/macros/s/AKfycbxDmDvjqGJRUWoLrWl
             return 'Rs. ' + Number(amount || 0).toLocaleString('en-PK');
         }
 
-        // ==================== LOADER ONLY FOR LONG BACKEND/NETWORK OPERATIONS ====================
-        function showActionLoader(message = "Please wait...") {
+        // ==================== GIFT ANIMATION LOADER FOR LOGIN, AUTH & NETWORK OPERATIONS ====================
+        function showActionLoader(message = "Loading...") {
             const loader = document.getElementById('global-loader');
             const text = document.getElementById('loader-text');
             if (text) text.innerText = message;
@@ -1256,6 +1228,32 @@ const API_ENDPOINT = "https://script.google.com/macros/s/AKfycbxDmDvjqGJRUWoLrWl
             });
         }
 
+        function setActiveYellowNav(el) {
+            document.querySelectorAll('#desktopTopNav .nav-link, #desktopTopNav .top-nav-btn').forEach(btn => {
+                btn.classList.remove('is-active-yellow', 'active-desktop-nav');
+            });
+            if (el) {
+                el.classList.add('is-active-yellow', 'active-desktop-nav');
+            }
+        }
+
+        function setActiveYellowMobile(el) {
+            document.querySelectorAll('#mobileQuickLinks .mobile-top-btn').forEach(btn => {
+                btn.classList.remove('is-active-yellow');
+            });
+            if (el) {
+                el.classList.add('is-active-yellow');
+            }
+        }
+
+        function handleTopNavClick(event, hashUrl, el) {
+            setActiveYellowNav(el);
+            if (hashUrl && hashUrl.startsWith('#/')) {
+                if (event) event.preventDefault();
+                navigate(hashUrl);
+            }
+        }
+
         function handleRouting() {
             let hash = window.location.hash;
             if (!hash || hash === '#' || hash === '' || hash === '#/') {
@@ -1264,7 +1262,7 @@ const API_ENDPOINT = "https://script.google.com/macros/s/AKfycbxDmDvjqGJRUWoLrWl
             }
 
             document.querySelectorAll('.page-view').forEach(v => v.classList.add('hidden'));
-            document.querySelectorAll('.nav-link').forEach(link => link.classList.remove('active-desktop-nav'));
+            document.querySelectorAll('#desktopTopNav .nav-link').forEach(link => link.classList.remove('active-desktop-nav', 'is-active-yellow'));
 
             let page = hash.replace('#/', '').split('?')[0];
             let targetView = document.getElementById(`view-${page}`);
@@ -1275,17 +1273,25 @@ const API_ENDPOINT = "https://script.google.com/macros/s/AKfycbxDmDvjqGJRUWoLrWl
             targetView.classList.remove('hidden');
 
             let activeNav = document.getElementById(`nav-${page}`);
-            if (activeNav) activeNav.classList.add('active-desktop-nav');
+            if (activeNav) activeNav.classList.add('active-desktop-nav', 'is-active-yellow');
 
             updateDrawerActiveState(page);
 
             if (page === 'cart') renderCart();
             if (page === 'profile') renderProfile();
-            if (page === 'services') renderServicesGrid();
+            if (page === 'services') {
+                if (!CATALOG_ITEMS.length) fetchCatalogFromBackend();
+                else renderServicesGrid();
+            }
             if (page === 'products') renderAllProductsPage();
             if (page === 'home') renderProducts();
 
-            window.scrollTo({ top: 0, behavior: 'smooth' });
+            const mainEl = document.getElementById('app');
+            if (mainEl) {
+                mainEl.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            } else {
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+            }
         }
 
         function navigate(hashUrl) {
@@ -1313,14 +1319,17 @@ const API_ENDPOINT = "https://script.google.com/macros/s/AKfycbxDmDvjqGJRUWoLrWl
 
         let isProductsLoading = true;
 
-        const HY_PNG_LOGO_SRC = "data:image/png;base64,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";
-
         function renderProductsGridLoading() {
             isProductsLoading = true;
             const loaderHtml = `
                 <div class="col-span-full py-14 flex flex-col items-center justify-center gap-3 bg-[#FFF8F8] border-2 border-[#D90B0B]/20 rounded-2xl shadow-sm">
-                    <div class="w-20 h-20 rounded-2xl bg-white shadow-md flex items-center justify-center overflow-hidden p-1.5">
-                        <img src="./favicon.png" onerror="this.onerror=null; this.src=HY_PNG_LOGO_SRC;" alt="HY GIFTS PNG Logo" class="w-full h-full object-contain">
+                    <div class="relative w-24 h-24 flex items-center justify-center">
+                        <span class="gift-sparkle-item top-1 left-3 text-[#D90B0B] text-xs" style="animation-delay: 0s;"><i class="fa-solid fa-sparkles"></i></span>
+                        <span class="gift-sparkle-item top-0 left-1/2 text-amber-500 text-xs" style="animation-delay: 0.3s;"><i class="fa-solid fa-star"></i></span>
+                        <span class="gift-sparkle-item top-2 right-3 text-[#D90B0B] text-xs" style="animation-delay: 0.6s;"><i class="fa-solid fa-sparkles"></i></span>
+                        <div class="gift-box-anim w-14 h-14 rounded-2xl bg-gradient-to-br from-[#FDE047] via-[#FACC15] to-[#EAB308] border-2 border-[#D90B0B] shadow-md flex items-center justify-center">
+                            <i class="fa-solid fa-gift text-2xl text-[#B90808]"></i>
+                        </div>
                     </div>
                     <span class="font-display font-extrabold text-xs tracking-[0.2em] text-[#8A0404] uppercase">HY GIFTS</span>
                     <p class="text-[11px] font-display font-bold uppercase tracking-[0.22em] text-[#D90B0B]">LOADING...</p>
@@ -1339,27 +1348,28 @@ const API_ENDPOINT = "https://script.google.com/macros/s/AKfycbxDmDvjqGJRUWoLrWl
                 const response = await fetch(API_ENDPOINT + "?action=getProducts");
                 if (!response.ok) throw new Error("Products request failed");
                 const data = await response.json();
+                const rawProducts = Array.isArray(data) ? data : (data.products || data.items || data.data || []);
 
-                if (data && Array.isArray(data.products) && data.products.length > 0) {
-                    PRODUCTS = data.products.map(p => {
+                if (Array.isArray(rawProducts) && rawProducts.length > 0) {
+                    PRODUCTS = rawProducts.map((p, idx) => {
                         const price = Number(p.price) || 0;
                         const rawOld = p.oldPrice && !isNaN(Number(p.oldPrice)) ? Number(p.oldPrice) : 0;
                         return {
-                            id: Number(p.id) || 1,
-                            name: p.name || "Custom Gift Item",
-                            category: p.category || "PERSONALIZED GIFTS",
-                            badge: p.badge || (Number(p.id) % 2 === 0 ? "CUSTOM MADE" : "BESTSELLER"),
+                            id: Number(p.id) || (idx + 1),
+                            name: String(p.name || p.title || "Custom Gift Item").trim(),
+                            category: String(p.category || "PERSONALIZED GIFTS").trim(),
+                            badge: String(p.badge || (idx % 2 === 0 ? "BESTSELLER" : "CUSTOM MADE")).trim(),
                             price: price,
                             oldPrice: rawOld > price ? rawOld : null,
-                            image: p.img || p.image || "https://images.unsplash.com/photo-1549465220-1a8b9238cd48?auto=format&fit=crop&w=600&q=80",
-                            desc: p.desc || "Personalized custom gift handcrafted with precision."
+                            image: normalizeCatalogImageUrl(p.img || p.image || p.pic || p.photo || p.url || ""),
+                            desc: String(p.desc || p.description || "Personalized custom gift handcrafted with care.").trim()
                         };
-                    });
+                    }).filter(p => p.name);
                 } else {
-                    loadFallbackProducts();
+                    PRODUCTS = [];
                 }
             } catch (err) {
-                loadFallbackProducts();
+                PRODUCTS = [];
             }
 
             isProductsLoading = false;
@@ -1368,26 +1378,18 @@ const API_ENDPOINT = "https://script.google.com/macros/s/AKfycbxDmDvjqGJRUWoLrWl
             renderAllProductsPage();
         }
 
-        function loadFallbackCollections() {
-            COLLECTIONS = [
-                { name: "Personalized", filter: "PERSONALIZED GIFTS", image: "https://images.unsplash.com/photo-1549465220-1a8b9238cd48?auto=format&fit=crop&w=400&q=80" },
-                { name: "Photo Frames", filter: "Photo Frames", image: "https://images.unsplash.com/photo-1513519245088-0e12902e5a38?auto=format&fit=crop&w=400&q=80" },
-                { name: "Magic Mugs", filter: "Magic Mugs", image: "https://images.unsplash.com/photo-1514228742587-6b1558fcca3d?auto=format&fit=crop&w=400&q=80" },
-                { name: "Plush & Teddy", filter: "Plush & Teddy", image: "https://images.unsplash.com/photo-1559454403-b8fb88521f11?auto=format&fit=crop&w=400&q=80" },
-                { name: "Couple Gifts", filter: "Couple Gifts", image: "https://images.unsplash.com/photo-1518199266791-5375a83190b7?auto=format&fit=crop&w=400&q=80" },
-                { name: "Gift Hampers", filter: "Gift Hampers", image: "https://images.unsplash.com/photo-1512909006721-3d6018887383?auto=format&fit=crop&w=400&q=80" }
-            ];
-        }
-
         function buildCollectionCircleHTML(col, isClone = false) {
-            const safeName = String(col.name || 'Collection').replace(/'/g, "\\'");
-            const safeFilter = String(col.filter || col.name || 'All').replace(/'/g, "\\'");
-            const safeImg = col.image || 'https://images.unsplash.com/photo-1549465220-1a8b9238cd48?auto=format&fit=crop&w=400&q=80';
+            const safeName = escapeHtml(col.name || 'Collection');
+            const filterAttr = String(col.filter || col.name || 'All').replace(/'/g, "\'");
+            const safeImg = col.image || '';
             return `
-                <button onclick="filterCollection('${safeFilter}')" ${isClone ? 'tabindex="-1"' : ''} class="collection-item flex flex-col items-center flex-shrink-0 group focus:outline-none">
+                <button onclick="filterCollection('${filterAttr}')" ${isClone ? 'tabindex="-1"' : ''} class="collection-item flex flex-col items-center flex-shrink-0 group focus:outline-none">
                     <div class="w-28 h-28 sm:w-36 sm:h-36 lg:w-40 lg:h-40 rounded-full p-1.5 border-2 border-[#D90B0B] group-hover:border-[#8A0404] group-hover:scale-105 transition-all duration-300 shadow-[0_8px_22px_rgba(217,11,11,0.18)] bg-white">
-                        <div class="w-full h-full rounded-full overflow-hidden bg-[#8A0404]">
-                            <img src="${safeImg}" onerror="this.src='https://placehold.co/400x400/8A0404/FFFFFF?text=HY+GIFTS'" alt="${safeName}" class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500">
+                        <div class="w-full h-full rounded-full overflow-hidden bg-[#FFF5F5] flex items-center justify-center">
+                            ${safeImg
+                                ? `<img src="${safeImg}" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';" alt="${safeName}" class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"><div style="display:none;" class="w-full h-full items-center justify-center bg-[#8A0404] text-white"><i class="fa-solid fa-gift text-2xl"></i></div>`
+                                : `<div class="w-full h-full flex items-center justify-center bg-[#8A0404] text-white"><i class="fa-solid fa-gift text-2xl"></i></div>`
+                            }
                         </div>
                     </div>
                     <span class="mt-3 font-display font-bold text-xs sm:text-sm lg:text-base text-[#8A0404] group-hover:text-[#D90B0B] transition">${safeName}</span>
@@ -1398,44 +1400,42 @@ const API_ENDPOINT = "https://script.google.com/macros/s/AKfycbxDmDvjqGJRUWoLrWl
         function renderCollections() {
             const track = document.getElementById('collectionsMarqueeTrack');
             if (!track) return;
-            if (!COLLECTIONS.length) loadFallbackCollections();
+            if (!COLLECTIONS.length) {
+                track.className = 'w-full flex justify-center px-4';
+                track.innerHTML = `
+                    <div class="w-full max-w-xl mx-auto py-8 px-6 text-center bg-[#FFF8F8] border-2 border-[#D90B0B]/20 rounded-2xl shadow-xs">
+                        <i class="fa-solid fa-layer-group text-2xl text-[#D90B0B] mb-2"></i>
+                        <p class="font-display font-bold text-xs sm:text-sm text-[#8A0404]">No collections available yet.</p>
+                    </div>
+                `;
+                return;
+            }
+            track.className = 'collections-marquee-track';
             const primaryGroup = `<div class="flex items-center gap-6 sm:gap-9 lg:gap-12 pr-6 sm:pr-9 lg:pr-12">${COLLECTIONS.map(c => buildCollectionCircleHTML(c, false)).join('')}</div>`;
             const cloneGroup = `<div aria-hidden="true" class="flex items-center gap-6 sm:gap-9 lg:gap-12 pr-6 sm:pr-9 lg:pr-12">${COLLECTIONS.map(c => buildCollectionCircleHTML(c, true)).join('')}</div>`;
             track.innerHTML = primaryGroup + cloneGroup;
         }
 
         async function fetchCollectionsFromBackend() {
-            loadFallbackCollections();
-            renderCollections();
             try {
                 const response = await fetch(API_ENDPOINT + "?action=getCollections");
-                if (!response.ok) return;
+                if (!response.ok) throw new Error("Collections request failed");
                 const data = await response.json();
                 const rawList = Array.isArray(data) ? data : (data.collections || data.data || []);
                 if (Array.isArray(rawList) && rawList.length > 0) {
-                    const parsed = rawList.map(item => {
+                    COLLECTIONS = rawList.map(item => {
                         const name = String(item.name || item.title || item.collection || item.category || '').trim();
-                        const image = String(item.image || item.img || item.pic || item.photo || item.url || '').trim();
+                        const image = normalizeCatalogImageUrl(item.image || item.img || item.pic || item.photo || item.url || '');
                         const filter = String(item.filter || item.category || name || 'All').trim();
                         return { name, image, filter };
-                    }).filter(c => c.name && c.image);
-                    if (parsed.length > 0) {
-                        COLLECTIONS = parsed;
-                        renderCollections();
-                    }
+                    }).filter(c => c.name);
+                } else {
+                    COLLECTIONS = [];
                 }
             } catch (err) {
-                // Keep fallback collections cleanly rendered
+                COLLECTIONS = [];
             }
-        }
-
-        function loadFallbackProducts() {
-            PRODUCTS = [
-                { id: 1, name: "Custom LED Photo Frame", category: "Photo Frames", badge: "BESTSELLER", price: 2499, oldPrice: 2999, image: "https://images.unsplash.com/photo-1513519245088-0e12902e5a38?auto=format&fit=crop&w=600&q=80", desc: "Illuminated personalized photo frame with warm LED glow and custom name." },
-                { id: 2, name: "Heart Handle Magic Mug", category: "Magic Mugs", badge: "CUSTOM MADE", price: 1299, oldPrice: 1599, image: "https://images.unsplash.com/photo-1514228742587-6b1558fcca3d?auto=format&fit=crop&w=600&q=80", desc: "Heat-sensitive magic mug that reveals your hidden photo when hot tea or coffee is poured." },
-                { id: 3, name: "Teddy Bear / Pink Custom Frame", category: "Plush & Teddy", badge: "BESTSELLER", price: 3100, oldPrice: 3500, image: "https://images.unsplash.com/photo-1559454403-b8fb88521f11?auto=format&fit=crop&w=600&q=80", desc: "Soft plush pink teddy bear holding customized photo frame." },
-                { id: 4, name: "Luxury Couple Surprise Hamper", category: "Gift Hampers", badge: "CUSTOM MADE", price: 4500, oldPrice: 5200, image: "https://images.unsplash.com/photo-1512909006721-3d6018887383?auto=format&fit=crop&w=600&q=80", desc: "Curated gift hamper with personalized photo frame, chocolates, scented candle & message card." }
-            ];
+            renderCollections();
         }
 
         function renderDynamicFilterPills() {
@@ -1523,10 +1523,12 @@ const API_ENDPOINT = "https://script.google.com/macros/s/AKfycbxDmDvjqGJRUWoLrWl
             });
 
             if (filtered.length === 0) {
+                const hasAnyProducts = PRODUCTS.length > 0;
                 grid.innerHTML = `
-                    <div class="col-span-full text-center py-12 bg-[#FFF8F8] rounded-2xl border-2 border-[#D90B0B]/20">
-                        <p class="text-sm font-semibold text-[#8A0404]">No custom gifts matched your search.</p>
-                        <button onclick="filterCollection('All')" class="mt-3 bg-[#D90B0B] text-white text-xs font-bold px-5 py-2 rounded-full">Show All Gifts</button>
+                    <div class="col-span-full text-center py-12 px-4 bg-[#FFF8F8] rounded-2xl border-2 border-[#D90B0B]/20">
+                        <i class="fa-solid fa-gift text-3xl text-[#D90B0B] mb-2"></i>
+                        <p class="text-sm font-display font-bold text-[#8A0404]">${hasAnyProducts ? 'No custom gifts matched your filter.' : 'No live products available yet.'}</p>
+                        ${hasAnyProducts ? `<button onclick="filterCollection('All')" class="mt-3 bg-[#D90B0B] text-white text-xs font-bold px-5 py-2 rounded-full">Show All Gifts</button>` : ''}
                     </div>
                 `;
                 return;
@@ -1537,9 +1539,15 @@ const API_ENDPOINT = "https://script.google.com/macros/s/AKfycbxDmDvjqGJRUWoLrWl
         function renderAllProductsPage(searchQuery = '') {
             const grid = document.getElementById('allProductsGrid');
             if (!grid) return;
+            if (isProductsLoading) {
+                renderProductsGridLoading();
+                return;
+            }
             const q = String(searchQuery || '').toLowerCase().trim();
             const filtered = PRODUCTS.filter(p => !q || p.name.toLowerCase().includes(q) || p.category.toLowerCase().includes(q) || (p.desc || '').toLowerCase().includes(q));
-            grid.innerHTML = filtered.length ? filtered.map(buildProductCardHTML).join('') : `<div class="col-span-full text-center py-12 text-[#8A0404] font-semibold text-xs">No gifts found matching "${searchQuery}".</div>`;
+            grid.innerHTML = filtered.length
+                ? filtered.map(buildProductCardHTML).join('')
+                : `<div class="col-span-full text-center py-12 px-4 bg-[#FFF8F8] rounded-2xl border-2 border-[#D90B0B]/20 text-[#8A0404] font-display font-bold text-xs sm:text-sm">${PRODUCTS.length ? `No gifts found matching "${escapeHtml(searchQuery)}".` : 'No live products available yet.'}</div>`;
         }
 
         function filterCollection(category) {
@@ -1853,7 +1861,6 @@ const API_ENDPOINT = "https://script.google.com/macros/s/AKfycbxDmDvjqGJRUWoLrWl
                         text: 'continue_with',
                         width: 280
                     });
-                    // Hide the extra custom button once the official Google button is rendered so there is never a duplicate
                     if (fallbackBtn) fallbackBtn.classList.add('hidden');
                 });
                 return true;
@@ -2012,21 +2019,66 @@ const API_ENDPOINT = "https://script.google.com/macros/s/AKfycbxDmDvjqGJRUWoLrWl
             }
         }
 
+        function normalizePaymentStatusLabel(rawStatus) {
+            const val = String(rawStatus || '').trim();
+            if (!val) return 'Pending';
+            const lower = val.toLowerCase();
+            if (lower === 'verified' || lower === 'approved' || lower === 'success' || lower === 'paid' || lower === 'payment paid') {
+                return 'Verified';
+            }
+            if (lower === 'rejected' || lower === 'not verified' || lower === 'failed' || lower === 'declined') {
+                return 'Rejected';
+            }
+            return val;
+        }
+
+        function extractLivePaymentStatus(payload) {
+            if (!payload || typeof payload !== 'object') return '';
+            return String(
+                payload.paymentStatus ||
+                payload.payment_status ||
+                payload.payment ||
+                payload.payStatus ||
+                (payload.order && (payload.order.paymentStatus || payload.order.payment_status)) ||
+                ''
+            ).trim();
+        }
+
+        function extractLiveOrderStatus(payload) {
+            if (!payload || typeof payload !== 'object') return '';
+            return String(
+                payload.status ||
+                payload.orderStatus ||
+                payload.order_status ||
+                (payload.order && (payload.order.status || payload.order.orderStatus)) ||
+                ''
+            ).trim();
+        }
+
         async function syncOrderStatusById(orderId) {
             if (!orderId) return null;
             try {
-                const res = await fetch(`${API_ENDPOINT}?action=trackOrder&orderId=${encodeURIComponent(orderId)}`);
+                const res = await fetch(`${API_ENDPOINT}?action=trackOrder&orderId=${encodeURIComponent(orderId)}&_t=${Date.now()}`);
                 const json = await res.json();
-                if (json && json.found) {
+                if (json && (json.found || extractLiveOrderStatus(json) || extractLivePaymentStatus(json))) {
+                    const liveOrderStatus = extractLiveOrderStatus(json);
+                    const livePaymentStatus = extractLivePaymentStatus(json);
                     const idx = orders.findIndex(o => String(o.id).toUpperCase() === String(orderId).toUpperCase());
                     if (idx !== -1) {
-                        orders[idx].orderStatus = json.status || orders[idx].orderStatus || 'Order Placed';
-                        orders[idx].paymentStatus = json.paymentStatus || orders[idx].paymentStatus || 'Pending';
+                        if (liveOrderStatus) orders[idx].orderStatus = liveOrderStatus;
+                        if (livePaymentStatus) orders[idx].paymentStatus = normalizePaymentStatusLabel(livePaymentStatus);
                         if (json.customerName) orders[idx].name = json.customerName;
                         if (json.city) orders[idx].city = json.city;
                         localStorage.setItem('hy_orders', JSON.stringify(orders));
                         return orders[idx];
                     }
+                    return {
+                        id: String(orderId).toUpperCase(),
+                        name: json.customerName || "Customer",
+                        orderStatus: liveOrderStatus || "Order Placed",
+                        paymentStatus: normalizePaymentStatusLabel(livePaymentStatus),
+                        city: json.city || "Pakistan"
+                    };
                 }
             } catch (err) {}
             return null;
@@ -2042,26 +2094,31 @@ const API_ENDPOINT = "https://script.google.com/macros/s/AKfycbxDmDvjqGJRUWoLrWl
 
             container.innerHTML = myOrders.map(o => {
                 const currentStatus = o.orderStatus || 'Order Placed';
-                const payStatus = o.paymentStatus || 'Pending';
+                const payStatus = normalizePaymentStatusLabel(o.paymentStatus);
                 const pLower = payStatus.toLowerCase();
-                const isVerified = pLower === 'verified' || pLower === 'approved' || pLower === 'success';
-                const isRejected = pLower === 'rejected' || pLower === 'not verified' || pLower === 'failed';
+                const isVerified = pLower === 'verified';
+                const isRejected = pLower === 'rejected';
                 const badgeClass = isVerified
-                    ? 'bg-emerald-100 text-emerald-800 border-emerald-300'
+                    ? 'bg-emerald-600 text-white border-emerald-700 shadow-xs'
                     : (isRejected ? 'bg-red-200 text-red-900 border-red-400' : 'bg-amber-100 text-amber-900 border-amber-300');
+                const paymentBadgeHtml = isVerified
+                    ? `<span class="px-2.5 py-0.5 rounded-full border ${badgeClass} text-[10px] font-extrabold inline-flex items-center gap-1"><i class="fa-solid fa-circle-check text-white"></i><i class="fa-solid fa-badge-check text-hyGold"></i> PAYMENT PAID</span>`
+                    : (isRejected
+                        ? `<span class="px-2.5 py-0.5 rounded-full border ${badgeClass} text-[10px] font-extrabold inline-flex items-center gap-1"><i class="fa-solid fa-circle-xmark"></i> Payment: Rejected</span>`
+                        : `<span class="px-2.5 py-0.5 rounded-full border ${badgeClass} text-[10px] font-bold">Payment: ${escapeHtml(payStatus)}</span>`);
 
                 return `
                     <div class="bg-[#FFF5F5] border border-[#D90B0B]/20 p-4 rounded-2xl flex justify-between items-center flex-wrap gap-3 text-xs">
                         <div class="space-y-1">
                             <div class="flex items-center gap-2 flex-wrap">
-                                <span class="font-extrabold text-[#D90B0B] font-mono text-sm">${o.id}</span>
-                                <span class="px-2.5 py-0.5 rounded-full bg-[#D90B0B] text-white text-[10px] font-bold">Status: ${currentStatus}</span>
-                                <span class="px-2.5 py-0.5 rounded-full border ${badgeClass} text-[10px] font-bold">Payment: ${payStatus}</span>
+                                <span class="font-extrabold text-[#D90B0B] font-mono text-sm">${escapeHtml(o.id)}</span>
+                                <span class="px-2.5 py-0.5 rounded-full bg-[#D90B0B] text-white text-[10px] font-bold">Status: ${escapeHtml(currentStatus)}</span>
+                                ${paymentBadgeHtml}
                             </div>
-                            <span class="text-[#8A0404]/80 block">${o.date || ''} • ${o.city || 'Pakistan'} • ${o.payMethod || 'COD'}</span>
+                            <span class="text-[#8A0404]/80 block">${escapeHtml(o.date || '')} • ${escapeHtml(o.city || 'Pakistan')} • ${escapeHtml(o.payMethod || 'COD')}</span>
                         </div>
                         <div class="flex items-center gap-3">
-                            <button onclick="document.getElementById('trackInputPage').value='${o.id}'; navigate('#/track'); executeTrack();" class="px-3 py-1.5 rounded-full bg-white hover:bg-[#D90B0B] text-[#D90B0B] hover:text-white border border-[#D90B0B]/30 font-bold text-[10px] uppercase tracking-wider transition">
+                            <button onclick="document.getElementById('trackInputPage').value='${escapeHtml(o.id)}'; navigate('#/track'); executeTrack();" class="px-3 py-1.5 rounded-full bg-white hover:bg-[#D90B0B] text-[#D90B0B] hover:text-white border border-[#D90B0B]/30 font-bold text-[10px] uppercase tracking-wider transition">
                                 Track
                             </button>
                             <span class="font-display font-extrabold text-[#B90808] text-sm">${formatPkr(o.total)}</span>
@@ -2100,32 +2157,8 @@ const API_ENDPOINT = "https://script.google.com/macros/s/AKfycbxDmDvjqGJRUWoLrWl
 
             showActionLoader("Checking Live Order Status...");
             try {
-                let foundOrder = orders.find(o => o.id === inputVal);
-
-                try {
-                    const res = await fetch(`${API_ENDPOINT}?action=trackOrder&orderId=${inputVal}`);
-                    const json = await res.json();
-                    if (json && json.found) {
-                        if (foundOrder) {
-                            foundOrder.orderStatus = json.status || foundOrder.orderStatus;
-                            foundOrder.paymentStatus = json.paymentStatus || foundOrder.paymentStatus;
-                            const idx = orders.findIndex(o => String(o.id).toUpperCase() === inputVal);
-                            if (idx !== -1) {
-                                orders[idx].orderStatus = foundOrder.orderStatus;
-                                orders[idx].paymentStatus = foundOrder.paymentStatus;
-                                localStorage.setItem('hy_orders', JSON.stringify(orders));
-                            }
-                        } else {
-                            foundOrder = {
-                                id: inputVal,
-                                name: json.customerName || "Customer",
-                                orderStatus: json.status || "Order Placed",
-                                paymentStatus: json.paymentStatus || "Pending",
-                                city: json.city || "Pakistan"
-                            };
-                        }
-                    }
-                } catch (e) {}
+                const syncedOrder = await syncOrderStatusById(inputVal);
+                let foundOrder = syncedOrder || orders.find(o => String(o.id).toUpperCase() === inputVal);
 
                 if (!foundOrder) {
                     showToast('Order ID not found! Please verify your ID.', 'error');
@@ -2140,11 +2173,11 @@ const API_ENDPOINT = "https://script.google.com/macros/s/AKfycbxDmDvjqGJRUWoLrWl
                 document.getElementById('trackCity').innerText = foundOrder.city || "Lahore";
 
                 const timerBadge = document.getElementById('trackTimerBadge');
-                const pStatus = (foundOrder.paymentStatus || "").toLowerCase();
-                if (pStatus === 'verified' || pStatus === 'approved' || pStatus === 'success') {
-                    timerBadge.innerHTML = `<span class="bg-emerald-600 text-white px-3 py-1 rounded-full text-xs font-extrabold inline-flex items-center gap-1"><i class="fa-solid fa-circle-check"></i> Payment Verified</span>`;
-                } else if (pStatus === 'rejected' || pStatus === 'not verified' || pStatus === 'failed') {
-                    timerBadge.innerHTML = `<span class="bg-red-950 text-white border border-white/30 px-3 py-1 rounded-full text-xs font-extrabold inline-flex items-center gap-1"><i class="fa-solid fa-circle-xmark"></i> Payment Not Verified</span>`;
+                const pStatus = normalizePaymentStatusLabel(foundOrder.paymentStatus).toLowerCase();
+                if (pStatus === 'verified') {
+                    timerBadge.innerHTML = `<span class="bg-emerald-600 text-white px-3.5 py-1.5 rounded-full text-xs font-extrabold inline-flex items-center gap-1.5 shadow-sm"><i class="fa-solid fa-circle-check text-white"></i><i class="fa-solid fa-certificate text-hyGold"></i> PAYMENT PAID</span>`;
+                } else if (pStatus === 'rejected') {
+                    timerBadge.innerHTML = `<span class="bg-red-950 text-white border border-white/30 px-3 py-1 rounded-full text-xs font-extrabold inline-flex items-center gap-1"><i class="fa-solid fa-circle-xmark"></i> Rejected</span>`;
                 } else {
                     timerBadge.innerHTML = `<span class="bg-[#D90B0B] text-white px-3 py-1 rounded-full text-xs font-extrabold inline-flex items-center gap-1"><i class="fa-solid fa-clock"></i> Pending Verification</span>`;
                 }
@@ -2181,48 +2214,443 @@ const API_ENDPOINT = "https://script.google.com/macros/s/AKfycbxDmDvjqGJRUWoLrWl
             }
         }
 
-        // ==================== GIFT CATALOG DATA ====================
-        const GIFT_SERVICES_DATA = [
-            { category: 'CUSTOM & PERSONALIZED GIFTS', items: [
-                ['Photo Mugs', 'Standard ceramic mugs with your favorite photo or design.'],
-                ['Magic Mugs', 'Heat-sensitive mugs that reveal a hidden photo when filled with a hot drink.'],
-                ['LED Photo Frames', 'Illuminated photo frames for stylish wall or desk decoration.'],
-                ['Magic Mirror Frames', 'Dual-purpose mirror frames with backlit personalized photo displays.'],
-                ['Custom Table Lamps', 'Personalized ambient lighting made with your photo, name, or message.'],
-                ['Acrylic Photo Blocks', 'Crystal-clear acrylic blocks featuring beautiful photo prints.'],
-                ['Custom Wall Clocks', 'Wall clocks customized with personal photos, artwork, or logos.'],
-                ['Wooden Photo Plaques', 'Wooden keepsakes with engraved or printed photos and messages.'],
-                ['Personalized Keychains', 'Custom keychains available in acrylic, metal, and wood styles.'],
-                ['Custom Cushions & Pillows', 'Soft cushions personalized with photos, names, or favorite quotes.']
-            ]},
-            { category: 'CORPORATE & EXECUTIVE GIFTS', items: [
-                ['Custom Visiting Card Holders', 'Professional leather and metal holders customized for your brand.'],
-                ['Engraved Branded Pens', 'Elegant pens finished with custom laser engraving.'],
-                ['Executive Diaries & Notebooks', 'Business diaries and notebooks with custom covers and embossing.'],
-                ['Branded USB Flash Drives', 'Useful USB drives personalized with your company logo.'],
-                ['Temperature Display Bottles & Flasks', 'Insulated stainless-steel bottles with a handy temperature display.'],
-                ['Corporate Gift Hampers', 'Curated executive gift boxes for clients, teams, and special occasions.']
-            ]}
-        ];
+        // ==================== LIVE CATALOG FROM GOOGLE SHEETS + INLINE PREVIEW & WRITE REVIEW PANEL ====================
+        let CATALOG_ITEMS = [];
+        let isCatalogLoading = true;
+        let CATALOG_REVIEWS = (() => {
+            try {
+                const stored = JSON.parse(localStorage.getItem('hy_catalog_reviews')) || {};
+                const cleaned = {};
+                Object.keys(stored).forEach(k => {
+                    const arr = Array.isArray(stored[k]) ? stored[k].filter(r => r && r.customerName !== 'Hafiz Usman' && r.customerName !== 'Ayesha Siddiqui' && r.customerName !== 'Bilal Ahmed') : [];
+                    if (arr.length) cleaned[k] = arr;
+                });
+                return cleaned;
+            } catch (e) {
+                return {};
+            }
+        })();
+        let expandedCatalogDrawerKey = null;
+        let expandedReviewTextIds = {};
+        let activeReviewItemKey = null;
+        let selectedReviewStars = 5;
+
+        function normalizeCatalogImageUrl(url) {
+            const raw = String(url || '').trim();
+            if (!raw) return '';
+            const driveMatch = raw.match(/(?:\/d\/|[?&]id=)([a-zA-Z0-9_-]{20,})/);
+            if (driveMatch && raw.includes('drive.google.com')) {
+                return `https://drive.google.com/thumbnail?id=${driveMatch[1]}&sz=w1000`;
+            }
+            return raw;
+        }
+
+        function getCombinedReviewsForItem(itemKey) {
+            const saved = CATALOG_REVIEWS[itemKey] || [];
+            return Array.isArray(saved) ? saved : [];
+        }
+
+        function getAvatarColor(name) {
+            const palette = ['bg-teal-600', 'bg-[#D90B0B]', 'bg-amber-600', 'bg-rose-700', 'bg-red-800'];
+            let sum = 0;
+            const s = String(name || 'H');
+            for (let i = 0; i < s.length; i++) sum += s.charCodeAt(i);
+            return palette[sum % palette.length];
+        }
+
+        function escapeHtml(text) {
+            return String(text || '')
+                .replace(/&/g, '&amp;')
+                .replace(/</g, '&lt;')
+                .replace(/>/g, '&gt;')
+                .replace(/"/g, '&quot;')
+                .replace(/'/g, '&#39;');
+        }
+
+        async function fetchCatalogFromBackend() {
+            isCatalogLoading = true;
+            renderServicesGrid();
+            try {
+                const res = await fetch(API_ENDPOINT + "?action=getCatalog");
+                if (res.ok) {
+                    const data = await res.json();
+                    const rawList = Array.isArray(data) ? data : (data.catalog || data.services || data.items || data.data || []);
+                    if (Array.isArray(rawList) && rawList.length > 0) {
+                        CATALOG_ITEMS = rawList.map((item, idx) => {
+                            const srVal = item.sr || item.serial || item.series || item.no || item.id || (idx + 1);
+                            const name = String(item.name || item.title || item.service || '').trim();
+                            const desc = String(item.desc || item.description || item.details || '').trim();
+                            const category = String(item.category || item.group || 'CUSTOM & PERSONALIZED GIFTS').trim();
+                            const price = Number(item.price) || 0;
+                            const image = normalizeCatalogImageUrl(item.image || item.img || item.pic || item.photo || item.url || '');
+                            const rating = item.rating || '4.8';
+                            const reviewCount = item.reviews || item.reviewCount || '0';
+                            return {
+                                sr: Number(srVal) || (idx + 1),
+                                category,
+                                name,
+                                price,
+                                desc,
+                                image,
+                                rating,
+                                reviewCount
+                            };
+                        }).filter(c => c.name);
+                    } else {
+                        CATALOG_ITEMS = [];
+                    }
+                } else {
+                    CATALOG_ITEMS = [];
+                }
+            } catch (e) {
+                CATALOG_ITEMS = [];
+            }
+
+            isCatalogLoading = false;
+            renderServicesGrid();
+        }
+
+        function addCatalogItemToBag(srNo) {
+            const catItem = CATALOG_ITEMS.find(c => String(c.sr) === String(srNo));
+            if (!catItem) return;
+            if (!currentUser) {
+                showToast('Please Log In first to add items!', 'error');
+                navigate('#/login');
+                return;
+            }
+            const existing = cart.find(i => i.name === catItem.name);
+            if (existing) existing.qty += 1;
+            else cart.push({
+                id: 9000 + Number(catItem.sr || 1),
+                name: catItem.name,
+                category: catItem.category,
+                price: Number(catItem.price) || 0,
+                image: catItem.image,
+                desc: catItem.desc,
+                qty: 1
+            });
+            localStorage.setItem('hy_cart', JSON.stringify(cart));
+            updateCartBadge();
+            showToast(`Added "${catItem.name}" to bag!`);
+        }
+
+        function toggleInlineCatalogDrawer(srNo) {
+            const item = CATALOG_ITEMS.find(c => String(c.sr) === String(srNo));
+            if (!item) return;
+            const itemKey = `${item.sr} - ${item.name}`;
+            expandedCatalogDrawerKey = expandedCatalogDrawerKey === itemKey ? null : itemKey;
+            renderServicesGrid();
+            if (expandedCatalogDrawerKey === itemKey) {
+                fetchReviewsFromSheet(itemKey).then(() => {
+                    if (expandedCatalogDrawerKey === itemKey) renderServicesGrid();
+                });
+            }
+        }
+
+        function toggleSingleReviewMore(reviewDomId) {
+            expandedReviewTextIds[reviewDomId] = !expandedReviewTextIds[reviewDomId];
+            renderServicesGrid();
+        }
+
+        async function fetchReviewsFromSheet(itemKey) {
+            try {
+                const res = await fetch(`${API_ENDPOINT}?action=getReviews&item=${encodeURIComponent(itemKey)}`);
+                if (!res.ok) return getCombinedReviewsForItem(itemKey);
+                const data = await res.json();
+                const list = Array.isArray(data) ? data : (data.reviews || data.data || []);
+                if (Array.isArray(list)) {
+                    CATALOG_REVIEWS[itemKey] = list;
+                    localStorage.setItem('hy_catalog_reviews', JSON.stringify(CATALOG_REVIEWS));
+                    return list;
+                }
+            } catch (e) {}
+            return getCombinedReviewsForItem(itemKey);
+        }
+
+        function buildInlineReviewsPreviewHTML(itemKey, srNo) {
+            const reviews = getCombinedReviewsForItem(itemKey);
+            const cardsHtml = reviews.length
+                ? reviews.map((r, idx) => {
+                    const name = r.customerName || r.name || 'Verified Customer';
+                    const initial = escapeHtml(name.trim().charAt(0).toUpperCase() || 'H');
+                    const stars = Math.min(5, Math.max(1, Number(r.rating) || 5));
+                    const fullComment = String(r.comment || r.review || '');
+                    const isLong = fullComment.length > 105;
+                    const revDomId = `rev-${srNo}-${idx}`;
+                    const isExpandedText = !!expandedReviewTextIds[revDomId];
+                    const displayComment = (!isLong || isExpandedText)
+                        ? escapeHtml(fullComment)
+                        : `${escapeHtml(fullComment.slice(0, 105))}...`;
+
+                    const starRow = Array.from({ length: 5 }, (_, sIdx) =>
+                        `<i class="fa-${sIdx < stars ? 'solid' : 'regular'} fa-star text-amber-400 text-xs"></i>`
+                    ).join('');
+
+                    return `
+                        <div class="bg-[#FFF8F8] border border-[#D90B0B]/20 rounded-2xl p-4 space-y-2 shadow-2xs">
+                            <div class="flex items-start justify-between gap-2">
+                                <div class="flex items-center gap-3">
+                                    <div class="w-9 h-9 rounded-full ${getAvatarColor(name)} text-white font-display font-bold text-sm flex items-center justify-center shrink-0 shadow-xs">
+                                        ${initial}
+                                    </div>
+                                    <div>
+                                        <div class="font-display font-bold text-sm text-[#8A0404] leading-tight">${escapeHtml(name)}</div>
+                                        <div class="text-[11px] text-[#8A0404]/65">${escapeHtml(r.reviewBadge || 'Customer review')}</div>
+                                    </div>
+                                </div>
+                                <span class="text-[11px] font-semibold text-[#8A0404]/60">${escapeHtml(r.date || 'Recently')}</span>
+                            </div>
+
+                            <div class="flex items-center gap-2">
+                                <div class="flex items-center gap-0.5">${starRow}</div>
+                                <span class="text-[11px] font-bold text-[#8A0404]/70">${escapeHtml(r.date || 'Recently')}</span>
+                            </div>
+
+                            <p class="text-xs sm:text-sm text-[#8A0404]/85 leading-relaxed">
+                                ${displayComment}
+                                ${isLong ? `
+                                    <button type="button" onclick="toggleSingleReviewMore('${revDomId}')" class="ml-1.5 text-[#D90B0B] hover:text-[#8A0404] font-bold underline text-xs focus:outline-none">
+                                        ${isExpandedText ? 'Less' : 'More'}
+                                    </button>
+                                ` : ''}
+                            </p>
+                        </div>
+                    `;
+                }).join('')
+                : `
+                    <div class="bg-[#FFF8F8] border border-[#D90B0B]/20 rounded-2xl p-5 text-center space-y-1.5">
+                        <p class="font-display font-bold text-xs sm:text-sm text-[#8A0404]">No reviews yet for this item.</p>
+                        <p class="text-[11px] text-[#8A0404]/70">Be the first to share your experience!</p>
+                    </div>
+                `;
+
+            return `
+                <div class="inline-review-drawer-anim mt-4 pt-4 border-t-2 border-dashed border-[#D90B0B]/20 space-y-3.5">
+                    <div class="flex items-center justify-between flex-wrap gap-2">
+                        <div class="flex items-center gap-2">
+                            <span class="w-2 h-2 rounded-full bg-[#D90B0B]"></span>
+                            <span class="font-display font-extrabold text-xs uppercase tracking-wider text-[#B90808]">Customer Reviews (${reviews.length})</span>
+                        </div>
+                        <button type="button" onclick="openCatalogReviewsModal('${srNo}')" class="bg-[#8A0404] hover:bg-[#D90B0B] text-white font-display font-extrabold text-xs sm:text-sm px-5 py-3 rounded-full shadow-md transition inline-flex items-center gap-2 active:scale-95">
+                            <i class="fa-solid fa-star-half-stroke text-hyGold"></i>
+                            <span>Write a Review</span>
+                        </button>
+                    </div>
+
+                    <div class="space-y-2.5">
+                        ${cardsHtml}
+                    </div>
+
+                    <div class="flex items-center justify-end pt-1">
+                        <button type="button" onclick="toggleInlineCatalogDrawer('${srNo}')" class="bg-[#FFF1F1] hover:bg-[#D90B0B] text-[#8A0404] hover:text-white border-2 border-[#D90B0B] font-display font-extrabold text-xs sm:text-sm px-5 py-3 rounded-full shadow-md transition inline-flex items-center gap-2 active:scale-95">
+                            <i class="fa-solid fa-arrow-up"></i>
+                            <span>Show Less</span>
+                        </button>
+                    </div>
+                </div>
+            `;
+        }
+
+        function selectReviewStars(starValue) {
+            selectedReviewStars = Math.min(5, Math.max(1, Number(starValue) || 5));
+            const hiddenInput = document.getElementById('revRating');
+            if (hiddenInput) hiddenInput.value = String(selectedReviewStars);
+            document.querySelectorAll('#starSelectorRow .review-star-btn').forEach(btn => {
+                const btnStar = Number(btn.getAttribute('data-star')) || 0;
+                const icon = btn.querySelector('i');
+                if (btnStar <= selectedReviewStars) {
+                    btn.classList.remove('text-gray-300');
+                    btn.classList.add('text-amber-400');
+                    if (icon) {
+                        icon.classList.remove('fa-regular');
+                        icon.classList.add('fa-solid');
+                    }
+                } else {
+                    btn.classList.remove('text-amber-400');
+                    btn.classList.add('text-gray-300');
+                    if (icon) {
+                        icon.classList.remove('fa-solid');
+                        icon.classList.add('fa-regular');
+                    }
+                }
+            });
+        }
+
+        async function openCatalogReviewsModal(srNo) {
+            const item = CATALOG_ITEMS.find(c => String(c.sr) === String(srNo));
+            if (!item) return;
+            activeReviewItemKey = `${item.sr} - ${item.name}`;
+
+            document.getElementById('reviewModalSrBadge').textContent = `Series No. ${item.sr} • ${item.name}`;
+            document.getElementById('reviewModalItemTitle').textContent = 'Write a Review';
+            document.getElementById('reviewModalItemDesc').textContent = item.desc;
+            document.getElementById('catalogReviewForm').reset();
+            selectReviewStars(5);
+
+            const modal = document.getElementById('catalogReviewsModal');
+            modal.classList.remove('hidden');
+            modal.classList.add('flex');
+        }
+
+        function closeCatalogReviewsModal() {
+            const modal = document.getElementById('catalogReviewsModal');
+            modal.classList.add('hidden');
+            modal.classList.remove('flex');
+        }
+
+        async function submitCatalogReview(e) {
+            e.preventDefault();
+            if (!activeReviewItemKey) return;
+            const customerName = document.getElementById('revCustomerName').value.trim();
+            const rating = Number(document.getElementById('revRating').value) || selectedReviewStars || 5;
+            const comment = document.getElementById('revComment').value.trim();
+            if (!customerName || !comment) return;
+
+            const reviewObj = {
+                action: 'addReview',
+                item: activeReviewItemKey,
+                customerName,
+                reviewBadge: 'Verified customer',
+                rating,
+                comment,
+                date: 'Just now'
+            };
+
+            if (!CATALOG_REVIEWS[activeReviewItemKey]) CATALOG_REVIEWS[activeReviewItemKey] = [];
+            CATALOG_REVIEWS[activeReviewItemKey].unshift(reviewObj);
+            localStorage.setItem('hy_catalog_reviews', JSON.stringify(CATALOG_REVIEWS));
+            expandedCatalogDrawerKey = activeReviewItemKey;
+
+            closeCatalogReviewsModal();
+            renderServicesGrid();
+
+            try {
+                await fetch(API_ENDPOINT, {
+                    method: 'POST',
+                    mode: 'no-cors',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(reviewObj)
+                });
+            } catch (err) {}
+
+            showToast('Review posted & saved!');
+        }
 
         function renderServicesGrid() {
             const container = document.getElementById('services-cards-grid');
             if (!container) return;
-            let num = 1;
-            container.innerHTML = GIFT_SERVICES_DATA.map(group => `
-                <section class="space-y-4">
-                    <h2 class="font-display font-extrabold text-sm sm:text-base uppercase tracking-wider text-[#D90B0B] text-center">${group.category}</h2>
-                    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 lg:gap-6">
-                        ${group.items.map(item => `
-                            <article class="bg-white border-2 border-[#D90B0B]/20 p-5 lg:p-6 rounded-2xl shadow-md hover:border-[#D90B0B] transition">
-                                <div class="flex items-center justify-between mb-2">
-                                    <span class="w-7 h-7 rounded-full bg-[#D90B0B] text-white font-display font-extrabold text-xs flex items-center justify-center">${String(num++).padStart(2, '0')}</span>
-                                    <span class="text-[10px] font-bold uppercase text-[#D90B0B]">HY GIFTS</span>
+
+            if (isCatalogLoading) {
+                container.innerHTML = `
+                    <div class="py-14 flex flex-col items-center justify-center gap-3 bg-[#FFF8F8] border-2 border-[#D90B0B]/20 rounded-2xl shadow-sm">
+                        <div class="relative w-24 h-24 flex items-center justify-center">
+                            <span class="gift-sparkle-item top-1 left-3 text-[#D90B0B] text-xs" style="animation-delay: 0s;"><i class="fa-solid fa-sparkles"></i></span>
+                            <span class="gift-sparkle-item top-0 left-1/2 text-amber-500 text-xs" style="animation-delay: 0.3s;"><i class="fa-solid fa-star"></i></span>
+                            <span class="gift-sparkle-item top-2 right-3 text-[#D90B0B] text-xs" style="animation-delay: 0.6s;"><i class="fa-solid fa-sparkles"></i></span>
+                            <div class="gift-box-anim w-14 h-14 rounded-2xl bg-gradient-to-br from-[#FDE047] to-[#EAB308] border-2 border-[#D90B0B] shadow-md flex items-center justify-center">
+                                <i class="fa-solid fa-gift text-2xl text-[#B90808]"></i>
+                            </div>
+                        </div>
+                        <p class="font-display font-semibold text-sm text-[#8A0404]">Loading...</p>
+                    </div>
+                `;
+                return;
+            }
+
+            if (!CATALOG_ITEMS.length) {
+                container.innerHTML = `
+                    <div class="py-14 px-6 text-center bg-[#FFF8F8] border-2 border-[#D90B0B]/20 rounded-3xl shadow-sm space-y-2">
+                        <i class="fa-solid fa-gift text-3xl text-[#D90B0B]"></i>
+                        <h3 class="font-display font-extrabold text-base sm:text-lg text-[#8A0404]">No catalog items available yet.</h3>
+                        <p class="text-xs sm:text-sm text-[#8A0404]/75">Please check back shortly or explore our storefront products.</p>
+                    </div>
+                `;
+                return;
+            }
+
+            const grouped = {};
+            CATALOG_ITEMS.forEach(item => {
+                const cat = item.category || 'CUSTOM & PERSONALIZED GIFTS';
+                if (!grouped[cat]) grouped[cat] = [];
+                grouped[cat].push(item);
+            });
+
+            container.innerHTML = Object.keys(grouped).map(category => `
+                <section class="space-y-5">
+                    <div class="flex items-center justify-center gap-3">
+                        <span class="h-px w-10 bg-[#D90B0B]/35"></span>
+                        <h2 class="font-display font-extrabold text-sm sm:text-base lg:text-lg uppercase tracking-wider text-[#B90808] text-center">${escapeHtml(category)}</h2>
+                        <span class="h-px w-10 bg-[#D90B0B]/35"></span>
+                    </div>
+
+                    <div class="space-y-5">
+                        ${grouped[category].map((item, idx) => {
+                            const imageOnRight = idx % 2 === 1;
+                            const itemKey = `${item.sr} - ${item.name}`;
+                            const isDrawerOpen = expandedCatalogDrawerKey === itemKey;
+                            const totalReviews = getCombinedReviewsForItem(itemKey).length;
+                            return `
+                            <article id="catalog-card-${item.sr}" class="catalog-luxury-card bg-white border-2 ${isDrawerOpen ? 'border-[#D90B0B]' : 'border-[#D90B0B]/20'} rounded-3xl overflow-hidden shadow-lg grid grid-cols-1 md:grid-cols-12">
+                                <!-- Image Panel -->
+                                <div class="md:col-span-5 relative min-h-[220px] sm:min-h-[250px] bg-[#FFF5F5] overflow-hidden ${imageOnRight ? 'md:order-2' : 'md:order-1'}">
+                                    ${item.image
+                                        ? `<img src="${item.image}" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';" alt="${escapeHtml(item.name)}" class="w-full h-full object-cover transition-transform duration-500 hover:scale-105"><div style="display:none;" class="w-full h-full min-h-[220px] items-center justify-center bg-[#FFF5F5] text-[#D90B0B]"><i class="fa-solid fa-gift text-4xl"></i></div>`
+                                        : `<div class="w-full h-full min-h-[220px] flex items-center justify-center bg-[#FFF5F5] text-[#D90B0B]"><i class="fa-solid fa-gift text-4xl"></i></div>`
+                                    }
+                                    <span class="absolute top-3 left-3 bg-[#D90B0B] text-white text-[10px] font-display font-extrabold uppercase tracking-wider px-3 py-1 rounded-full shadow-md">
+                                        HY GIFTS
+                                    </span>
                                 </div>
-                                <h3 class="font-display font-bold text-sm lg:text-base text-[#8A0404]">${item[0]}</h3>
-                                <p class="text-xs text-[#8A0404]/80 mt-1.5 leading-relaxed">${item[1]}</p>
+
+                                <!-- Details Panel -->
+                                <div class="md:col-span-7 p-5 sm:p-7 flex flex-col justify-center space-y-3 ${imageOnRight ? 'md:order-1' : 'md:order-2'}">
+                                    <div class="flex items-center justify-between flex-wrap gap-2">
+                                        <span class="inline-flex items-center gap-1.5 bg-[#FDE047] text-[#8A0404] font-display font-extrabold text-xs px-3.5 py-1 rounded-full shadow-2xs">
+                                            <i class="fa-solid fa-hashtag text-[10px]"></i> Series No. ${item.sr}
+                                        </span>
+                                        <span class="font-display font-extrabold text-sm sm:text-base text-[#B90808]">${formatPkr(item.price)}</span>
+                                    </div>
+
+                                    <h3 class="font-display font-extrabold text-xl sm:text-2xl text-[#8A0404] leading-snug">
+                                        ${escapeHtml(item.name)}
+                                    </h3>
+
+                                    <p class="text-xs sm:text-sm text-[#8A0404]/85 leading-relaxed">
+                                        ${escapeHtml(item.desc)}
+                                    </p>
+
+                                    <div class="flex items-center gap-2 pt-0.5">
+                                        <div class="flex items-center text-amber-400 text-xs gap-0.5">
+                                            <i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star-half-stroke"></i>
+                                        </div>
+                                        <span class="font-display font-extrabold text-xs text-[#8A0404]">${escapeHtml(item.rating || '4.8')}</span>
+                                        <span class="text-xs text-[#8A0404]/70">(${totalReviews} ${totalReviews === 1 ? 'review' : 'reviews'})</span>
+                                    </div>
+
+                                    <!-- Action Row: Add to Cart + Bold Preview & Add Review Buttons -->
+                                    <div class="pt-2 flex items-center gap-2.5 flex-wrap">
+                                        <button type="button" onclick="addCatalogItemToBag('${item.sr}')" class="bg-[#D90B0B] hover:bg-[#B90808] text-white font-display font-extrabold text-xs sm:text-sm px-5 py-3 rounded-full shadow-md transition inline-flex items-center gap-2 active:scale-95">
+                                            <i class="fa-solid fa-cart-shopping"></i>
+                                            <span>Add to Cart</span>
+                                        </button>
+
+                                        <button type="button" onclick="toggleInlineCatalogDrawer('${item.sr}')" title="${isDrawerOpen ? 'Show Less' : 'Preview Reviews Below'}" aria-label="${isDrawerOpen ? 'Show Less' : 'Preview Reviews Below'}" class="${isDrawerOpen ? 'bg-[#FDE047] text-[#8A0404] border-[#8A0404]' : 'bg-[#FFF5F5] hover:bg-[#FDE047] text-[#8A0404] border-[#D90B0B]'} border-2 font-display font-extrabold text-xs sm:text-sm px-5 py-3 rounded-full shadow-md transition inline-flex items-center gap-2 active:scale-95">
+                                            <i class="fa-solid ${isDrawerOpen ? 'fa-arrow-up' : 'fa-arrow-down'} text-[#D90B0B]"></i>
+                                            <span>${isDrawerOpen ? 'Show Less' : 'Preview'}</span>
+                                        </button>
+
+                                        <button type="button" onclick="openCatalogReviewsModal('${item.sr}')" class="bg-[#8A0404] hover:bg-[#D90B0B] text-white font-display font-extrabold text-xs sm:text-sm px-5 py-3 rounded-full shadow-md transition inline-flex items-center gap-2 active:scale-95">
+                                            <i class="fa-solid fa-pen-to-square text-hyGold"></i>
+                                            <span>Add Review</span>
+                                        </button>
+                                    </div>
+
+                                    <!-- Inline Expandable Preview Drawer Directly Beneath Action Buttons -->
+                                    ${isDrawerOpen ? buildInlineReviewsPreviewHTML(itemKey, item.sr) : ''}
+                                </div>
                             </article>
-                        `).join('')}
+                            `;
+                        }).join('')}
                     </div>
                 </section>
             `).join('');
@@ -2323,6 +2751,7 @@ const API_ENDPOINT = "https://script.google.com/macros/s/AKfycbxDmDvjqGJRUWoLrWl
             renderProductsGridLoading();
             fetchCollectionsFromBackend();
             fetchProductsFromBackend();
+            fetchCatalogFromBackend();
             handleRouting();
         });
     </script>
