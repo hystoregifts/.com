@@ -1728,6 +1728,8 @@
             if (/^www\./i.test(val)) {
                 val = 'https://' + val;
             }
+            // Android WebView blocks HTTP cleartext; upgrade ordinary web links to HTTPS.
+            if (/^http:\/\//i.test(val)) val = val.replace(/^http:\/\//i, 'https://');
             if (!/^[a-zA-Z][a-zA-Z0-9+.-]*:/.test(val)) {
                 // Looks like a domain or path without scheme
                 if (/^[a-zA-Z0-9-]+(\.[a-zA-Z0-9-]+)+/.test(val)) {
@@ -1916,11 +1918,19 @@
                 return;
             }
 
-            // Mobile-safe external opening: open in new tab first, fallback to same-window navigation if popup blocked
-            const win = window.open(targetUrl, '_blank', 'noopener,noreferrer');
-            if (!win || win.closed || typeof win.closed === 'undefined') {
-                window.location.assign(targetUrl);
-            }
+            // Open external destination in a separate tab/window while keeping HY GIFTS open.
+            // Force HTTPS for sites that previously used HTTP (Android cleartext error).
+            const safeTarget = /^https?:\/\//i.test(targetUrl)
+                ? targetUrl.replace(/^http:\/\//i, 'https://')
+                : targetUrl;
+            const link = document.createElement('a');
+            link.href = safeTarget;
+            link.target = '_blank';
+            link.rel = 'noopener noreferrer';
+            link.style.display = 'none';
+            document.body.appendChild(link);
+            link.click();
+            link.remove();
         }
 
         function enforceLockedVideoPlayers(rootEl = document) {
@@ -1972,7 +1982,9 @@
             const cleanLink = sanitizeExternalOrHashUrl(ad.buttonLink || '#/products');
             const encodedLink = encodeURIComponent(cleanLink);
             const mediaUrl = String(ad.videoUrl || '').trim();
-            const isImageMedia = /\.(?:png|jpe?g|gif|webp|bmp|svg)(?:[?#].*)?$/i.test(mediaUrl) || /(?:googleusercontent\.com\/.*(?:=s|w)|drive\.google\.com\/uc\?export=view)/i.test(mediaUrl);
+            const isImageMedia = /\.(?:png|jpe?g|gif|webp|bmp|svg|avif)(?:[?#].*)?$/i.test(mediaUrl) ||
+                /(?:googleusercontent\.com\/.*(?:=s|w)|drive\.google\.com\/(?:uc\?export=view|thumbnail)|imgur\.com\/(?:[a-z0-9]+\.(?:png|jpe?g|gif|webp)|gallery|a\/))/i.test(mediaUrl) ||
+                /(?:images\.unsplash\.com|imagekit\.io|cloudinary\.com|cdn\.shopify\.com)/i.test(mediaUrl);
             const parsedMedia = isImageMedia ? { type: 'image', src: normalizeCatalogImageUrl(mediaUrl) } : parseUniversalVideoSource(mediaUrl);
 
             let mediaElementHTML = '';
