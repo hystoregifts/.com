@@ -482,99 +482,45 @@
             <div id="services-cards-grid" class="space-y-8 lg:space-y-10"></div>
         </div>
 
-        <!-- ==================== VIEW 4: DEDICATED FULL TRACK ORDER PAGE ==================== -->
-        <div id="view-track" class="page-view hidden max-w-3xl lg:max-w-4xl mx-auto px-4 sm:px-6 pt-8 sm:pt-12">
-            <div class="text-center max-w-lg mx-auto mb-8">
-                <span class="inline-block bg-[#FFF1F1] border border-[#D90B0B]/25 text-[#D90B0B] font-display font-bold text-[11px] uppercase tracking-widest px-4 py-1 rounded-full">Live Order Verification</span>
-                <h1 class="font-display font-extrabold text-2xl sm:text-3xl lg:text-4xl text-[#8A0404] mt-2">Track Your Gift Order</h1>
-                <p class="text-xs lg:text-sm text-[#8A0404]/85 mt-1.5">Enter your valid Order ID (e.g. HY-1001) to check real-time status &amp; payment verification.</p>
+        <!-- ==================== VIEW 4: PROFESSIONAL TRACK ORDER PAGE ==================== -->
+        <div id="view-track" class="page-view hidden max-w-5xl mx-auto px-4 sm:px-6 pt-8 sm:pt-12 pb-10">
+            <div class="text-center max-w-2xl mx-auto mb-8">
+                <div class="inline-flex items-center gap-2 bg-[#FFF1F1] border border-[#D90B0B]/20 text-[#D90B0B] font-display font-bold text-[11px] uppercase tracking-widest px-4 py-2 rounded-full"><i class="fa-solid fa-truck-fast"></i> Order Tracking</div>
+                <h1 class="font-display font-extrabold text-2xl sm:text-3xl lg:text-4xl text-[#8A0404] mt-3">Track Your Gift Order</h1>
+                <p class="text-sm text-[#8A0404]/75 mt-2">Track your order progress, payment verification and delivery updates in one place.</p>
             </div>
-
-            <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
-                <aside class="lg:col-span-4 bg-white border-2 border-[#D90B0B]/25 rounded-3xl overflow-hidden shadow-xl">
-                    <div class="bg-gradient-to-r from-[#D90B0B] via-[#E10A0A] to-[#B90808] px-5 py-4 text-center border-b-2 border-[#D90B0B]/20">
-                        <span class="font-display font-extrabold text-xl sm:text-2xl text-white tracking-wide block" dir="rtl">ایچ وائی گفٹ</span>
-                        <span class="text-[10px] font-display font-bold uppercase tracking-[0.2em] text-[#FDE047] block mt-0.5">LIVE ORDER TRACKER</span>
-                    </div>
-                    <div class="p-4 bg-[#FFF8F8] flex flex-col items-center justify-center">
-                        <div class="w-full rounded-2xl bg-white border border-[#D90B0B]/20 p-3 shadow-xs flex items-center justify-center overflow-hidden">
-                            <img src="${HY_TRACKING_PIC_URI}" alt="ایچ وائی گفٹ Order Tracking Graphic" class="w-full max-h-64 object-contain rounded-xl">
-                        </div>
-                    </div>
-                </aside>
-                <div class="lg:col-span-8 bg-white border-2 border-[#D90B0B]/20 rounded-3xl p-6 sm:p-8 shadow-2xl space-y-6">
+            <section class="bg-white border border-[#D90B0B]/15 rounded-3xl p-5 sm:p-8 shadow-xl mb-6">
+                <div class="flex items-center gap-3 mb-5">
+                    <div class="w-12 h-12 rounded-2xl bg-[#D90B0B] text-white flex items-center justify-center text-xl shadow-md"><i class="fa-solid fa-box"></i></div>
+                    <div><h2 class="font-display font-extrabold text-[#8A0404]">Find your order</h2><p class="text-xs text-[#8A0404]/65">Enter the tracking ID provided after checkout.</p></div>
+                </div>
                 <div class="flex flex-col sm:flex-row gap-3">
-                    <input type="text" id="trackInputPage" placeholder="Enter Order ID (e.g. HY-1001)" class="flex-1 bg-[#FFF5F5] border border-[#D90B0B]/30 rounded-full px-5 py-3 lg:py-3.5 text-xs lg:text-sm font-bold text-[#8A0404] placeholder-[#8A0404]/50 focus:border-[#D90B0B] focus:outline-none uppercase">
-                    <button onclick="executeTrack()" class="px-8 lg:px-10 py-3 lg:py-3.5 rounded-full font-display font-extrabold text-xs bg-[#D90B0B] hover:bg-[#B90808] text-white transition uppercase tracking-wider shadow-lg inline-flex items-center justify-center gap-2"><i class="fa-solid fa-magnifying-glass-location"></i><span>Track Order</span></button>
+                    <input type="text" id="trackInputPage" placeholder="Enter Order ID (e.g. HY-1001)" class="flex-1 bg-[#FFF8F8] border border-[#D90B0B]/20 rounded-2xl px-5 py-4 text-sm font-bold text-[#8A0404] placeholder-[#8A0404]/45 focus:border-[#D90B0B] focus:outline-none focus:ring-2 focus:ring-[#D90B0B]/10 uppercase">
+                    <button onclick="executeTrack()" class="px-8 py-4 rounded-2xl font-display font-extrabold text-sm bg-[#D90B0B] hover:bg-[#B90808] text-white transition uppercase tracking-wider shadow-md inline-flex items-center justify-center gap-2"><i class="fa-solid fa-magnifying-glass"></i><span>Track Order</span></button>
                 </div>
-
-                <div id="trackResultsArea" class="hidden pt-6 border-t border-[#D90B0B]/15 space-y-6">
-                    <div class="bg-[#FFF5F5] p-5 lg:p-6 rounded-2xl border border-[#D90B0B]/20 grid grid-cols-2 sm:grid-cols-4 gap-4 text-xs">
-                        <div>
-                            <span class="text-[#8A0404]/65 font-bold uppercase block text-[10px]">Customer Name</span>
-                            <span id="trackCustomerName" class="font-extrabold text-[#8A0404] lg:text-sm">--</span>
-                        </div>
-                        <div>
-                            <span class="text-[#8A0404]/65 font-bold uppercase block text-[10px]">Current Status</span>
-                            <span id="trackCurrentStatus" class="font-extrabold text-[#D90B0B] lg:text-sm">Order Placed</span>
-                        </div>
-                        <div>
-                            <span class="text-[#8A0404]/65 font-bold uppercase block text-[10px]">Destination</span>
-                            <span id="trackCountry" class="font-extrabold text-[#8A0404] lg:text-sm">Pakistan</span>
-                        </div>
-                        <div>
-                            <span class="text-[#8A0404]/65 font-bold uppercase block text-[10px]">City</span>
-                            <span id="trackCity" class="font-extrabold text-[#8A0404] lg:text-sm">Lahore</span>
-                        </div>
-                    </div>
-
-                    <div class="bg-[#FFF5F5] p-5 lg:p-6 rounded-2xl border border-[#D90B0B]/20 space-y-5">
-                        <div class="flex justify-between items-center flex-wrap gap-2">
-                            <div>
-                                <span class="text-[10px] font-bold text-[#8A0404]/65 uppercase">TRACKING NO.</span>
-                                <p id="trackResultID" class="text-xl lg:text-2xl font-display font-black text-[#8A0404]">HY-1001</p>
-                            </div>
-                            <div class="text-right">
-                                <span class="text-[10px] font-bold text-[#8A0404]/65 uppercase block">PAYMENT VERIFICATION</span>
-                                <div id="trackTimerBadge" class="mt-1 font-bold text-xs text-[#D90B0B]">--</div>
-                            </div>
-                        </div>
-
-                        <div class="w-full bg-[#FFF1F1] h-2.5 rounded-full overflow-hidden">
-                            <div id="trackProgressBar" class="bg-[#D90B0B] h-full w-1/4 transition-all duration-500"></div>
-                        </div>
-
-                        <div class="grid grid-cols-4 gap-2 text-center text-[11px]">
-                            <div>
-                                <div id="step-placed" class="w-8 h-8 lg:w-10 lg:h-10 rounded-full bg-[#D90B0B] text-white mx-auto flex items-center justify-center font-bold mb-1 shadow-sm">
-                                    <i class="fa-solid fa-check text-xs"></i>
-                                </div>
-                                <span class="font-bold text-[#8A0404]">Placed</span>
-                            </div>
-                            <div>
-                                <div id="step-proof" class="w-8 h-8 lg:w-10 lg:h-10 rounded-full bg-[#FFF1F1] text-[#8A0404]/65 mx-auto flex items-center justify-center font-bold mb-1">
-                                    <i class="fa-solid fa-gift text-xs"></i>
-                                </div>
-                                <span class="text-[#8A0404]/75 font-medium">Crafting</span>
-                            </div>
-                            <div>
-                                <div id="step-printing" class="w-8 h-8 lg:w-10 lg:h-10 rounded-full bg-[#FFF1F1] text-[#8A0404]/65 mx-auto flex items-center justify-center font-bold mb-1">
-                                    <i class="fa-solid fa-box text-xs"></i>
-                                </div>
-                                <span class="text-[#8A0404]/75 font-medium">Packaged</span>
-                            </div>
-                            <div>
-                                <div id="step-dispatched" class="w-8 h-8 lg:w-10 lg:h-10 rounded-full bg-[#FFF1F1] text-[#8A0404]/65 mx-auto flex items-center justify-center font-bold mb-1">
-                                    <i class="fa-solid fa-truck text-xs"></i>
-                                </div>
-                                <span class="text-[#8A0404]/75 font-medium">Dispatched</span>
-                            </div>
-                        </div>
-                    </div>
+            </section>
+            <div id="trackResultsArea" class="hidden bg-white border border-[#D90B0B]/15 rounded-3xl p-5 sm:p-8 shadow-xl space-y-6">
+                <div class="flex flex-wrap justify-between items-center gap-3 border-b border-[#D90B0B]/10 pb-5">
+                    <div><p class="text-[10px] font-bold uppercase tracking-widest text-[#D90B0B]">Tracking Number</p><p id="trackResultID" class="font-display font-black text-2xl sm:text-3xl text-[#8A0404]">HY-1001</p></div>
+                    <div class="text-left sm:text-right"><p class="text-[10px] font-bold uppercase tracking-widest text-[#8A0404]/60">Payment Verification</p><div id="trackTimerBadge" class="mt-1 font-bold text-xs">--</div></div>
                 </div>
+                <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                    <div class="bg-[#FFF8F8] border border-[#D90B0B]/10 rounded-2xl p-4"><p class="text-[10px] font-bold uppercase tracking-wider text-[#8A0404]/60">Customer</p><p id="trackCustomerName" class="font-bold text-[#8A0404] mt-1">--</p></div>
+                    <div class="bg-[#FFF8F8] border border-[#D90B0B]/10 rounded-2xl p-4"><p class="text-[10px] font-bold uppercase tracking-wider text-[#8A0404]/60">Order Status</p><p id="trackCurrentStatus" class="font-bold text-[#D90B0B] mt-1">Order Placed</p></div>
+                    <div class="bg-[#FFF8F8] border border-[#D90B0B]/10 rounded-2xl p-4"><p class="text-[10px] font-bold uppercase tracking-wider text-[#8A0404]/60">Delivery Location</p><p class="font-bold text-[#8A0404] mt-1"><span id="trackCity">--</span>, <span id="trackCountry">Pakistan</span></p></div>
+                </div>
+                <section class="bg-white border border-[#D90B0B]/10 rounded-2xl p-5 sm:p-6 space-y-5">
+                    <div><h3 class="font-display font-extrabold text-[#8A0404]">Order progress</h3><p class="text-xs text-[#8A0404]/60 mt-1">Updates reflect the latest status received for your order.</p></div>
+                    <div class="w-full bg-[#FFF1F1] h-3 rounded-full overflow-hidden"><div id="trackProgressBar" class="bg-[#D90B0B] h-full w-1/4 transition-all duration-500"></div></div>
+                    <div class="grid grid-cols-4 gap-2 text-center text-[10px] sm:text-xs">
+                        <div><div id="step-placed" class="w-9 h-9 sm:w-11 sm:h-11 rounded-full bg-[#D90B0B] text-white mx-auto flex items-center justify-center font-bold mb-2"><i class="fa-solid fa-check"></i></div><span class="font-bold text-[#8A0404]">Placed</span></div>
+                        <div><div id="step-proof" class="w-9 h-9 sm:w-11 sm:h-11 rounded-full bg-[#FFF1F1] text-[#8A0404]/65 mx-auto flex items-center justify-center font-bold mb-2"><i class="fa-solid fa-gift"></i></div><span class="font-bold text-[#8A0404]">Crafting</span></div>
+                        <div><div id="step-printing" class="w-9 h-9 sm:w-11 sm:h-11 rounded-full bg-[#FFF1F1] text-[#8A0404]/65 mx-auto flex items-center justify-center font-bold mb-2"><i class="fa-solid fa-box"></i></div><span class="font-bold text-[#8A0404]">Packaged</span></div>
+                        <div><div id="step-dispatched" class="w-9 h-9 sm:w-11 sm:h-11 rounded-full bg-[#FFF1F1] text-[#8A0404]/65 mx-auto flex items-center justify-center font-bold mb-2"><i class="fa-solid fa-truck"></i></div><span class="font-bold text-[#8A0404]">Dispatched</span></div>
+                    </div>
+                </section>
             </div>
         </div>
-            </div>
 
         <!-- ==================== VIEW 5: LOGIN PAGE ==================== -->
         <div id="view-login" class="page-view hidden max-w-md mx-auto px-4 pt-10 sm:pt-14">
