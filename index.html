@@ -1780,19 +1780,56 @@
 
         async function fetchPromoAdFromBackend() {
             try {
-                const res = await fetch(API_ENDPOINT + "?action=getPromoAd&_t=" + Date.now());
+                const res = await fetch(API_ENDPOINT + "?action=getSiteContent&_t=" + Date.now());
                 if (!res.ok) return;
                 const data = await res.json();
-                const rawList = Array.isArray(data)
-                    ? data
-                    : (Array.isArray(data?.ads) ? data.ads : (Array.isArray(data?.promos) ? data.promos : (data && (data.ad || data.promo) ? [data.ad || data.promo] : (data && (data.title || data.videoUrl || data.video || data.videoLink) ? [data] : []))));
+                const items = Array.isArray(data?.items)
+                    ? data.items
+                    : (data?.siteContent && typeof data.siteContent === 'object' ? Object.values(data.siteContent) : []);
 
-                const normalized = rawList.map((item, i) => normalizeSinglePromoAd(item, i)).filter(Boolean);
+                const adRows = items.filter(row => {
+                    if (!row || typeof row !== 'object') return false;
+                    const key = String(row.key || '').toLowerCase();
+                    const sec = String(row.section || '').toLowerCase();
+                    const extra = String(row.extra || '').toUpperCase();
+                    const imgOrVid = String(row.image || '').toLowerCase();
+                    if (extra === 'OFF') return false;
+                    return key.includes('video') || key.includes('ad') || key.includes('promo') ||
+                           sec.includes('video') || sec.includes('ad') || sec.includes('promo') ||
+                           extra === 'VIDEO' || /\.(mp4|webm|ogg)(\?|$)/i.test(imgOrVid) ||
+                           /youtube\.com|youtu\.be|tiktok\.com|facebook\.com|fb\.watch|instagram\.com|drive\.google\.com/i.test(imgOrVid);
+                });
+
+                const normalized = adRows.map((row, i) => normalizeSinglePromoAd({
+                    enabled: String(row.extra || '').toUpperCase() !== 'OFF',
+                    brandName: row.section || 'HY GIFTS STUDIO • FEATURED SPOTLIGHT',
+                    title: row.title || PROMO_AD_DATA.title,
+                    description: row.subtitle || PROMO_AD_DATA.description,
+                    buttonText: 'Get',
+                    buttonLink: row.link || '#/products',
+                    videoUrl: row.image || PROMO_AD_DATA.videoUrl,
+                    posterUrl: PROMO_AD_DATA.posterUrl
+                }, i)).filter(Boolean);
+
                 if (normalized.length > 0) {
                     PROMO_ADS_LIST = normalized;
                     PROMO_AD_DATA = { ...PROMO_AD_DATA, ...normalized[0] };
                     if (!isProductsLoading) renderProducts();
                 }
+
+                // Also sync Hero Banners from SiteContent if hero_banner rows exist
+                const sc = data?.siteContent || {};
+                const bannerKeys = ['hero_banner_1', 'hero_banner_2', 'hero_banner_3'];
+                bannerKeys.forEach((bk, idx) => {
+                    const b = sc[bk];
+                    if (b && String(b.extra || '').toUpperCase() !== 'OFF' && slides[idx]) {
+                        if (b.section) slides[idx].tag = b.section;
+                        if (b.title) slides[idx].title = b.title;
+                        if (b.subtitle) slides[idx].subtitle = b.subtitle;
+                        if (b.image) slides[idx].image = normalizeCatalogImageUrl(b.image);
+                    }
+                });
+                if (typeof goToSlide === 'function') goToSlide(currentSlide || 0);
             } catch (e) {}
         }
 
