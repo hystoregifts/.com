@@ -1681,52 +1681,71 @@
         }
 
         
-        // ==================== END-TO-END PROMO VIDEO AD (GOOGLE SHEET BACKUP + UNIVERSAL YOUTUBE/TIKTOK/FACEBOOK/DRIVE/MP4 + LOCKED PLAYBACK) ====================
-        let PROMO_AD_DATA = {
-            enabled: true,
-            brandName: "HY GIFTS STUDIO • FEATURED SPOTLIGHT",
-            title: "Luxury Personalized LED Frames & Surprise Gift Boxes",
-            description: "Make every birthday, anniversary & special moment unforgettable. Upload your favorite photo & custom name — handcrafted with love and delivered free across Pakistan.",
-            buttonText: "Get",
-            buttonLink: "#/products",
-            videoUrl: "https://assets.mixkit.co/videos/preview/mixkit-hands-wrapping-a-gift-box-with-a-red-ribbon-42431-large.mp4",
-            posterUrl: "https://images.unsplash.com/photo-1549465220-1a8b9238cd48?auto=format&fit=crop&w=1200&q=85"
-        };
-
+        // ==================== END-TO-END PROMO VIDEO AD (SINGLE ACTIVE ROW IN GOOGLE SHEET + NO DEMO WHEN EMPTY + 16:9 YOUTUBE SIZE + MOBILE SAFE LINK) ====================
+        let PROMO_AD_DATA = null;
         let PROMO_ADS_LIST = [];
 
-        function normalizeSinglePromoAd(ad, fallbackIndex = 0) {
-            if (!ad || typeof ad !== 'object') return null;
-            const base = PROMO_AD_DATA;
+        function hasValidPromoRowData(ad) {
+            if (!ad || typeof ad !== 'object') return false;
+            const enabledFlag = ad.enabled !== false && String(ad.enabled ?? 'true').trim().toLowerCase() !== 'false' && String(ad.extra || '').trim().toUpperCase() !== 'OFF';
+            if (!enabledFlag) return false;
+            const videoVal = String(ad.videoUrl || ad.video || ad.videoLink || ad.image || ad.url || '').trim();
+            const titleVal = String(ad.title || ad.heading || '').trim();
+            const descVal = String(ad.description || ad.desc || ad.subtitle || ad.text || '').trim();
+            const linkVal = String(ad.buttonLink || ad.btnLink || ad.link || '').trim();
+            return Boolean(videoVal || titleVal || descVal || linkVal);
+        }
+
+        function normalizeSinglePromoAd(ad) {
+            if (!hasValidPromoRowData(ad)) return null;
             const rawVideo = String(
-                ad.videoUrl || ad.video || ad.videoLink || ad.link || ad.url || base.videoUrl
+                ad.videoUrl || ad.video || ad.videoLink || ad.image || ad.url || ''
             ).trim();
             const rawBtnLink = String(
-                ad.buttonLink || ad.btnLink || ad.redirectUrl || ad.targetUrl || base.buttonLink || "#/products"
+                ad.buttonLink || ad.btnLink || ad.link || ad.redirectUrl || ad.targetUrl || ''
+            ).trim();
+            const rawPoster = String(
+                ad.posterUrl || ad.poster || ''
             ).trim();
             return {
-                enabled: ad.enabled !== false && String(ad.enabled ?? 'true').toLowerCase() !== 'false',
-                brandName: String(ad.brandName || ad.tag || ad.name || base.brandName).trim(),
-                title: String(ad.title || ad.heading || base.title).trim(),
-                description: String(ad.description || ad.desc || ad.text || base.description).trim(),
-                buttonText: String(ad.buttonText || ad.btnText || base.buttonText || "Get").trim(),
+                enabled: true,
+                brandName: String(ad.brandName || ad.section || ad.tag || ad.name || 'HY GIFTS • SPONSORED').trim(),
+                title: String(ad.title || ad.heading || 'Featured Promo').trim(),
+                description: String(ad.description || ad.desc || ad.subtitle || ad.text || '').trim(),
+                buttonText: String(ad.buttonText || ad.btnText || 'Get').trim() || 'Get',
                 buttonLink: rawBtnLink,
                 videoUrl: rawVideo,
-                posterUrl: normalizeCatalogImageUrl(ad.posterUrl || ad.poster || ad.image || base.posterUrl),
-                _slot: fallbackIndex
+                posterUrl: rawPoster ? normalizeCatalogImageUrl(rawPoster) : ''
             };
         }
 
+        function sanitizeExternalOrHashUrl(rawUrl) {
+            let val = String(rawUrl || '').trim();
+            if (!val) return '#/products';
+            if (/^#/.test(val)) return val;
+            // Fix common mobile/typo URL issues like "https//example.com" or "www.example.com"
+            val = val.replace(/^(https?):\/{1}([^\/])/i, '$1://$2');
+            if (/^www\./i.test(val)) {
+                val = 'https://' + val;
+            }
+            if (!/^[a-zA-Z][a-zA-Z0-9+.-]*:/.test(val)) {
+                // Looks like a domain or path without scheme
+                if (/^[a-zA-Z0-9-]+(\.[a-zA-Z0-9-]+)+/.test(val)) {
+                    val = 'https://' + val;
+                } else {
+                    val = '#/' + val.replace(/^\/+/, '');
+                }
+            }
+            return val;
+        }
+
         function parseUniversalVideoSource(rawUrl) {
-            const url = String(rawUrl || '').trim();
-            if (!url) {
-                return {
-                    type: 'mp4',
-                    src: 'https://assets.mixkit.co/videos/preview/mixkit-hands-wrapping-a-gift-box-with-a-red-ribbon-42431-large.mp4'
-                };
+            const url = sanitizeExternalOrHashUrl(rawUrl);
+            if (!url || url === '#/products') {
+                return { type: 'none', src: '' };
             }
 
-            // 1. YouTube (watch, youtu.be, shorts, embed, live)
+            // 1. YouTube (watch, youtu.be, shorts, embed, live, m.youtube.com)
             const ytMatch = url.match(/(?:youtube\.com\/(?:watch\?(?:.*&)?v=|shorts\/|embed\/|live\/)|youtu\.be\/)([a-zA-Z0-9_-]{11})/);
             if (ytMatch && ytMatch[1]) {
                 const vid = ytMatch[1];
@@ -1734,7 +1753,7 @@
                 return { type: 'youtube', id: vid, src: embedUrl };
             }
 
-            // 2. TikTok (tiktok.com/@user/video/ID or vm.tiktok.com / vt.tiktok.com)
+            // 2. TikTok (tiktok.com/@user/video/ID or embed)
             const ttMatch = url.match(/tiktok\.com\/(?:@[^\/]+\/video\/|v\/|embed\/v2\/)(\d+)/);
             if (ttMatch && ttMatch[1]) {
                 const tid = ttMatch[1];
@@ -1787,35 +1806,29 @@
                     ? data.items
                     : (data?.siteContent && typeof data.siteContent === 'object' ? Object.values(data.siteContent) : []);
 
+                // Strictly find rows in Google Sheets dedicated to promo/video ad
                 const adRows = items.filter(row => {
                     if (!row || typeof row !== 'object') return false;
-                    const key = String(row.key || '').toLowerCase();
-                    const sec = String(row.section || '').toLowerCase();
-                    const extra = String(row.extra || '').toUpperCase();
-                    const imgOrVid = String(row.image || '').toLowerCase();
+                    const key = String(row.key || '').trim().toLowerCase();
+                    const sec = String(row.section || '').trim().toLowerCase();
+                    const extra = String(row.extra || '').trim().toUpperCase();
                     if (extra === 'OFF') return false;
                     return key.includes('video') || key.includes('ad') || key.includes('promo') ||
                            sec.includes('video') || sec.includes('ad') || sec.includes('promo') ||
-                           extra === 'VIDEO' || /\.(mp4|webm|ogg)(\?|$)/i.test(imgOrVid) ||
-                           /youtube\.com|youtu\.be|tiktok\.com|facebook\.com|fb\.watch|instagram\.com|drive\.google\.com/i.test(imgOrVid);
+                           extra === 'VIDEO' || extra === 'AD' || extra === 'PROMO';
                 });
 
-                const normalized = adRows.map((row, i) => normalizeSinglePromoAd({
-                    enabled: String(row.extra || '').toUpperCase() !== 'OFF',
-                    brandName: row.section || 'HY GIFTS STUDIO • FEATURED SPOTLIGHT',
-                    title: row.title || PROMO_AD_DATA.title,
-                    description: row.subtitle || PROMO_AD_DATA.description,
-                    buttonText: 'Get',
-                    buttonLink: row.link || '#/products',
-                    videoUrl: row.image || PROMO_AD_DATA.videoUrl,
-                    posterUrl: PROMO_AD_DATA.posterUrl
-                }, i)).filter(Boolean);
-
-                if (normalized.length > 0) {
-                    PROMO_ADS_LIST = normalized;
-                    PROMO_AD_DATA = { ...PROMO_AD_DATA, ...normalized[0] };
-                    if (!isProductsLoading) renderProducts();
+                // Only 1 row active in Google Sheet = 1 promo video ad; if 0 rows or empty, show NOTHING (no demo)
+                if (adRows.length > 0) {
+                    const singleAd = normalizeSinglePromoAd(adRows[0]);
+                    PROMO_AD_DATA = singleAd;
+                    PROMO_ADS_LIST = singleAd ? [singleAd] : [];
+                } else {
+                    PROMO_AD_DATA = null;
+                    PROMO_ADS_LIST = [];
                 }
+
+                if (!isProductsLoading) renderProducts();
 
                 // Also sync Hero Banners from SiteContent if hero_banner rows exist
                 const sc = data?.siteContent || {};
@@ -1830,16 +1843,17 @@
                     }
                 });
                 if (typeof goToSlide === 'function') goToSlide(currentSlide || 0);
-            } catch (e) {}
+            } catch (e) {
+                PROMO_AD_DATA = null;
+                PROMO_ADS_LIST = [];
+                if (!isProductsLoading) renderProducts();
+            }
         }
 
-        function getPromoAdForSlot(slotIndex) {
-            if (Array.isArray(PROMO_ADS_LIST) && PROMO_ADS_LIST.length > 0) {
-                const activeAds = PROMO_ADS_LIST.filter(a => a.enabled);
-                if (!activeAds.length) return null;
-                return activeAds[slotIndex % activeAds.length];
-            }
-            return (PROMO_AD_DATA && PROMO_AD_DATA.enabled) ? PROMO_AD_DATA : null;
+        function getPromoAdForSlot(slotIndex = 0) {
+            if (!PROMO_AD_DATA || PROMO_AD_DATA.enabled === false) return null;
+            if (!hasValidPromoRowData(PROMO_AD_DATA)) return null;
+            return PROMO_AD_DATA;
         }
 
         function togglePromoAdMuteById(mediaId, btn) {
@@ -1858,7 +1872,6 @@
                 return;
             }
 
-            // For YouTube / Iframe embeds: toggle mute via postMessage & reload state if needed
             const isCurrentlyMuted = el.getAttribute('data-muted') !== 'false';
             const nextMuted = !isCurrentlyMuted;
             el.setAttribute('data-muted', String(nextMuted));
@@ -1900,11 +1913,18 @@
         }
 
         function handlePromoAdGetClick(customLink) {
-            const link = customLink || PROMO_AD_DATA.buttonLink || '#/products';
-            if (link.startsWith('http://') || link.startsWith('https://')) {
-                window.open(link, '_blank', 'noopener,noreferrer');
-            } else {
-                navigate(link);
+            const rawTarget = customLink || (PROMO_AD_DATA && PROMO_AD_DATA.buttonLink) || '#/products';
+            const targetUrl = sanitizeExternalOrHashUrl(rawTarget);
+
+            if (targetUrl.startsWith('#/')) {
+                navigate(targetUrl);
+                return;
+            }
+
+            // Mobile-safe external opening: open in new tab first, fallback to same-window navigation if popup blocked
+            const win = window.open(targetUrl, '_blank', 'noopener,noreferrer');
+            if (!win || win.closed || typeof win.closed === 'undefined') {
+                window.location.assign(targetUrl);
             }
         }
 
@@ -1925,21 +1945,18 @@
                         }
                     });
 
-                    // Block forward/backward seeking
                     v.addEventListener('seeking', () => {
                         if (Math.abs(v.currentTime - lastSafeTime) > 0.6 && !(v.duration && lastSafeTime > v.duration - 0.8 && v.currentTime < 0.8)) {
                             v.currentTime = lastSafeTime;
                         }
                     });
 
-                    // Block pause attempts
                     v.addEventListener('pause', () => {
                         if (!v.ended) {
                             v.play().catch(() => {});
                         }
                     });
 
-                    // Block playback rate changes
                     v.addEventListener('ratechange', () => {
                         if (v.playbackRate !== 1) {
                             v.playbackRate = 1;
@@ -1953,11 +1970,12 @@
 
         function buildEndToEndPromoAdHTML(adConfig, slotIndex = 0) {
             const ad = adConfig || getPromoAdForSlot(slotIndex);
-            if (!ad || ad.enabled === false) return '';
+            if (!ad || !hasValidPromoRowData(ad)) return '';
 
             const uid = `hyPromoAd_${slotIndex}`;
             const videoId = `hyPromoAdVideo_${slotIndex}`;
-            const safeLink = String(ad.buttonLink || '#/products').replace(/'/g, "\'");
+            const cleanLink = sanitizeExternalOrHashUrl(ad.buttonLink || '#/products');
+            const encodedLink = encodeURIComponent(cleanLink);
             const parsedMedia = parseUniversalVideoSource(ad.videoUrl);
 
             let mediaElementHTML = '';
@@ -1966,7 +1984,7 @@
                     <video
                         id="${videoId}"
                         src="${escapeHtml(parsedMedia.src)}"
-                        poster="${escapeHtml(ad.posterUrl)}"
+                        ${ad.posterUrl ? `poster="${escapeHtml(ad.posterUrl)}"` : ''}
                         autoplay
                         loop
                         muted
@@ -1979,10 +1997,10 @@
                         class="hy-locked-ad-video w-full h-full object-cover pointer-events-none select-none"
                     ></video>
                 `;
-            } else {
+            } else if (parsedMedia.type !== 'none') {
                 const scaleClass = parsedMedia.type === 'youtube'
-                    ? 'scale-[1.35]'
-                    : (parsedMedia.type === 'tiktok' ? 'scale-[1.22]' : 'scale-[1.18]');
+                    ? 'scale-[1.22]'
+                    : (parsedMedia.type === 'tiktok' ? 'scale-[1.15]' : 'scale-[1.12]');
                 mediaElementHTML = `
                     <iframe
                         id="${videoId}"
@@ -1996,62 +2014,73 @@
                         class="w-full h-full border-0 pointer-events-none select-none object-cover ${scaleClass}"
                     ></iframe>
                 `;
+            } else if (ad.posterUrl) {
+                mediaElementHTML = `
+                    <img
+                        src="${escapeHtml(ad.posterUrl)}"
+                        alt="${escapeHtml(ad.title || 'Promo')}"
+                        class="w-full h-full object-cover pointer-events-none select-none"
+                    >
+                `;
             }
 
             return `
-                <div id="${uid}" data-ad-slot="${slotIndex}" class="col-span-full w-screen relative left-1/2 -translate-x-1/2 my-2 sm:my-3.5 lg:my-4 bg-gradient-to-br from-[#6D0202] via-[#A80606] to-[#D90B0B] border-y-2 border-[#FDE047]/75 shadow-[0_12px_32px_rgba(138,4,4,0.22)] overflow-hidden">
-                    <div class="max-w-7xl mx-auto">
-                        <div class="grid grid-cols-1 lg:grid-cols-12 items-stretch">
-                            <!-- Locked Non-Pausable, Non-Seekable Auto-Playing Video -->
-                            <div oncontextmenu="return false;" class="lg:col-span-5 relative h-36 sm:h-44 lg:h-auto lg:min-h-[188px] lg:max-h-[220px] bg-black overflow-hidden order-1 lg:order-2 lg:border-l border-white/20 select-none">
+                <div id="${uid}" data-ad-slot="${slotIndex}" class="col-span-full w-full my-3 sm:my-5 lg:my-6 bg-gradient-to-br from-[#6D0202] via-[#A80606] to-[#D90B0B] border-2 border-[#FDE047]/80 rounded-2xl lg:rounded-3xl shadow-[0_14px_34px_rgba(138,4,4,0.22)] p-3 sm:p-5 lg:p-6">
+                    <div class="grid grid-cols-1 lg:grid-cols-12 gap-4 lg:gap-6 items-center">
+                        <!-- Locked 16:9 YouTube-Sized Video Container (Fits Desktop & Mobile Cleanly) -->
+                        <div class="lg:col-span-6 w-full max-w-2xl mx-auto order-1 lg:order-2">
+                            <div oncontextmenu="return false;" class="relative w-full aspect-video rounded-xl lg:rounded-2xl bg-black overflow-hidden border border-white/25 shadow-xl select-none">
                                 ${mediaElementHTML}
                                 <!-- Transparent Interaction Shield: Blocks Pause, Seek, Scrub & Clicks -->
                                 <div class="absolute inset-0 z-[5] bg-transparent cursor-default select-none" aria-hidden="true"></div>
                                 <div class="absolute inset-0 z-[6] bg-gradient-to-t from-black/45 via-transparent to-black/15 pointer-events-none"></div>
-                                <div class="absolute top-2 left-2.5 z-[7] flex items-center gap-1.5 pointer-events-none">
-                                    <span class="bg-black/65 backdrop-blur-xs text-white border border-white/25 text-[9px] font-display font-bold uppercase tracking-widest px-2 py-0.5 rounded-full shadow-xs">
+                                <div class="absolute top-2.5 left-2.5 z-[7] flex items-center gap-1.5 pointer-events-none">
+                                    <span class="bg-black/70 backdrop-blur-xs text-white border border-white/25 text-[9px] font-display font-bold uppercase tracking-widest px-2.5 py-0.5 rounded-full shadow-xs">
                                         <i class="fa-solid fa-play text-[#FDE047] mr-1"></i> Video Ad
                                     </span>
-                                    ${slotIndex > 0 ? `<span class="bg-[#FDE047] text-[#8A0404] text-[9px] font-display font-extrabold uppercase tracking-wider px-2 py-0.5 rounded-full shadow-xs">#${slotIndex + 1}</span>` : ''}
                                 </div>
+                                ${parsedMedia.type !== 'none' ? `
                                 <button
                                     type="button"
                                     onclick="togglePromoAdMuteById('${videoId}', this)"
                                     aria-label="Toggle Ad Video Sound"
-                                    class="absolute bottom-2 right-2.5 z-10 bg-black/70 hover:bg-[#D90B0B] text-white border border-white/30 text-[10px] font-display font-bold px-2.5 py-1 rounded-full backdrop-blur-xs transition inline-flex items-center gap-1 shadow-md active:scale-95"
+                                    class="absolute bottom-2.5 right-2.5 z-10 bg-black/75 hover:bg-[#D90B0B] text-white border border-white/30 text-[10px] font-display font-bold px-2.5 py-1 rounded-full backdrop-blur-xs transition inline-flex items-center gap-1 shadow-md active:scale-95"
                                 >
                                     <i class="fa-solid fa-volume-xmark"></i>
                                     <span>Unmute</span>
                                 </button>
+                                ` : ''}
+                            </div>
+                        </div>
+
+                        <!-- Ad Title, Description & CTA -->
+                        <div class="lg:col-span-6 px-1 sm:px-2 flex flex-col justify-center items-start text-left space-y-2 order-2 lg:order-1">
+                            <div class="inline-flex items-center gap-1.5 bg-white/15 border border-[#FDE047]/55 backdrop-blur-xs px-3 py-0.5 rounded-full max-w-full">
+                                <span class="w-1.5 h-1.5 rounded-full bg-[#FDE047] animate-pulse shrink-0"></span>
+                                <span class="font-display font-extrabold text-[9px] sm:text-[10px] uppercase tracking-[0.16em] text-[#FDE047] truncate">
+                                    ${escapeHtml(ad.brandName)}
+                                </span>
                             </div>
 
-                            <!-- Ad Title, Description & CTA -->
-                            <div class="lg:col-span-7 px-4 py-3 sm:px-6 sm:py-3.5 lg:px-8 lg:py-4 flex flex-col justify-center items-start text-left space-y-1.5 order-2 lg:order-1">
-                                <div class="inline-flex items-center gap-1.5 bg-white/15 border border-[#FDE047]/55 backdrop-blur-xs px-2.5 py-0.5 rounded-full max-w-full">
-                                    <span class="w-1.5 h-1.5 rounded-full bg-[#FDE047] animate-pulse shrink-0"></span>
-                                    <span class="font-display font-extrabold text-[9px] sm:text-[10px] uppercase tracking-[0.16em] text-[#FDE047] truncate">
-                                        ${escapeHtml(ad.brandName)}
-                                    </span>
-                                </div>
+                            <h3 class="font-display font-extrabold text-lg sm:text-xl lg:text-2xl text-white leading-snug">
+                                ${escapeHtml(ad.title)}
+                            </h3>
 
-                                <h3 class="font-display font-extrabold text-base sm:text-lg lg:text-2xl text-white leading-snug line-clamp-1">
-                                    ${escapeHtml(ad.title)}
-                                </h3>
+                            ${ad.description ? `
+                            <p class="text-xs sm:text-sm text-white/90 leading-relaxed max-w-xl">
+                                ${escapeHtml(ad.description)}
+                            </p>
+                            ` : ''}
 
-                                <p class="text-[11px] sm:text-xs lg:text-sm text-white/90 leading-snug max-w-2xl line-clamp-2">
-                                    ${escapeHtml(ad.description)}
-                                </p>
-
-                                <div class="pt-0.5 w-full sm:w-auto flex items-center gap-3">
-                                    <button
-                                        type="button"
-                                        onclick="handlePromoAdGetClick('${safeLink}')"
-                                        class="w-full sm:w-auto justify-center bg-[#FDE047] hover:bg-white text-[#8A0404] font-display font-extrabold text-[11px] sm:text-xs uppercase tracking-widest px-6 sm:px-7 py-2 rounded-full shadow-lg transition transform hover:scale-105 active:scale-95 inline-flex items-center gap-2"
-                                    >
-                                        <span>${escapeHtml(ad.buttonText || 'Get')}</span>
-                                        <i class="fa-solid fa-arrow-right text-[10px]"></i>
-                                    </button>
-                                </div>
+                            <div class="pt-1 w-full sm:w-auto flex items-center gap-3">
+                                <button
+                                    type="button"
+                                    onclick="handlePromoAdGetClick(decodeURIComponent('${encodedLink}'))"
+                                    class="w-full sm:w-auto justify-center bg-[#FDE047] hover:bg-white text-[#8A0404] font-display font-extrabold text-xs uppercase tracking-widest px-7 py-2.5 rounded-full shadow-lg transition transform hover:scale-105 active:scale-95 inline-flex items-center gap-2"
+                                >
+                                    <span>${escapeHtml(ad.buttonText || 'Get')}</span>
+                                    <i class="fa-solid fa-arrow-right text-[10px]"></i>
+                                </button>
                             </div>
                         </div>
                     </div>
@@ -2090,47 +2119,24 @@
                 `;
                 return;
             }
-            const isDesktopView = typeof window !== 'undefined' && window.innerWidth >= 1024;
-            let bodyHTML = '';
-            let slotCounter = 0;
 
-            if (isDesktopView) {
-                for (let i = 0; i < filtered.length; i += 12) {
-                    const chunk = filtered.slice(i, i + 12);
-                    bodyHTML += chunk.map(buildProductCardHTML).join('');
-                    if (chunk.length === 12) {
-                        const nextAd = getPromoAdForSlot(slotCounter);
-                        if (nextAd) {
-                            bodyHTML += buildEndToEndPromoAdHTML(nextAd, slotCounter);
-                        }
-                        slotCounter += 1;
-                    }
-                }
-            } else {
-                const firstSixHTML = filtered.slice(0, 6).map(buildProductCardHTML).join('');
-                bodyHTML = firstSixHTML;
+            const activeSingleAd = getPromoAdForSlot(0);
+            const adHtml = activeSingleAd ? buildEndToEndPromoAdHTML(activeSingleAd, 0) : '';
+            const insertAfterCount = (typeof window !== 'undefined' && window.innerWidth >= 1024) ? 8 : 6;
 
-                const initialAd = getPromoAdForSlot(0);
-                if (initialAd) {
-                    bodyHTML += buildEndToEndPromoAdHTML(initialAd, 0);
-                }
-
-                const afterSix = filtered.slice(6);
-                let recurringSlot = 1;
-                for (let i = 0; i < afterSix.length; i += 8) {
-                    const chunk = afterSix.slice(i, i + 8);
-                    bodyHTML += chunk.map(buildProductCardHTML).join('');
-                    if (chunk.length === 8) {
-                        const nextAd = getPromoAdForSlot(recurringSlot);
-                        if (nextAd) {
-                            bodyHTML += buildEndToEndPromoAdHTML(nextAd, recurringSlot);
-                        }
-                        recurringSlot += 1;
-                    }
-                }
+            if (!adHtml) {
+                grid.innerHTML = filtered.map(buildProductCardHTML).join('');
+                return;
             }
 
-            grid.innerHTML = bodyHTML;
+            if (filtered.length <= insertAfterCount) {
+                grid.innerHTML = filtered.map(buildProductCardHTML).join('') + adHtml;
+            } else {
+                const firstPart = filtered.slice(0, insertAfterCount).map(buildProductCardHTML).join('');
+                const restPart = filtered.slice(insertAfterCount).map(buildProductCardHTML).join('');
+                grid.innerHTML = firstPart + adHtml + restPart;
+            }
+
             enforceLockedVideoPlayers(grid);
         }
 
