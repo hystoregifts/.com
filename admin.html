@@ -121,12 +121,12 @@
                 <p class="text-xs font-semibold text-slate-500 mt-1"><i class="fa-solid fa-shield-halved text-[#1E3A8A] mr-1"></i> Complete Google Sheets Management System</p>
             </div>
 
-            <div class="space-y-4">
+            <form id="loginForm" onsubmit="event.preventDefault(); login();" class="space-y-4">
                 <div>
                     <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1.5">Username</label>
                     <div class="relative">
                         <i class="fa-solid fa-user absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400 text-xs"></i>
-                        <input id="user" autocomplete="username" value="admin" class="w-full pl-10 pr-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs font-bold text-slate-800 focus:bg-white focus:outline-none focus:ring-2 focus:ring-[#E50914] focus:border-transparent transition" placeholder="Enter ERP username">
+                        <input id="user" name="username" autocomplete="username" value="admin" class="w-full pl-10 pr-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs font-bold text-slate-800 focus:bg-white focus:outline-none focus:ring-2 focus:ring-[#E50914] focus:border-transparent transition" placeholder="Enter ERP username">
                     </div>
                 </div>
 
@@ -134,7 +134,7 @@
                     <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1.5">Password</label>
                     <div class="relative">
                         <i class="fa-solid fa-key absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400 text-xs"></i>
-                        <input id="pass" type="password" autocomplete="current-password" class="w-full pl-10 pr-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs font-bold text-slate-800 focus:bg-white focus:outline-none focus:ring-2 focus:ring-[#E50914] focus:border-transparent transition" placeholder="Enter ERP password">
+                        <input id="pass" name="password" type="password" autocomplete="current-password" class="w-full pl-10 pr-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs font-bold text-slate-800 focus:bg-white focus:outline-none focus:ring-2 focus:ring-[#E50914] focus:border-transparent transition" placeholder="Enter ERP password">
                     </div>
                 </div>
 
@@ -143,15 +143,15 @@
                     <span id="loginErrMsg">Invalid username or password.</span>
                 </div>
 
-                <button id="loginBtn" onclick="login()" class="w-full py-3 bg-gradient-to-r from-[#E50914] to-[#B80710] hover:from-[#B80710] hover:to-[#991b1b] text-white text-xs font-extrabold rounded-xl shadow-lg shadow-red-950/20 active:scale-[0.99] transition cursor-pointer flex items-center justify-center gap-2 disabled:opacity-60 disabled:cursor-not-allowed">
+                <button id="loginBtn" type="submit" class="w-full py-3 bg-gradient-to-r from-[#E50914] to-[#B80710] hover:from-[#B80710] hover:to-[#991b1b] text-white text-xs font-extrabold rounded-xl shadow-lg shadow-red-950/20 active:scale-[0.99] transition cursor-pointer flex items-center justify-center gap-2 disabled:opacity-60 disabled:cursor-not-allowed">
                     <i class="fa-solid fa-right-to-bracket"></i>
                     <span>LOGIN TO ERP</span>
                 </button>
-            </div>
+            </form>
 
             <div class="mt-6 pt-4 border-t border-slate-100 text-center text-[11px] font-medium text-slate-400 flex items-center justify-center gap-2">
                 <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
-                HY Store ERP System v3.2 Powered by Google Sheets
+                HY Store ERP System v3.3 Powered by Google Sheets
             </div>
         </div>
     </div>
@@ -219,7 +219,7 @@
             <div class="p-4 border-t border-white/10 text-xs text-blue-200 flex items-center justify-between">
                 <div class="flex items-center gap-2">
                     <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
-                    <span class="sidebar-text font-bold">HY STORE v3.2</span>
+                    <span class="sidebar-text font-bold">HY STORE v3.3</span>
                 </div>
                 <span class="text-[10px] bg-white/10 px-2 py-0.5 rounded-md font-mono text-blue-300">Sheets Sync</span>
             </div>
@@ -456,12 +456,6 @@
             return candidates.length ? candidates[0] : String(url || '').trim();
         }
 
-        // Helper: Video Embed URL for Google Drive videos
-        function getDriveVideoEmbedUrl(url) {
-            const driveId = extractDriveFileId(url);
-            return driveId ? `https://drive.google.com/file/d/${driveId}/preview` : String(url || '').trim();
-        }
-
         // Smart Image Fallback Handler (cycles through Drive endpoints before showing placeholder)
         function handleSmartImageError(imgEl, fallbackHtml) {
             try {
@@ -522,7 +516,6 @@
             const trimmed = String(rawValue).trim();
             if (!trimmed) return [];
 
-            // Try JSON parse first
             if ((trimmed.startsWith('[') && trimmed.endsWith(']')) || (trimmed.startsWith('{') && trimmed.endsWith('}'))) {
                 try {
                     const parsed = JSON.parse(trimmed);
@@ -538,21 +531,17 @@
                         const category = String(item.category || '').trim();
                         return { name, qty, price, image, category };
                     }).filter(x => x.name);
-                } catch (_) {
-                    // Fallback to text extraction if malformed JSON
-                }
+                } catch (_) {}
             }
 
-            // Clean text fallback: strip brackets/braces if partially formatted
             return trimmed
-                .split(/[
-,;]+/)
+                .split(/[\n,;]+/)
                 .map(part => part.replace(/[\[\]{}"]/g, '').trim())
                 .filter(Boolean)
                 .map(line => {
                     const qtyMatch = line.match(/(?:qty|quantity|x)\s*[:\-×x]?\s*(\d+)/i);
                     const qty = qtyMatch ? (parseInt(qtyMatch[1], 10) || 1) : 1;
-                    const cleanName = line.replace(/\(?(?:qty|quantity)\s*[:\-×x]?\s*\d+\)?/i, '').replace(/\s*[-|]\s*$/, '').trim() || line;
+                    const cleanName = line.replace(/\(?\b(?:qty|quantity)\b\s*[:\-×x]?\s*\d+\)?/i, '').replace(/\s*[-|]\s*$/, '').trim() || line;
                     return { name: cleanName, qty, price: '', image: '', category: '' };
                 });
         }
@@ -589,7 +578,6 @@
             const rawItemsStr = itemHeader ? String(orderRow[itemHeader] || '') : '';
             let parsedItems = parseOrderItems(rawItemsStr);
 
-            // Enrich parsed items with catalog images if missing
             parsedItems = parsedItems.map(item => {
                 if (!item.image) {
                     const match = lookupProductInCatalog(item.name) || lookupProductInCatalog(item.id);
@@ -600,7 +588,6 @@
                 return item;
             });
 
-            // Also check direct columns on Order row for product image or product name/id
             const productImgHeader = headers.find(h => /(product.*(img|image|photo|pic)|item.*(img|image|photo|pic)|^img$|^image$|^photo$|^pic$)/i.test(h) && !/receipt|slip|payment|proof/i.test(h));
             const receiptHeader = headers.find(h => /(receipt|slip|screenshot|proof|payment_img|payment_image)/i.test(h));
             const productNameHeader = headers.find(h => /(product_name|product|item_name|product_id|productid)/i.test(h));
@@ -616,7 +603,6 @@
                 if (catHit && catHit.image) primaryImage = catHit.image;
             }
 
-            // If still no image, try matching words from order title/items against Products/Catalog
             if (!primaryImage) {
                 const candidateNames = [
                     ...parsedItems.map(x => x.name),
@@ -675,8 +661,7 @@
                 `• *Payment Status:* *${cleanPayment}*`,
                 ``,
                 `Thank you for shopping with *HY STORE*. Please reply if you need any assistance!`
-            ].join('
-');
+            ].join('\n');
         }
 
         function buildOrderWhatsAppUrl(phoneRaw, messageText) {
@@ -712,7 +697,7 @@
             document.getElementById('user').focus();
         };
 
-        // Authentication Handler with Loading State
+        // Authentication Handler with Loading State & Reliable Entry
         async function login() {
             const u = document.getElementById('user').value.trim();
             const p = document.getElementById('pass').value;
@@ -751,9 +736,6 @@
                 closeConfirmModal(false);
                 closeInvoiceModal();
                 closeModal();
-            }
-            if (e.key === 'Enter' && document.getElementById('login').style.display !== 'none') {
-                login();
             }
         });
 
@@ -803,8 +785,14 @@
 
         // Exact API Backend Wrappers
         async function apiGet(action) {
-            const r = await fetch(API + '?action=' + encodeURIComponent(action));
-            const j = await r.json();
+            const r = await fetch(API + '?action=' + encodeURIComponent(action), { redirect: 'follow' });
+            const text = await r.text();
+            let j;
+            try {
+                j = JSON.parse(text);
+            } catch (_) {
+                throw Error('Invalid server response from Google Sheets');
+            }
             if (j.status !== 'success') throw Error(j.message || 'Google Sheets read failed');
             return j;
         }
@@ -813,9 +801,16 @@
             const r = await fetch(API, {
                 method: 'POST',
                 headers: { 'Content-Type': 'text/plain;charset=utf-8' },
-                body: JSON.stringify(payload)
+                body: JSON.stringify(payload),
+                redirect: 'follow'
             });
-            const j = await r.json();
+            const text = await r.text();
+            let j;
+            try {
+                j = JSON.parse(text);
+            } catch (_) {
+                throw Error('Invalid server response on save');
+            }
             if (j.status !== 'success') throw Error(j.message || 'Save failed');
             return j;
         }
@@ -843,6 +838,7 @@
             } catch (e) {
                 document.getElementById('syncLabel').textContent = 'Sync failed';
                 toast('Google Sheets connection error: ' + e.message, 'error');
+                if (!allSheets.length) showDashboard();
             } finally {
                 if (headerBtn) {
                     headerBtn.disabled = false;
@@ -1043,6 +1039,9 @@
 
                 <!-- Record Cards Dynamic Grid -->
                 <div id="recordGrid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4"></div>
+
+                <!-- Dispatched Orders Full-Width Landscape Strip Container (Only used on Orders page) -->
+                <div id="dispatchedSection" class="hidden mt-8 space-y-3"></div>
             `;
 
             drawCards(s.rows, s.headers);
@@ -1148,7 +1147,6 @@
                 image: primaryImage
             }];
 
-            // Calculate line subtotals if prices exist, else derive from order total
             const computedSum = lineItems.reduce((acc, it) => {
                 const p = parseFloat(String(it.price || '').replace(/[^0-9.]/g, '')) || 0;
                 return acc + (p * (it.qty || 1));
@@ -1341,9 +1339,232 @@
             }
         }
 
-        // Draw Records (Specialized Logic for Orders, Products, Catalog & Media Content)
+        // Helper: Render a single Active Order Card (With Product Photo)
+        function renderActiveOrderCard(r, headers, statusHeader, paymentHeader) {
+            const title = String(r[headers[1]] ?? r[headers[0]] ?? 'Order #' + r._row);
+            const customerName = String(r['Customer'] || r['Customer Name'] || r['Name'] || title).trim();
+            const phoneNum = String(r['Phone'] || r['Mobile'] || r['Contact'] || r['WhatsApp'] || '').trim();
+            const totalAmt = r['Total'] || r['Amount'] || r['Price'] || r['Total Amount'] || '';
+            const totalDisplay = totalAmt ? (String(totalAmt).toLowerCase().includes('rs') || String(totalAmt).includes('₨') ? String(totalAmt) : 'Rs ' + totalAmt) : '';
+
+            const currentStatus = String(r[statusHeader] || r['Status'] || 'Placed');
+            const currentPayment = String(r[paymentHeader] || r['Payment Status'] || 'Pending');
+            const cleanPhoneDigits = normalizePhoneForWhatsApp(phoneNum);
+
+            const { items, primaryImage, receiptUrl } = resolveOrderMediaAndItems(r, headers);
+
+            const statusBadgeColor = /packaged/i.test(currentStatus)
+                ? 'bg-blue-100 text-blue-800 border-blue-200'
+                : /crafting/i.test(currentStatus)
+                ? 'bg-amber-100 text-amber-800 border-amber-200'
+                : 'bg-indigo-100 text-indigo-800 border-indigo-200';
+
+            const payBadgeColor = /verified|paid/i.test(currentPayment)
+                ? 'bg-emerald-100 text-emerald-800 border-emerald-200'
+                : 'bg-rose-100 text-rose-800 border-rose-200';
+
+            return `
+            <article class="bg-white rounded-2xl border border-slate-200 hover:border-slate-300 p-4 shadow-xs hover:shadow-lg transition-all flex flex-col justify-between space-y-3 relative overflow-hidden">
+                <div class="absolute inset-x-0 top-0 h-1 bg-gradient-to-r from-[#1E3A8A] via-[#E50914] to-[#B80710]"></div>
+
+                <div class="space-y-2.5 pt-1">
+                    <!-- Order Card Header -->
+                    <div class="flex items-start justify-between gap-2 pb-2 border-b border-slate-100">
+                        <div class="min-w-0">
+                            <div class="flex items-center gap-1.5">
+                                <span class="text-[9px] font-black uppercase tracking-wider text-[#E50914] bg-red-50 px-1.5 py-0.5 rounded">ORDER</span>
+                                <span class="text-[10px] font-mono font-bold text-slate-400">#${r._row}</span>
+                            </div>
+                            <div class="text-xs font-black text-[#0F172A] truncate mt-0.5" title="${attr(title)}">${esc(title)}</div>
+                        </div>
+                        <div class="flex flex-col items-end gap-1 shrink-0">
+                            <span class="text-[9px] font-extrabold px-2 py-0.5 rounded-full border ${statusBadgeColor}">${esc(currentStatus)}</span>
+                            <span class="text-[9px] font-extrabold px-2 py-0.5 rounded-full border ${payBadgeColor}">${esc(currentPayment)}</span>
+                        </div>
+                    </div>
+
+                    <!-- Ordered Product Picture Showcase -->
+                    <div class="h-44 w-full bg-gradient-to-br from-slate-50 to-slate-100/80 rounded-xl overflow-hidden flex items-center justify-center border border-slate-200/80 relative group p-2">
+                        ${primaryImage && /^https?:/i.test(primaryImage)
+                            ? renderSmartImg(
+                                primaryImage,
+                                'w-full h-full object-contain transition-transform duration-300 group-hover:scale-105',
+                                items[0]?.name || title,
+                                `<div class="text-center text-slate-300"><i class="fa-solid fa-box-open text-3xl"></i><div class="text-[10px] font-semibold text-slate-400 mt-1">Ordered Product</div></div>`
+                            )
+                            : `<div class="text-center text-slate-300"><i class="fa-solid fa-box-open text-3xl"></i><div class="text-[10px] font-semibold text-slate-400 mt-1">Product Image</div></div>`
+                        }
+                        ${receiptUrl && /^https?:/i.test(receiptUrl) ? `
+                        <button type="button" onclick="viewRecord(${r._row})" class="absolute bottom-2 right-2 px-2 py-1 rounded-lg bg-slate-900/85 hover:bg-[#1E3A8A] text-white text-[10px] font-bold shadow flex items-center gap-1 transition cursor-pointer" title="View Payment Receipt">
+                            <i class="fa-solid fa-receipt text-amber-300"></i>
+                            <span>Receipt</span>
+                        </button>` : ''}
+                    </div>
+
+                    <!-- Customer Details & Quick Contact (WhatsApp Bold Draft + Call) -->
+                    <div class="bg-slate-50 p-2.5 rounded-xl border border-slate-100 space-y-1">
+                        <div class="flex items-center justify-between gap-2">
+                            <span class="text-xs font-black text-slate-800 truncate"><i class="fa-solid fa-user text-[#1E3A8A] mr-1.5 text-[11px]"></i>${esc(customerName)}</span>
+                            <div class="flex items-center gap-1.5 shrink-0">
+                                <button type="button" onclick="openOrderWhatsApp(${r._row})" class="w-7 h-7 rounded-lg bg-emerald-500 hover:bg-emerald-600 text-white flex items-center justify-center text-xs shadow-2xs transition cursor-pointer" title="Draft WhatsApp Message with Bold Details">
+                                    <i class="fa-brands fa-whatsapp text-sm"></i>
+                                </button>
+                                ${cleanPhoneDigits ? `
+                                <a href="tel:${cleanPhoneDigits}" class="w-7 h-7 rounded-lg bg-blue-50 hover:bg-[#1E3A8A] text-[#1E3A8A] hover:text-white border border-blue-200 flex items-center justify-center text-xs transition" title="Call Customer">
+                                    <i class="fa-solid fa-phone"></i>
+                                </a>` : ''}
+                            </div>
+                        </div>
+                        <div class="text-[11px] font-semibold text-slate-500 truncate">${esc(phoneNum || 'No phone number')}</div>
+                    </div>
+
+                    <!-- Clean Structured Items (Zero Raw JSON) -->
+                    ${items.length ? `
+                    <div class="bg-slate-50/90 p-2 rounded-xl border border-slate-100 space-y-1.5">
+                        <div class="text-[9px] font-extrabold uppercase tracking-wider text-slate-400">Ordered Items</div>
+                        <div class="space-y-1 max-h-20 overflow-y-auto pr-0.5">
+                            ${items.map(it => `
+                            <div class="flex items-center justify-between gap-2 bg-white px-2 py-1 rounded-lg border border-slate-100 text-[11px]">
+                                <span class="font-bold text-slate-800 truncate">${esc(it.name)}</span>
+                                <span class="text-[10px] font-black text-[#1E3A8A] bg-blue-50 px-1.5 py-0.5 rounded shrink-0">Qty: ${it.qty}</span>
+                            </div>`).join('')}
+                        </div>
+                    </div>` : ''}
+
+                    <!-- Order Total Pill -->
+                    ${totalDisplay ? `
+                    <div class="bg-gradient-to-r from-red-50 to-rose-50/60 px-3 py-2 rounded-xl border border-red-100 flex items-center justify-between">
+                        <span class="text-[10px] font-extrabold text-slate-600 uppercase"><i class="fa-solid fa-coins text-[#E50914] mr-1"></i> Order Total</span>
+                        <span class="text-xs font-black text-[#E50914]">${esc(totalDisplay)}</span>
+                    </div>` : ''}
+
+                    <!-- Interactive Live Dropdowns directly on Card -->
+                    <div class="grid grid-cols-2 gap-2 pt-0.5">
+                        <div>
+                            <label class="block text-[9px] font-extrabold uppercase text-slate-400 mb-0.5">Order Status</label>
+                            <select onchange="quickUpdateRowField(${r._row}, '${attr(statusHeader)}', this.value, this)" 
+                                class="w-full px-2 py-1.5 bg-slate-50 border border-slate-200 rounded-lg text-[11px] font-extrabold text-slate-800 focus:bg-white focus:outline-none focus:ring-1 focus:ring-[#E50914] cursor-pointer disabled:opacity-50">
+                                ${ORDER_STATUS_OPTIONS.map(opt => `<option value="${opt}" ${opt.toLowerCase() === currentStatus.toLowerCase() ? 'selected' : ''}>${opt}</option>`).join('')}
+                                ${!ORDER_STATUS_OPTIONS.some(opt => opt.toLowerCase() === currentStatus.toLowerCase()) && currentStatus ? `<option value="${esc(currentStatus)}" selected>${esc(currentStatus)}</option>` : ''}
+                            </select>
+                        </div>
+
+                        <div>
+                            <label class="block text-[9px] font-extrabold uppercase text-slate-400 mb-0.5">Payment</label>
+                            <select onchange="quickUpdateRowField(${r._row}, '${attr(paymentHeader)}', this.value, this)" 
+                                class="w-full px-2 py-1.5 bg-slate-50 border border-slate-200 rounded-lg text-[11px] font-extrabold text-slate-800 focus:bg-white focus:outline-none focus:ring-1 focus:ring-[#1E3A8A] cursor-pointer disabled:opacity-50">
+                                ${PAYMENT_STATUS_OPTIONS.map(opt => `<option value="${opt}" ${opt.toLowerCase() === currentPayment.toLowerCase() ? 'selected' : ''}>${opt}</option>`).join('')}
+                                ${!PAYMENT_STATUS_OPTIONS.some(opt => opt.toLowerCase() === currentPayment.toLowerCase()) && currentPayment ? `<option value="${esc(currentPayment)}" selected>${esc(currentPayment)}</option>` : ''}
+                            </select>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Card Action Buttons + Create Invoice -->
+                <div class="pt-2.5 border-t border-slate-100 space-y-2">
+                    <button type="button" onclick="createInvoiceFromOrder(${r._row})" class="w-full py-2 bg-gradient-to-r from-[#0F172A] to-[#1E3A8A] hover:from-[#172554] hover:to-[#E50914] text-white text-[11px] font-extrabold rounded-xl shadow-xs transition flex items-center justify-center gap-1.5 cursor-pointer">
+                        <i class="fa-solid fa-file-invoice-dollar text-amber-300"></i>
+                        <span>Create Invoice (A4)</span>
+                    </button>
+
+                    <div class="flex items-center justify-end gap-1.5">
+                        <button type="button" onclick="viewRecord(${r._row})" class="flex-1 px-2 py-1.5 rounded-lg bg-blue-50 hover:bg-blue-100 text-[#1D4ED8] text-[11px] font-bold transition flex items-center justify-center gap-1 cursor-pointer">
+                            <i class="fa-solid fa-eye"></i>
+                            <span>View</span>
+                        </button>
+                        <button type="button" onclick="editRecord(${r._row})" class="flex-1 px-2 py-1.5 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-700 text-[11px] font-bold transition flex items-center justify-center gap-1 cursor-pointer">
+                            <i class="fa-solid fa-pen-to-square"></i>
+                            <span>Edit</span>
+                        </button>
+                        <button type="button" id="del-btn-${r._row}" onclick="deleteRecord(${r._row})" class="px-2.5 py-1.5 rounded-lg bg-red-50 hover:bg-red-100 text-[#E50914] text-[11px] font-bold transition flex items-center justify-center cursor-pointer" title="Delete Order">
+                            <i class="fa-solid fa-trash"></i>
+                        </button>
+                    </div>
+                </div>
+            </article>`;
+        }
+
+        // Helper: Render a Dispatched Order in Full-Width Landscape Strip WITHOUT Picture
+        function renderDispatchedLandscapeRow(r, headers, statusHeader, paymentHeader) {
+            const title = String(r[headers[1]] ?? r[headers[0]] ?? 'Order #' + r._row);
+            const customerName = String(r['Customer'] || r['Customer Name'] || r['Name'] || title).trim();
+            const phoneNum = String(r['Phone'] || r['Mobile'] || r['Contact'] || r['WhatsApp'] || '').trim();
+            const totalAmt = r['Total'] || r['Amount'] || r['Price'] || r['Total Amount'] || '';
+            const totalDisplay = totalAmt ? (String(totalAmt).toLowerCase().includes('rs') || String(totalAmt).includes('₨') ? String(totalAmt) : 'Rs ' + totalAmt) : '—';
+
+            const currentStatus = String(r[statusHeader] || r['Status'] || 'Dispatched');
+            const currentPayment = String(r[paymentHeader] || r['Payment Status'] || 'Pending');
+            const cleanPhoneDigits = normalizePhoneForWhatsApp(phoneNum);
+            const { items } = resolveOrderMediaAndItems(r, headers);
+            const itemsLine = items.length ? items.map(it => `${it.name} (Qty: ${it.qty})`).join(', ') : title;
+
+            return `
+            <div class="w-full bg-white rounded-2xl border border-emerald-200/90 border-l-4 border-l-emerald-500 px-4 py-3 shadow-2xs hover:shadow-md transition flex flex-col lg:flex-row lg:items-center justify-between gap-3">
+                <!-- Left: Order # + Customer + Items (No Image) -->
+                <div class="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-4 min-w-0 flex-1">
+                    <div class="shrink-0">
+                        <span class="text-[9px] font-black uppercase tracking-wider text-emerald-700 bg-emerald-50 border border-emerald-200 px-2 py-0.5 rounded-full">DISPATCHED</span>
+                        <div class="text-xs font-black text-[#0F172A] mt-0.5 truncate">${esc(title)} <span class="text-[10px] font-mono text-slate-400">#${r._row}</span></div>
+                    </div>
+
+                    <div class="min-w-0 flex-1 border-t sm:border-t-0 sm:border-l border-slate-100 pt-1.5 sm:pt-0 sm:pl-4">
+                        <div class="text-xs font-extrabold text-slate-800 truncate"><i class="fa-solid fa-user text-[#1E3A8A] mr-1 text-[10px]"></i>${esc(customerName)} <span class="text-[11px] font-semibold text-slate-500">· ${esc(phoneNum || 'No phone')}</span></div>
+                        <div class="text-[11px] text-slate-500 truncate mt-0.5"><i class="fa-solid fa-box text-slate-400 mr-1 text-[10px]"></i>${esc(itemsLine)}</div>
+                    </div>
+                </div>
+
+                <!-- Middle: Total & Live Dropdowns -->
+                <div class="flex flex-wrap items-center gap-2.5 shrink-0">
+                    <div class="px-3 py-1.5 rounded-xl bg-emerald-50/70 border border-emerald-100 text-xs font-black text-[#E50914]">
+                        ${esc(totalDisplay)}
+                    </div>
+
+                    <select onchange="quickUpdateRowField(${r._row}, '${attr(statusHeader)}', this.value, this)" 
+                        class="px-2.5 py-1.5 bg-slate-50 border border-slate-200 rounded-lg text-[11px] font-extrabold text-slate-800 focus:bg-white focus:outline-none focus:ring-1 focus:ring-emerald-500 cursor-pointer">
+                        ${ORDER_STATUS_OPTIONS.map(opt => `<option value="${opt}" ${opt.toLowerCase() === currentStatus.toLowerCase() ? 'selected' : ''}>${opt}</option>`).join('')}
+                    </select>
+
+                    <select onchange="quickUpdateRowField(${r._row}, '${attr(paymentHeader)}', this.value, this)" 
+                        class="px-2.5 py-1.5 bg-slate-50 border border-slate-200 rounded-lg text-[11px] font-extrabold text-slate-800 focus:bg-white focus:outline-none focus:ring-1 focus:ring-[#1E3A8A] cursor-pointer">
+                        ${PAYMENT_STATUS_OPTIONS.map(opt => `<option value="${opt}" ${opt.toLowerCase() === currentPayment.toLowerCase() ? 'selected' : ''}>${opt}</option>`).join('')}
+                    </select>
+                </div>
+
+                <!-- Right: WhatsApp, Call, Invoice, View, Edit, Delete -->
+                <div class="flex items-center justify-end gap-1.5 shrink-0 pt-2 lg:pt-0 border-t lg:border-t-0 border-slate-100">
+                    <button type="button" onclick="openOrderWhatsApp(${r._row})" class="w-7 h-7 rounded-lg bg-emerald-500 hover:bg-emerald-600 text-white flex items-center justify-center text-xs transition cursor-pointer" title="WhatsApp Bold Draft">
+                        <i class="fa-brands fa-whatsapp"></i>
+                    </button>
+                    ${cleanPhoneDigits ? `
+                    <a href="tel:${cleanPhoneDigits}" class="w-7 h-7 rounded-lg bg-blue-50 hover:bg-[#1E3A8A] text-[#1E3A8A] hover:text-white border border-blue-200 flex items-center justify-center text-xs transition" title="Call Customer">
+                        <i class="fa-solid fa-phone"></i>
+                    </a>` : ''}
+                    <button type="button" onclick="createInvoiceFromOrder(${r._row})" class="px-2.5 py-1.5 rounded-lg bg-[#0F172A] hover:bg-[#1E3A8A] text-white text-[11px] font-bold transition flex items-center gap-1 cursor-pointer" title="Create A4 Invoice">
+                        <i class="fa-solid fa-file-invoice text-amber-300"></i>
+                        <span>Invoice</span>
+                    </button>
+                    <button type="button" onclick="viewRecord(${r._row})" class="px-2 py-1.5 rounded-lg bg-blue-50 hover:bg-blue-100 text-[#1D4ED8] text-[11px] font-bold transition cursor-pointer" title="View">
+                        <i class="fa-solid fa-eye"></i>
+                    </button>
+                    <button type="button" onclick="editRecord(${r._row})" class="px-2 py-1.5 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-700 text-[11px] font-bold transition cursor-pointer" title="Edit">
+                        <i class="fa-solid fa-pen-to-square"></i>
+                    </button>
+                    <button type="button" id="del-btn-${r._row}" onclick="deleteRecord(${r._row})" class="px-2 py-1.5 rounded-lg bg-red-50 hover:bg-red-100 text-[#E50914] text-[11px] font-bold transition cursor-pointer" title="Delete">
+                        <i class="fa-solid fa-trash"></i>
+                    </button>
+                </div>
+            </div>`;
+        }
+
+        // Draw Records (Newest first on Orders; Dispatched moved to bottom full-width landscape strip without pic)
         function drawCards(rows, headers) {
             const g = document.getElementById('recordGrid');
+            const dispSec = document.getElementById('dispatchedSection');
+            if (dispSec) {
+                dispSec.classList.add('hidden');
+                dispSec.innerHTML = '';
+            }
+
             if (!rows || !rows.length) {
                 g.innerHTML = `
                     <div class="col-span-full bg-white rounded-2xl p-12 text-center border border-dashed border-slate-300">
@@ -1358,6 +1579,42 @@
 
             const isOrderSheet = currentSheet.toLowerCase().includes('order');
 
+            if (isOrderSheet) {
+                // Sort newest orders first (highest row number / newest entry on top)
+                const sortedOrders = [...rows].sort((a, b) => (Number(b._row) || 0) - (Number(a._row) || 0));
+                const statusHeader = headers.find(h => /(order_status|^status$|orderstatus)/i.test(h)) || 'Status';
+                const paymentHeader = headers.find(h => /(payment_status|paymentstatus|payment)/i.test(h)) || 'Payment Status';
+
+                const activeOrders = sortedOrders.filter(r => !/^dispatched$/i.test(String(r[statusHeader] || r['Status'] || '').trim()));
+                const dispatchedOrders = sortedOrders.filter(r => /^dispatched$/i.test(String(r[statusHeader] || r['Status'] || '').trim()));
+
+                if (activeOrders.length) {
+                    g.innerHTML = activeOrders.map(r => renderActiveOrderCard(r, headers, statusHeader, paymentHeader)).join('');
+                } else {
+                    g.innerHTML = `
+                        <div class="col-span-full bg-white rounded-2xl p-8 text-center border border-dashed border-slate-300">
+                            <div class="text-xs font-bold text-slate-600">No pending/active orders right now</div>
+                            <p class="text-[11px] text-slate-400 mt-1">All matching orders have been dispatched below.</p>
+                        </div>`;
+                }
+
+                if (dispatchedOrders.length && dispSec) {
+                    dispSec.classList.remove('hidden');
+                    dispSec.innerHTML = `
+                        <div class="flex items-center justify-between pt-2 border-t border-slate-200">
+                            <div class="flex items-center gap-2">
+                                <span class="w-2.5 h-2.5 rounded-full bg-emerald-500"></span>
+                                <h3 class="text-xs sm:text-sm font-black text-[#0F172A] uppercase tracking-wider">Dispatched Orders (Landscape Summary — Without Photo)</h3>
+                            </div>
+                            <span class="text-[11px] font-bold text-emerald-700 bg-emerald-50 border border-emerald-200 px-2.5 py-0.5 rounded-full">${dispatchedOrders.length} Dispatched</span>
+                        </div>
+                        <div class="space-y-2.5">
+                            ${dispatchedOrders.map(r => renderDispatchedLandscapeRow(r, headers, statusHeader, paymentHeader)).join('')}
+                        </div>`;
+                }
+                return;
+            }
+
             g.innerHTML = rows.map((r, i) => {
                 const keys = headers.filter(k => String(r[k] ?? '').trim() !== '');
                 const title = String(r[headers[1]] ?? r[headers[0]] ?? 'Record ' + (i + 1));
@@ -1365,161 +1622,6 @@
                 const rawMedia = imageKey ? String(r[imageKey] || '') : '';
                 const isVideo = isVideoUrl(rawMedia);
 
-                const statusHeader = headers.find(h => /(order_status|^status$|orderstatus)/i.test(h)) || 'Status';
-                const paymentHeader = headers.find(h => /(payment_status|paymentstatus|payment)/i.test(h)) || 'Payment Status';
-
-                // =========================================================
-                // SPECIALIZED CARD: ORDERS (Product Pic, Clean Items, Bold WA Draft, A4 Invoice)
-                // =========================================================
-                if (isOrderSheet) {
-                    const customerName = String(r['Customer'] || r['Customer Name'] || r['Name'] || title).trim();
-                    const phoneNum = String(r['Phone'] || r['Mobile'] || r['Contact'] || r['WhatsApp'] || '').trim();
-                    const totalAmt = r['Total'] || r['Amount'] || r['Price'] || r['Total Amount'] || '';
-                    const totalDisplay = totalAmt ? (String(totalAmt).toLowerCase().includes('rs') || String(totalAmt).includes('₨') ? String(totalAmt) : 'Rs ' + totalAmt) : '';
-
-                    const currentStatus = String(r[statusHeader] || r['Status'] || 'Placed');
-                    const currentPayment = String(r[paymentHeader] || r['Payment Status'] || 'Pending');
-                    const cleanPhoneDigits = normalizePhoneForWhatsApp(phoneNum);
-
-                    const { items, primaryImage, receiptUrl } = resolveOrderMediaAndItems(r, headers);
-
-                    const statusBadgeColor = /dispatched/i.test(currentStatus)
-                        ? 'bg-emerald-100 text-emerald-800 border-emerald-200'
-                        : /packaged/i.test(currentStatus)
-                        ? 'bg-blue-100 text-blue-800 border-blue-200'
-                        : /crafting/i.test(currentStatus)
-                        ? 'bg-amber-100 text-amber-800 border-amber-200'
-                        : 'bg-indigo-100 text-indigo-800 border-indigo-200';
-
-                    const payBadgeColor = /verified|paid/i.test(currentPayment)
-                        ? 'bg-emerald-100 text-emerald-800 border-emerald-200'
-                        : 'bg-rose-100 text-rose-800 border-rose-200';
-
-                    return `
-                    <article class="bg-white rounded-2xl border border-slate-200 hover:border-slate-300 p-4 shadow-xs hover:shadow-lg transition-all flex flex-col justify-between space-y-3 relative overflow-hidden">
-                        <!-- Top Accent Strip -->
-                        <div class="absolute inset-x-0 top-0 h-1 bg-gradient-to-r from-[#1E3A8A] via-[#E50914] to-[#B80710]"></div>
-
-                        <div class="space-y-2.5 pt-1">
-                            <!-- Order Card Header -->
-                            <div class="flex items-start justify-between gap-2 pb-2 border-b border-slate-100">
-                                <div class="min-w-0">
-                                    <div class="flex items-center gap-1.5">
-                                        <span class="text-[9px] font-black uppercase tracking-wider text-[#E50914] bg-red-50 px-1.5 py-0.5 rounded">ORDER</span>
-                                        <span class="text-[10px] font-mono font-bold text-slate-400">#${r._row}</span>
-                                    </div>
-                                    <div class="text-xs font-black text-[#0F172A] truncate mt-0.5" title="${attr(title)}">${esc(title)}</div>
-                                </div>
-                                <div class="flex flex-col items-end gap-1 shrink-0">
-                                    <span class="text-[9px] font-extrabold px-2 py-0.5 rounded-full border ${statusBadgeColor}">${esc(currentStatus)}</span>
-                                    <span class="text-[9px] font-extrabold px-2 py-0.5 rounded-full border ${payBadgeColor}">${esc(currentPayment)}</span>
-                                </div>
-                            </div>
-
-                            <!-- Ordered Product Picture Showcase -->
-                            <div class="h-44 w-full bg-gradient-to-br from-slate-50 to-slate-100/80 rounded-xl overflow-hidden flex items-center justify-center border border-slate-200/80 relative group p-2">
-                                ${primaryImage && /^https?:/i.test(primaryImage)
-                                    ? renderSmartImg(
-                                        primaryImage,
-                                        'w-full h-full object-contain transition-transform duration-300 group-hover:scale-105',
-                                        items[0]?.name || title,
-                                        `<div class="text-center text-slate-300"><i class="fa-solid fa-box-open text-3xl"></i><div class="text-[10px] font-semibold text-slate-400 mt-1">Ordered Product</div></div>`
-                                    )
-                                    : `<div class="text-center text-slate-300"><i class="fa-solid fa-box-open text-3xl"></i><div class="text-[10px] font-semibold text-slate-400 mt-1">Product Image</div></div>`
-                                }
-                                ${receiptUrl && /^https?:/i.test(receiptUrl) ? `
-                                <button type="button" onclick="viewRecord(${r._row})" class="absolute bottom-2 right-2 px-2 py-1 rounded-lg bg-slate-900/85 hover:bg-[#1E3A8A] text-white text-[10px] font-bold shadow flex items-center gap-1 transition cursor-pointer" title="View Payment Receipt">
-                                    <i class="fa-solid fa-receipt text-amber-300"></i>
-                                    <span>Receipt</span>
-                                </button>` : ''}
-                            </div>
-
-                            <!-- Customer Details & Quick Contact (WhatsApp Bold Draft + Call) -->
-                            <div class="bg-slate-50 p-2.5 rounded-xl border border-slate-100 space-y-1">
-                                <div class="flex items-center justify-between gap-2">
-                                    <span class="text-xs font-black text-slate-800 truncate"><i class="fa-solid fa-user text-[#1E3A8A] mr-1.5 text-[11px]"></i>${esc(customerName)}</span>
-                                    <div class="flex items-center gap-1.5 shrink-0">
-                                        <button type="button" onclick="openOrderWhatsApp(${r._row})" class="w-7 h-7 rounded-lg bg-emerald-500 hover:bg-emerald-600 text-white flex items-center justify-center text-xs shadow-2xs transition cursor-pointer" title="Draft WhatsApp Message with Bold Details">
-                                            <i class="fa-brands fa-whatsapp text-sm"></i>
-                                        </button>
-                                        ${cleanPhoneDigits ? `
-                                        <a href="tel:${cleanPhoneDigits}" class="w-7 h-7 rounded-lg bg-blue-50 hover:bg-[#1E3A8A] text-[#1E3A8A] hover:text-white border border-blue-200 flex items-center justify-center text-xs transition" title="Call Customer">
-                                            <i class="fa-solid fa-phone"></i>
-                                        </a>` : ''}
-                                    </div>
-                                </div>
-                                <div class="text-[11px] font-semibold text-slate-500 truncate">${esc(phoneNum || 'No phone number')}</div>
-                            </div>
-
-                            <!-- Clean Structured Items (Zero Raw JSON) -->
-                            ${items.length ? `
-                            <div class="bg-slate-50/90 p-2 rounded-xl border border-slate-100 space-y-1.5">
-                                <div class="text-[9px] font-extrabold uppercase tracking-wider text-slate-400">Ordered Items</div>
-                                <div class="space-y-1 max-h-20 overflow-y-auto pr-0.5">
-                                    ${items.map(it => `
-                                    <div class="flex items-center justify-between gap-2 bg-white px-2 py-1 rounded-lg border border-slate-100 text-[11px]">
-                                        <span class="font-bold text-slate-800 truncate">${esc(it.name)}</span>
-                                        <span class="text-[10px] font-black text-[#1E3A8A] bg-blue-50 px-1.5 py-0.5 rounded shrink-0">Qty: ${it.qty}</span>
-                                    </div>`).join('')}
-                                </div>
-                            </div>` : ''}
-
-                            <!-- Order Total Pill -->
-                            ${totalDisplay ? `
-                            <div class="bg-gradient-to-r from-red-50 to-rose-50/60 px-3 py-2 rounded-xl border border-red-100 flex items-center justify-between">
-                                <span class="text-[10px] font-extrabold text-slate-600 uppercase"><i class="fa-solid fa-coins text-[#E50914] mr-1"></i> Order Total</span>
-                                <span class="text-xs font-black text-[#E50914]">${esc(totalDisplay)}</span>
-                            </div>` : ''}
-
-                            <!-- Interactive Live Dropdowns directly on Card -->
-                            <div class="grid grid-cols-2 gap-2 pt-0.5">
-                                <div>
-                                    <label class="block text-[9px] font-extrabold uppercase text-slate-400 mb-0.5">Order Status</label>
-                                    <select onchange="quickUpdateRowField(${r._row}, '${attr(statusHeader)}', this.value, this)" 
-                                        class="w-full px-2 py-1.5 bg-slate-50 border border-slate-200 rounded-lg text-[11px] font-extrabold text-slate-800 focus:bg-white focus:outline-none focus:ring-1 focus:ring-[#E50914] cursor-pointer disabled:opacity-50">
-                                        ${ORDER_STATUS_OPTIONS.map(opt => `<option value="${opt}" ${opt.toLowerCase() === currentStatus.toLowerCase() ? 'selected' : ''}>${opt}</option>`).join('')}
-                                        ${!ORDER_STATUS_OPTIONS.some(opt => opt.toLowerCase() === currentStatus.toLowerCase()) && currentStatus ? `<option value="${esc(currentStatus)}" selected>${esc(currentStatus)}</option>` : ''}
-                                    </select>
-                                </div>
-
-                                <div>
-                                    <label class="block text-[9px] font-extrabold uppercase text-slate-400 mb-0.5">Payment</label>
-                                    <select onchange="quickUpdateRowField(${r._row}, '${attr(paymentHeader)}', this.value, this)" 
-                                        class="w-full px-2 py-1.5 bg-slate-50 border border-slate-200 rounded-lg text-[11px] font-extrabold text-slate-800 focus:bg-white focus:outline-none focus:ring-1 focus:ring-[#1E3A8A] cursor-pointer disabled:opacity-50">
-                                        ${PAYMENT_STATUS_OPTIONS.map(opt => `<option value="${opt}" ${opt.toLowerCase() === currentPayment.toLowerCase() ? 'selected' : ''}>${opt}</option>`).join('')}
-                                        ${!PAYMENT_STATUS_OPTIONS.some(opt => opt.toLowerCase() === currentPayment.toLowerCase()) && currentPayment ? `<option value="${esc(currentPayment)}" selected>${esc(currentPayment)}</option>` : ''}
-                                    </select>
-                                </div>
-                            </div>
-                        </div>
-
-                        <!-- Card Action Buttons + Create Invoice -->
-                        <div class="pt-2.5 border-t border-slate-100 space-y-2">
-                            <button type="button" onclick="createInvoiceFromOrder(${r._row})" class="w-full py-2 bg-gradient-to-r from-[#0F172A] to-[#1E3A8A] hover:from-[#172554] hover:to-[#E50914] text-white text-[11px] font-extrabold rounded-xl shadow-xs transition flex items-center justify-center gap-1.5 cursor-pointer">
-                                <i class="fa-solid fa-file-invoice-dollar text-amber-300"></i>
-                                <span>Create Invoice (A4)</span>
-                            </button>
-
-                            <div class="flex items-center justify-end gap-1.5">
-                                <button type="button" onclick="viewRecord(${r._row})" class="flex-1 px-2 py-1.5 rounded-lg bg-blue-50 hover:bg-blue-100 text-[#1D4ED8] text-[11px] font-bold transition flex items-center justify-center gap-1 cursor-pointer">
-                                    <i class="fa-solid fa-eye"></i>
-                                    <span>View</span>
-                                </button>
-                                <button type="button" onclick="editRecord(${r._row})" class="flex-1 px-2 py-1.5 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-700 text-[11px] font-bold transition flex items-center justify-center gap-1 cursor-pointer">
-                                    <i class="fa-solid fa-pen-to-square"></i>
-                                    <span>Edit</span>
-                                </button>
-                                <button type="button" id="del-btn-${r._row}" onclick="deleteRecord(${r._row})" class="px-2.5 py-1.5 rounded-lg bg-red-50 hover:bg-red-100 text-[#E50914] text-[11px] font-bold transition flex items-center justify-center cursor-pointer" title="Delete Order">
-                                    <i class="fa-solid fa-trash"></i>
-                                </button>
-                            </div>
-                        </div>
-                    </article>`;
-                }
-
-                // =========================================================
-                // GENERAL CARDS & PRODUCTS, CATALOG & SITECONTENT MEDIA
-                // =========================================================
                 const details = keys.filter(k => k !== headers[0] && k !== headers[1] && k !== imageKey).slice(0, 6);
                 const extraCount = keys.length - details.length - (imageKey ? 3 : 2);
                 const fallbackBox = `<div class="text-center text-slate-300"><i class="fa-solid fa-image text-3xl"></i><div class="text-[10px] text-slate-400 mt-1">Media Preview</div></div>`;
@@ -1880,7 +1982,7 @@
             return esc(s).replace(/`/g, '&#96;');
         }
         function jsq(s) {
-            return String(s).replace(/\/g, '\\').replace(/'/g, "\'");
+            return String(s).replace(/\\/g, '\\\\').replace(/'/g, "\\'");
         }
         function escId(s) {
             return String(s).replace(/[^a-zA-Z0-9_-]/g, '_');
