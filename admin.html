@@ -62,6 +62,68 @@
             from { opacity: 0; transform: translateY(4px); }
             to { opacity: 1; transform: translateY(0); }
         }
+
+        /* ========================================================= */
+        /* A4 INVOICE SHEET & PRINT ENGINE                           */
+        /* ========================================================= */
+        .a4-sheet {
+            width: 210mm;
+            min-height: 297mm;
+            background: #ffffff;
+            margin: 0 auto;
+            box-sizing: border-box;
+        }
+
+        @media print {
+            @page {
+                size: A4 portrait;
+                margin: 8mm;
+            }
+            body {
+                background: #ffffff !important;
+                margin: 0 !important;
+                padding: 0 !important;
+                overflow: visible !important;
+            }
+            #login, #shell, #editModal, #mediaLightbox, #confirmModal, #toast, .no-print {
+                display: none !important;
+            }
+            #invoiceModal {
+                position: static !important;
+                inset: auto !important;
+                background: #ffffff !important;
+                padding: 0 !important;
+                margin: 0 !important;
+                display: block !important;
+                overflow: visible !important;
+            }
+            #invoiceModalShell {
+                max-width: 100% !important;
+                width: 100% !important;
+                box-shadow: none !important;
+                border: none !important;
+                border-radius: 0 !important;
+                background: #ffffff !important;
+            }
+            #invoiceViewport {
+                padding: 0 !important;
+                max-height: none !important;
+                overflow: visible !important;
+                background: #ffffff !important;
+            }
+            .a4-sheet {
+                width: 100% !important;
+                min-height: auto !important;
+                box-shadow: none !important;
+                border: none !important;
+                margin: 0 !important;
+                padding: 6mm !important;
+            }
+            * {
+                -webkit-print-color-adjust: exact !important;
+                print-color-adjust: exact !important;
+            }
+        }
     </style>
 </head>
 <body class="bg-[#F4F6F9] text-slate-800 font-sans antialiased overflow-x-hidden min-h-screen">
@@ -287,6 +349,47 @@
     </div>
 
     <!-- ========================================================= -->
+    <!-- 4B. A4 PRINTABLE INVOICE MODAL (210mm x 297mm)            -->
+    <!-- ========================================================= -->
+    <div id="invoiceModal" class="fixed inset-0 z-[55] hidden overflow-y-auto bg-slate-950/80 backdrop-blur-xs p-2 sm:p-6 flex items-start justify-center" onclick="if(event.target === this) closeInvoiceModal()">
+        <div id="invoiceModalShell" class="bg-slate-200 rounded-2xl w-full max-w-4xl shadow-2xl border border-slate-700/40 overflow-hidden my-auto">
+            <!-- Modal Action Toolbar (Hidden during Print) -->
+            <div class="no-print bg-gradient-to-r from-[#0F172A] via-[#172554] to-[#1E3A8A] text-white px-4 sm:px-6 py-3.5 flex flex-wrap items-center justify-between gap-3">
+                <div class="flex items-center gap-2.5">
+                    <div class="w-8 h-8 rounded-xl bg-[#E50914] flex items-center justify-center text-white shadow-sm">
+                        <i class="fa-solid fa-file-invoice-dollar text-sm"></i>
+                    </div>
+                    <div>
+                        <h2 id="invoiceModalTitle" class="text-xs sm:text-sm font-black tracking-tight">Official A4 Tax / Sales Invoice</h2>
+                        <p class="text-[10px] text-blue-200 font-medium">A4 Print-Ready Format (210mm × 297mm)</p>
+                    </div>
+                </div>
+
+                <div class="flex flex-wrap items-center gap-2">
+                    <button id="saveInvoiceSheetBtn" onclick="saveCurrentInvoiceToSheet()" class="px-3.5 py-2 bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-extrabold rounded-xl shadow-xs transition flex items-center gap-1.5 cursor-pointer disabled:opacity-60">
+                        <i class="fa-solid fa-cloud-arrow-up"></i>
+                        <span>Save to Invoices Sheet</span>
+                    </button>
+                    <button onclick="window.print()" class="px-4 py-2 bg-[#E50914] hover:bg-[#B80710] text-white text-xs font-extrabold rounded-xl shadow-md transition flex items-center gap-1.5 cursor-pointer">
+                        <i class="fa-solid fa-print"></i>
+                        <span>Print / Save PDF (A4)</span>
+                    </button>
+                    <button onclick="closeInvoiceModal()" class="w-8 h-8 rounded-xl bg-white/10 hover:bg-white/20 text-white flex items-center justify-center transition cursor-pointer" title="Close Invoice">
+                        <i class="fa-solid fa-xmark text-sm"></i>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Scrollable A4 Canvas Viewport -->
+            <div id="invoiceViewport" class="p-3 sm:p-6 overflow-x-auto max-h-[82vh] overflow-y-auto flex justify-center">
+                <div id="invoiceA4Container" class="a4-sheet rounded-xl shadow-xl border border-slate-300 p-6 sm:p-10 text-slate-800 flex flex-col justify-between">
+                    <!-- Dynamic A4 Invoice Rendered Here -->
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ========================================================= -->
     <!-- 5. CUSTOM CONFIRMATION MODAL (NO NATIVE confirm())         -->
     <!-- ========================================================= -->
     <div id="confirmModal" class="fixed inset-0 z-[60] hidden bg-slate-950/75 backdrop-blur-xs p-4 flex items-center justify-center">
@@ -328,6 +431,7 @@
         let editingRow = 0;
         let editingMode = 'update';
         let currentRecord = {};
+        let currentInvoicePayload = null;
         let isSidebarOpen = false;
         let confirmCallback = null;
 
@@ -336,208 +440,219 @@
         const PAYMENT_STATUS_OPTIONS = ['Verified', 'Pending'];
 
         // =========================================================
-        // BULLETPROOF MEDIA URL & FALLBACK HELPERS
+        // SMART JSON ORDER ITEMS PARSER & PRODUCT MATCHING ENGINE
         // =========================================================
-        function extractDriveFileId(url) {
-            if (!url) return '';
-            const str = String(url).trim();
-            const patterns = [
-                /drive\.google\.com\/file\/d\/([a-zA-Z0-9_-]+)/i,
-                /drive\.google\.com\/open\?id=([a-zA-Z0-9_-]+)/i,
-                /drive\.google\.com\/uc\?(?:export=[^&]+&)?id=([a-zA-Z0-9_-]+)/i,
-                /drive\.google\.com\/thumbnail\?id=([a-zA-Z0-9_-]+)/i,
-                /lh3\.googleusercontent\.com\/d\/([a-zA-Z0-9_-]+)/i,
-                /[?&]id=([a-zA-Z0-9_-]{15,})/i
-            ];
-            for (const rx of patterns) {
-                const m = str.match(rx);
-                if (m && m[1]) return m[1];
-            }
-            return '';
+        function parseNumericPrice(val) {
+            if (typeof val === 'number' && !isNaN(val)) return val;
+            if (!val) return 0;
+            const cleaned = String(val).replace(/[^0-9.]/g, '');
+            const num = parseFloat(cleaned);
+            return isNaN(num) ? 0 : num;
         }
 
-        function formatMediaUrl(url) {
-            if (!url) return '';
-            const str = String(url).trim();
-            if (str.startsWith('blob:') || str.startsWith('data:')) return str;
-            const driveId = extractDriveFileId(str);
-            if (driveId) {
-                return `https://drive.google.com/thumbnail?id=${driveId}&sz=w1000`;
-            }
-            return str;
+        function formatRs(num) {
+            const n = parseNumericPrice(num);
+            return 'Rs ' + n.toLocaleString('en-PK');
         }
 
-        function isVideoUrl(url) {
-            if (!url) return false;
-            const str = String(url).toLowerCase().trim();
-            if (str.startsWith('blob:video') || str.startsWith('data:video')) return true;
-            if (/\.(mp4|webm|ogg|mov|m4v|avi)(\?.*)?$/i.test(str)) return true;
-            if (str.includes('video') && (str.includes('drive.google.com') || str.includes('youtube') || str.includes('youtu.be'))) return true;
-            return false;
+        function lookupProductFallbackFromCatalog(productName) {
+            if (!productName) return { image: '', price: 0, category: '', desc: '' };
+            const needle = String(productName).toLowerCase().trim();
+            if (needle.length < 2) return { image: '', price: 0, category: '', desc: '' };
+
+            const candidateSheets = allSheets.filter(s => /^(products|catalog|collections|inventory)$/i.test(s.name.trim()));
+            for (const sheet of candidateSheets) {
+                const imgCol = sheet.headers.find(h => /(^img$|image|photo|picture|thumbnail|pic|media|banner|url|link)/i.test(h));
+                const priceCol = sheet.headers.find(h => /(^price$|sale_price|selling_price|amount|rate)/i.test(h));
+                const catCol = sheet.headers.find(h => /(category|collection|type)/i.test(h));
+                const descCol = sheet.headers.find(h => /(desc|description|subtitle|details)/i.test(h));
+                const nameCols = sheet.headers.filter(h => /(name|title|product|item|sku|id)/i.test(h));
+                const searchCols = nameCols.length ? nameCols : sheet.headers;
+
+                const matchedRow = sheet.rows.find(pRow =>
+                    searchCols.some(col => {
+                        const cell = String(pRow[col] || '').toLowerCase().trim();
+                        if (!cell) return false;
+                        return cell === needle || cell.includes(needle) || (cell.length >= 4 && needle.includes(cell));
+                    })
+                );
+
+                if (matchedRow) {
+                    const imgVal = imgCol ? String(matchedRow[imgCol] || '').trim() : '';
+                    return {
+                        image: /^https?:/i.test(imgVal) ? imgVal : '',
+                        price: priceCol ? parseNumericPrice(matchedRow[priceCol]) : 0,
+                        category: catCol ? String(matchedRow[catCol] || '').trim() : '',
+                        desc: descCol ? String(matchedRow[descCol] || '').trim() : ''
+                    };
+                }
+            }
+            return { image: '', price: 0, category: '', desc: '' };
         }
 
-        function getDriveVideoEmbedUrl(url) {
-            const driveId = extractDriveFileId(url);
-            if (driveId) return `https://drive.google.com/file/d/${driveId}/preview`;
-            return url;
-        }
-
-        // Smart multi-tier image fallback so uploaded Drive images NEVER fail preview
-        function handleSmartImageError(imgEl, rawUrl) {
-            const step = parseInt(imgEl.dataset.fallbackStep || '0', 10);
-            const driveId = extractDriveFileId(rawUrl);
-
-            if (driveId && step === 0) {
-                imgEl.dataset.fallbackStep = '1';
-                imgEl.src = `https://lh3.googleusercontent.com/d/${driveId}=w1000`;
-                return;
-            }
-            if (driveId && step === 1) {
-                imgEl.dataset.fallbackStep = '2';
-                imgEl.src = `https://drive.google.com/uc?export=view&id=${driveId}`;
-                return;
-            }
-            if (step === 2 && rawUrl && imgEl.src !== rawUrl) {
-                imgEl.dataset.fallbackStep = '3';
-                imgEl.src = rawUrl;
-                return;
-            }
-
-            // Final clean non-error fallback placeholder
-            imgEl.onerror = null;
-            const parent = imgEl.parentElement;
-            if (parent) {
-                parent.innerHTML = `
-                    <div class="flex flex-col items-center justify-center text-center p-3 text-slate-400 select-none">
-                        <div class="w-10 h-10 rounded-xl bg-slate-100 flex items-center justify-center mb-1.5 text-slate-400">
-                            <i class="fa-solid fa-image text-base"></i>
-                        </div>
-                        <span class="text-[10px] font-bold text-slate-500">Product Image</span>
-                    </div>`;
-            }
-        }
-
-        // =========================================================
-        // SMART PRODUCT IMAGE & ORDER ITEM PARSER FOR ORDER CARDS
-        // =========================================================
-        function parseOrderItemsData(rawItems) {
-            if (!rawItems) return { displayText: '', names: [], inlineImages: [] };
+        function parseOrderItems(rawItems) {
+            if (!rawItems) return [];
             const str = String(rawItems).trim();
-            let names = [];
-            let inlineImages = [];
-            let formattedParts = [];
+            if (!str) return [];
 
-            // Try parsing JSON array or object if order items are stored as JSON
+            // 1. Parse JSON Array or Single JSON Object (e.g. [{"id":6,"name":"Teddy Bear / Blue",...,"qty":4}])
             if ((str.startsWith('[') && str.endsWith(']')) || (str.startsWith('{') && str.endsWith('}'))) {
                 try {
                     const parsed = JSON.parse(str);
                     const arr = Array.isArray(parsed) ? parsed : [parsed];
+                    const normalized = [];
+
                     arr.forEach(item => {
-                        if (item && typeof item === 'object') {
-                            const itemName = item.name || item.title || item.product || item.productName || item.item || '';
-                            const qty = item.qty || item.quantity || item.count || 1;
-                            const img = item.img || item.image || item.photo || item.pic || item.thumbnail || item.url || '';
-                            if (itemName) {
-                                names.push(String(itemName).trim());
-                                formattedParts.push(`${itemName}${qty > 1 ? ` (×${qty})` : ''}`);
-                            }
-                            if (img && /^https?:/i.test(String(img))) {
-                                inlineImages.push(String(img).trim());
-                            }
+                        if (!item || typeof item !== 'object') return;
+                        const name = String(item.name || item.title || item.product || item.productName || item.item || 'Product Item').trim();
+                        const qty = Math.max(1, parseInt(item.qty ?? item.quantity ?? item.count ?? 1, 10) || 1);
+                        let price = parseNumericPrice(item.price ?? item.salePrice ?? item.unitPrice ?? item.amount ?? 0);
+                        const oldPrice = parseNumericPrice(item.oldPrice ?? item.originalPrice ?? item.mrp ?? 0);
+                        let image = String(item.image || item.img || item.photo || item.pic || item.thumbnail || item.url || '').trim();
+                        let category = String(item.category || item.collection || item.badge || '').trim();
+                        let desc = String(item.desc || item.description || item.subtitle || item.variant || '').trim();
+
+                        if (!/^https?:/i.test(image) || !price) {
+                            const fallback = lookupProductFallbackFromCatalog(name);
+                            if (!/^https?:/i.test(image) && fallback.image) image = fallback.image;
+                            if (!price && fallback.price) price = fallback.price;
+                            if (!category && fallback.category) category = fallback.category;
+                            if (!desc && fallback.desc) desc = fallback.desc;
                         }
+
+                        normalized.push({
+                            id: item.id || '',
+                            name,
+                            qty,
+                            price,
+                            oldPrice,
+                            image: /^https?:/i.test(image) ? image : '',
+                            category,
+                            desc
+                        });
                     });
-                    if (formattedParts.length > 0) {
-                        return {
-                            displayText: formattedParts.join(', '),
-                            names,
-                            inlineImages
-                        };
-                    }
+
+                    if (normalized.length > 0) return normalized;
                 } catch (e) {
-                    // Fallback to text parsing below
+                    // Fall through to structured plain-text parser
                 }
             }
 
-            // Text parsing (e.g. "Luxury Watch x2, Leather Wallet x1" or newline separated)
+            // 2. Fallback Plain-Text Parser (e.g. "Teddy Bear / Blue x4, Leather Wallet x1")
             const parts = str.split(/[\n,|]+/).map(s => s.trim()).filter(Boolean);
-            parts.forEach(p => {
-                // Strip quantity suffix like "x2", "(2)", "- Qty 2" to get clean product name for matching
-                const cleanName = p.replace(/\s*(?:×|x|\*)\s*\d+\s*$/i, '')
-                                   .replace(/\s*\(\s*(?:qty[:\s]*)?\d+\s*\)\s*$/i, '')
-                                   .trim();
-                if (cleanName) names.push(cleanName);
-            });
+            return parts.map(part => {
+                let qty = 1;
+                const qtyMatch = part.match(/(?:×|x|\*|qty[:\s]*)\s*(\d+)\s*$/i) || part.match(/\(\s*(?:qty[:\s]*)?(\d+)\s*\)/i);
+                if (qtyMatch && qtyMatch[1]) {
+                    qty = Math.max(1, parseInt(qtyMatch[1], 10) || 1);
+                }
+                const cleanName = part
+                    .replace(/\s*(?:×|x|\*|qty[:\s]*)\s*\d+\s*$/i, '')
+                    .replace(/\s*\(\s*(?:qty[:\s]*)?\d+\s*\)/i, '')
+                    .trim() || part;
 
-            return {
-                displayText: str,
-                names: names.length ? names : [str],
-                inlineImages
-            };
+                const fallback = lookupProductFallbackFromCatalog(cleanName);
+                return {
+                    id: '',
+                    name: cleanName,
+                    qty,
+                    price: fallback.price,
+                    oldPrice: 0,
+                    image: fallback.image,
+                    category: fallback.category,
+                    desc: fallback.desc
+                };
+            });
         }
 
-        function findOrderProductImages(orderRow, orderHeaders) {
-            const foundImages = [];
-            const addUnique = (url) => {
-                if (!url) return;
-                const clean = String(url).trim();
-                if (/^https?:/i.test(clean) && !foundImages.includes(clean)) {
-                    foundImages.push(clean);
+        function extractOrderStructuredData(orderRow, orderHeaders) {
+            const orderIdCol = orderHeaders.find(h => /(order_id|orderid|order_no|orderno|^id$)/i.test(h)) || orderHeaders[0];
+            const orderNo = String(orderRow[orderIdCol] || `ORD-${orderRow._row}`).trim();
+
+            const custCol = orderHeaders.find(h => /(customer_name|customername|customer|^name$|full_name|buyer)/i.test(h));
+            const customerName = String((custCol ? orderRow[custCol] : '') || orderRow['Customer'] || orderRow['Customer Name'] || orderRow['Name'] || 'Valued Customer').trim();
+
+            const phoneCol = orderHeaders.find(h => /(phone|mobile|contact|whatsapp|tel)/i.test(h));
+            const phoneNum = String((phoneCol ? orderRow[phoneCol] : '') || orderRow['Phone'] || orderRow['Mobile'] || orderRow['Contact'] || orderRow['WhatsApp'] || '').trim();
+
+            const emailCol = orderHeaders.find(h => /(email|mail)/i.test(h));
+            const email = String((emailCol ? orderRow[emailCol] : '') || '').trim();
+
+            const cityCol = orderHeaders.find(h => /(city|town)/i.test(h));
+            const city = String((cityCol ? orderRow[cityCol] : '') || '').trim();
+
+            const addrCol = orderHeaders.find(h => /(address|location|area|shipping|street)/i.test(h));
+            const address = String((addrCol ? orderRow[addrCol] : '') || '').trim();
+            const fullLocation = [address, city].filter(Boolean).filter((v, idx, arr) => arr.indexOf(v) === idx).join(', ');
+
+            const dateCol = orderHeaders.find(h => /(date|created|time|timestamp)/i.test(h));
+            const orderDate = String((dateCol ? orderRow[dateCol] : '') || new Date().toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' })).trim();
+
+            const totalCol = orderHeaders.find(h => /(total_amount|totalamount|grand_total|^total$|^amount$|^price$)/i.test(h));
+            const rawTotalVal = String((totalCol ? orderRow[totalCol] : '') || orderRow['Total'] || orderRow['Amount'] || orderRow['Price'] || '').trim();
+
+            const statusHeader = orderHeaders.find(h => /(order_status|^status$|orderstatus)/i.test(h)) || 'Status';
+            const paymentHeader = orderHeaders.find(h => /(payment_status|paymentstatus|^payment$)/i.test(h)) || 'Payment Status';
+            const paymentMethodCol = orderHeaders.find(h => /(payment_method|method|gateway|mode)/i.test(h));
+            const paymentMethod = String((paymentMethodCol ? orderRow[paymentMethodCol] : '') || 'Online / COD').trim();
+
+            const currentStatus = String(orderRow[statusHeader] || orderRow['Status'] || 'Placed').trim();
+            const currentPayment = String(orderRow[paymentHeader] || orderRow['Payment Status'] || 'Pending').trim();
+
+            // Parse JSON or text items cleanly
+            const itemsCol = orderHeaders.find(h => /(items|order_items|products|product|details|order_details|cart)/i.test(h));
+            const rawItemsVal = itemsCol ? orderRow[itemsCol] : (orderRow['Items'] || orderRow['Product'] || orderRow['Products'] || '');
+            const items = parseOrderItems(rawItemsVal);
+
+            // Collect product images (from parsed JSON items first, then explicit order image columns)
+            const productImages = [];
+            const addUniqueImg = (u) => {
+                if (!u) return;
+                const clean = String(u).trim();
+                if (/^https?:/i.test(clean) && !productImages.includes(clean)) {
+                    productImages.push(clean);
                 }
             };
 
-            // 1. Check explicit product image columns on the Order row itself (excluding payment receipt/slip)
+            items.forEach(it => addUniqueImg(it.image));
+
             const prodImgCols = orderHeaders.filter(h =>
                 /(product_img|product_image|product_pic|item_img|item_image|^img$|^image$|^photo$|^pic$|thumbnail|product_photo)/i.test(h) &&
                 !/(receipt|slip|proof|payment|screenshot)/i.test(h)
             );
             prodImgCols.forEach(col => {
-                const val = String(orderRow[col] || '').trim();
-                if (val) {
-                    val.split(/[\s,]+/).forEach(u => addUnique(u));
-                }
+                String(orderRow[col] || '').split(/[\s,]+/).forEach(u => addUniqueImg(u));
             });
 
-            // 2. Parse Items / Product column for inline image URLs and product names
-            const itemsCol = orderHeaders.find(h => /(items|order_items|products|product|details|order_details|cart)/i.test(h));
-            const rawItemsVal = itemsCol ? orderRow[itemsCol] : (orderRow['Items'] || orderRow['Product'] || orderRow['Products'] || '');
-            const parsedItems = parseOrderItemsData(rawItemsVal);
-            parsedItems.inlineImages.forEach(u => addUnique(u));
+            // Compute clean subtotal & total
+            const calculatedSubtotal = items.reduce((sum, it) => sum + (it.price * it.qty), 0);
+            const numericTotal = parseNumericPrice(rawTotalVal) || calculatedSubtotal;
+            const displayTotal = numericTotal > 0 ? formatRs(numericTotal) : (rawTotalVal || 'Confirmed');
 
-            // 3. Cross-reference Products & Catalog sheets in allSheets to fetch matching product photos
-            const candidateSheets = allSheets.filter(s => /^(products|catalog|collections|inventory)$/i.test(s.name.trim()));
-            if (candidateSheets.length > 0 && parsedItems.names.length > 0) {
-                for (const itemName of parsedItems.names) {
-                    const needle = itemName.toLowerCase();
-                    if (needle.length < 2) continue;
-
-                    for (const sheet of candidateSheets) {
-                        const imgCol = sheet.headers.find(h => /(^img$|image|photo|picture|thumbnail|pic|media|banner|url|link)/i.test(h));
-                        if (!imgCol) continue;
-
-                        const nameCols = sheet.headers.filter(h => /(name|title|product|item|sku|id)/i.test(h));
-                        const searchCols = nameCols.length ? nameCols : sheet.headers;
-
-                        // Exact or substring match
-                        const matchedRow = sheet.rows.find(pRow => {
-                            const imgVal = String(pRow[imgCol] || '').trim();
-                            if (!/^https?:/i.test(imgVal)) return false;
-                            return searchCols.some(col => {
-                                const cell = String(pRow[col] || '').toLowerCase().trim();
-                                if (!cell) return false;
-                                return cell === needle || cell.includes(needle) || (cell.length >= 4 && needle.includes(cell));
-                            });
-                        });
-
-                        if (matchedRow) {
-                            addUnique(matchedRow[imgCol]);
-                        }
-                    }
-                }
-            }
+            const receiptImg = findOrderReceiptImage(orderRow, orderHeaders);
 
             return {
-                images: foundImages,
-                itemsDisplay: parsedItems.displayText
+                row: orderRow._row,
+                orderNo,
+                customerName,
+                phoneNum,
+                email,
+                city,
+                address,
+                fullLocation,
+                orderDate,
+                rawTotalVal,
+                numericTotal,
+                calculatedSubtotal,
+                displayTotal,
+                statusHeader,
+                paymentHeader,
+                paymentMethod,
+                currentStatus,
+                currentPayment,
+                items,
+                productImages,
+                receiptImg
             };
         }
 
@@ -549,7 +664,7 @@
         }
 
         // =========================================================
-        // PAKISTANI WHATSAPP PHONE FORMATTER & DRAFT MESSAGE BUILDER
+        // PAKISTANI WHATSAPP PHONE FORMATTER & CLEAN BOLD MESSAGE BUILDER
         // =========================================================
         function formatWhatsAppPhone(rawPhone) {
             let digits = String(rawPhone || '').replace(/[^0-9]/g, '');
@@ -564,16 +679,21 @@
             return digits;
         }
 
-        function buildOrderWhatsAppUrl({ phone, customerName, orderNo, itemsText, totalAmt, orderStatus, paymentStatus }) {
-            const waPhone = formatWhatsAppPhone(phone);
+        function buildOrderWhatsAppUrl(orderData) {
+            const waPhone = formatWhatsAppPhone(orderData.phoneNum);
             if (!waPhone) return '';
 
-            const cleanName = String(customerName || 'Valued Customer').trim();
-            const cleanOrderNo = String(orderNo || 'N/A').trim();
-            const cleanItems = String(itemsText || 'Your HY Store Order').trim();
-            const cleanTotal = totalAmt ? (String(totalAmt).toLowerCase().includes('rs') ? String(totalAmt).trim() : `Rs ${String(totalAmt).trim()}`) : 'Confirmed';
-            const cleanStatus = String(orderStatus || 'Placed').trim();
-            const cleanPayment = String(paymentStatus || 'Pending').trim();
+            const cleanName = orderData.customerName || 'Valued Customer';
+            const cleanOrderNo = orderData.orderNo || 'N/A';
+
+            // Build clean, human-readable bullet points from parsed items (NO raw JSON ever!)
+            let formattedItemsBlock = '• *HY Store Order*';
+            if (orderData.items && orderData.items.length > 0) {
+                formattedItemsBlock = orderData.items.map(it => {
+                    const pricePart = it.price > 0 ? ` — ${formatRs(it.price)}` : '';
+                    return `• *${it.name}* (Qty: *${it.qty}*${pricePart})`;
+                }).join('\n');
+            }
 
             const message =
 `Dear *${cleanName}*,
@@ -581,10 +701,12 @@
 Thank you for shopping with *HY STORE*! Here are your official order details:
 
 🧾 *Order No:* *${cleanOrderNo}*
-🛍️ *Product(s):* ${cleanItems}
-💰 *Total Amount:* *${cleanTotal}*
-📦 *Order Status:* *${cleanStatus}*
-💳 *Payment Status:* *${cleanPayment}*
+🛍️ *Ordered Product(s):*
+${formattedItemsBlock}
+
+💰 *Total Amount:* *${orderData.displayTotal}*
+📦 *Order Status:* *${orderData.currentStatus}*
+💳 *Payment Status:* *${orderData.currentPayment}*
 
 We are processing your order with care and will keep you updated. Feel free to reply here if you need any assistance!`;
 
@@ -655,6 +777,7 @@ We are processing your order with care and will keep you updated. Feel free to r
             }
             if (e.key === 'Escape') {
                 closeLightbox();
+                closeInvoiceModal();
                 closeModal();
             }
         });
@@ -706,94 +829,271 @@ We are processing your order with care and will keep you updated. Feel free to r
             }
         }
 
-        // Custom Confirm Modal
-        function askConfirm(message) {
-            return new Promise(resolve => {
-                confirmCallback = resolve;
-                document.getElementById('confirmMsg').textContent = message;
-                document.getElementById('confirmModal').classList.remove('hidden');
-            });
-        }
-
-        function closeConfirmModal(result) {
-            document.getElementById('confirmModal').classList.add('hidden');
-            if (confirmCallback) {
-                const cb = confirmCallback;
-                confirmCallback = null;
-                cb(result);
+        // =========================================================
+        // A4 PRINTABLE INVOICE GENERATOR & GOOGLE SHEETS SYNC
+        // =========================================================
+        function openOrderInvoice(row) {
+            const ordersSheet = allSheets.find(x => x.name === currentSheet) || allSheets.find(x => x.name.toLowerCase().includes('order'));
+            if (!ordersSheet) {
+                toast('Order sheet data not loaded.', 'error');
+                return;
             }
-        }
-
-        // Sidebar & Edge Handle Toggle
-        function toggleDrawerMenu() {
-            const sidebar = document.getElementById('sidebar');
-            const backdrop = document.getElementById('mobile-backdrop');
-            const edgeBtn = document.getElementById('edge-arrow-btn');
-            const edgeIcon = document.getElementById('edge-arrow-icon');
-
-            isSidebarOpen = !isSidebarOpen;
-
-            if (isSidebarOpen) {
-                sidebar.classList.remove('-translate-x-full');
-                sidebar.classList.add('translate-x-0');
-                backdrop.classList.remove('hidden');
-                edgeBtn.style.left = '16rem';
-                edgeIcon.classList.replace('fa-chevron-right', 'fa-chevron-left');
-            } else {
-                sidebar.classList.add('-translate-x-full');
-                sidebar.classList.remove('translate-x-0');
-                backdrop.classList.add('hidden');
-                edgeBtn.style.left = '0px';
-                edgeIcon.classList.replace('fa-chevron-left', 'fa-chevron-right');
+            const orderRow = ordersSheet.rows.find(x => x._row === row);
+            if (!orderRow) {
+                toast('Order record not found.', 'error');
+                return;
             }
+
+            const data = extractOrderStructuredData(orderRow, ordersSheet.headers);
+            const cleanOrderDigits = data.orderNo.replace(/[^0-9A-Za-z-]/g, '');
+            const invoiceNo = `INV-${cleanOrderDigits || data.row}`;
+            const todayFormatted = new Date().toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' });
+
+            const itemsList = data.items.length > 0 ? data.items : [{
+                name: 'HY Store Personalized Gift Order',
+                qty: 1,
+                price: data.numericTotal,
+                oldPrice: 0,
+                image: data.productImages[0] || '',
+                category: 'HY STORE',
+                desc: ''
+            }];
+
+            const subtotalVal = itemsList.reduce((acc, it) => acc + (it.price * it.qty), 0);
+            const finalTotalVal = data.numericTotal > 0 ? data.numericTotal : subtotalVal;
+            const shippingOrAdj = finalTotalVal - subtotalVal;
+
+            currentInvoicePayload = {
+                invoiceNo,
+                orderNo: data.orderNo,
+                date: todayFormatted,
+                customerName: data.customerName,
+                phone: data.phoneNum,
+                address: data.fullLocation,
+                itemsSummary: itemsList.map(it => `${it.name} (Qty: ${it.qty})`).join(', '),
+                subtotal: subtotalVal,
+                total: finalTotalVal,
+                paymentStatus: data.currentPayment,
+                orderStatus: data.currentStatus
+            };
+
+            const isPaid = ['verified', 'paid'].includes(data.currentPayment.toLowerCase());
+
+            document.getElementById('invoiceModalTitle').textContent = `${invoiceNo} · ${data.customerName}`;
+            document.getElementById('invoiceA4Container').innerHTML = `
+                <!-- TOP INVOICE CONTENT -->
+                <div class="space-y-6">
+                    <!-- Brand Header Banner -->
+                    <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 pb-6 border-b-2 border-[#0F172A]">
+                        <div class="flex items-center gap-3.5">
+                            <div class="w-14 h-14 rounded-2xl bg-gradient-to-br from-[#0F172A] via-[#1E3A8A] to-[#E50914] text-white font-black text-2xl flex items-center justify-center shadow-md shrink-0">
+                                HY
+                            </div>
+                            <div>
+                                <div class="text-2xl font-black tracking-tight text-[#0F172A]">HY <span class="text-[#E50914]">STORE</span></div>
+                                <div class="text-[11px] font-bold uppercase tracking-widest text-slate-500">Premium Personalized Gifts & Lifestyle</div>
+                                <div class="text-[11px] text-slate-500 mt-0.5">Official Online Store · Pakistan</div>
+                            </div>
+                        </div>
+
+                        <div class="text-left sm:text-right">
+                            <div class="inline-block bg-[#0F172A] text-white text-[11px] font-black uppercase tracking-widest px-3.5 py-1.5 rounded-lg">
+                                OFFICIAL SALES INVOICE
+                            </div>
+                            <div class="text-lg font-black text-[#E50914] mt-1.5">${esc(invoiceNo)}</div>
+                            <div class="text-xs font-bold text-slate-600">Order Ref: <span class="text-slate-900">${esc(data.orderNo)}</span></div>
+                            <div class="text-[11px] font-semibold text-slate-500">Invoice Date: ${esc(todayFormatted)}</div>
+                        </div>
+                    </div>
+
+                    <!-- Bill To & Order Summary Boxes -->
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                        <div class="bg-slate-50 rounded-xl p-4 border border-slate-200/90 space-y-1.5">
+                            <div class="text-[10px] font-black uppercase tracking-widest text-[#1E3A8A] flex items-center gap-1.5">
+                                <i class="fa-solid fa-user-check"></i> Bill To / Shipping Details
+                            </div>
+                            <div class="text-sm font-black text-slate-900 pt-0.5">${esc(data.customerName)}</div>
+                            <div class="text-xs font-bold text-slate-700">
+                                <i class="fa-solid fa-phone text-[10px] text-slate-400 mr-1.5"></i>${esc(data.phoneNum || 'N/A')}
+                            </div>
+                            ${data.email ? `<div class="text-xs font-medium text-slate-600"><i class="fa-solid fa-envelope text-[10px] text-slate-400 mr-1.5"></i>${esc(data.email)}</div>` : ''}
+                            <div class="text-xs font-medium text-slate-600 leading-relaxed">
+                                <i class="fa-solid fa-location-dot text-[10px] text-[#E50914] mr-1.5"></i>${esc(data.fullLocation || 'Pakistan')}
+                            </div>
+                        </div>
+
+                        <div class="bg-slate-50 rounded-xl p-4 border border-slate-200/90 flex flex-col justify-between space-y-2">
+                            <div class="text-[10px] font-black uppercase tracking-widest text-[#1E3A8A] flex items-center gap-1.5">
+                                <i class="fa-solid fa-receipt"></i> Order & Payment Information
+                            </div>
+                            <div class="space-y-1.5 text-xs">
+                                <div class="flex items-center justify-between">
+                                    <span class="text-slate-500 font-semibold">Order Date:</span>
+                                    <span class="font-bold text-slate-800">${esc(data.orderDate)}</span>
+                                </div>
+                                <div class="flex items-center justify-between">
+                                    <span class="text-slate-500 font-semibold">Order Status:</span>
+                                    <span class="px-2.5 py-0.5 rounded-full text-[10px] font-extrabold bg-blue-100 text-[#1E3A8A]">${esc(data.currentStatus)}</span>
+                                </div>
+                                <div class="flex items-center justify-between">
+                                    <span class="text-slate-500 font-semibold">Payment Status:</span>
+                                    <span class="px-2.5 py-0.5 rounded-full text-[10px] font-extrabold ${isPaid ? 'bg-emerald-100 text-emerald-700' : 'bg-rose-100 text-[#E50914]'}">${esc(data.currentPayment)}</span>
+                                </div>
+                                <div class="flex items-center justify-between">
+                                    <span class="text-slate-500 font-semibold">Payment Mode:</span>
+                                    <span class="font-bold text-slate-800">${esc(data.paymentMethod)}</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Itemized Products Table -->
+                    <div class="overflow-hidden rounded-xl border border-slate-200">
+                        <table class="w-full text-left border-collapse">
+                            <thead>
+                                <tr class="bg-[#0F172A] text-white text-[10px] font-black uppercase tracking-wider">
+                                    <th class="py-3 px-3 w-10 text-center">#</th>
+                                    <th class="py-3 px-3 w-16 text-center">Photo</th>
+                                    <th class="py-3 px-3">Product & Description</th>
+                                    <th class="py-3 px-3 text-right">Unit Price</th>
+                                    <th class="py-3 px-3 text-center w-16">Qty</th>
+                                    <th class="py-3 px-3 text-right">Amount</th>
+                                </tr>
+                            </thead>
+                            <tbody class="divide-y divide-slate-200 text-xs">
+                                ${itemsList.map((it, idx) => {
+                                    const lineTotal = it.price * it.qty;
+                                    const formattedImg = formatMediaUrl(it.image);
+                                    return `
+                                    <tr class="bg-white">
+                                        <td class="py-3 px-3 text-center font-bold text-slate-500">${idx + 1}</td>
+                                        <td class="py-2.5 px-3 text-center">
+                                            ${it.image ? `
+                                            <div class="w-12 h-12 rounded-lg border border-slate-200 bg-slate-50 p-1 mx-auto flex items-center justify-center overflow-hidden">
+                                                <img src="${esc(formattedImg)}" data-fallback-step="0" onerror="handleSmartImageError(this, '${jsq(it.image)}')" class="w-full h-full object-contain">
+                                            </div>` : `
+                                            <div class="w-12 h-12 rounded-lg border border-slate-200 bg-slate-50 mx-auto flex items-center justify-center text-slate-400">
+                                                <i class="fa-solid fa-gift text-sm"></i>
+                                            </div>`}
+                                        </td>
+                                        <td class="py-3 px-3">
+                                            <div class="font-black text-slate-900 text-xs">${esc(it.name)}</div>
+                                            ${it.category ? `<span class="inline-block text-[9px] font-extrabold uppercase tracking-wider text-[#1E3A8A] bg-blue-50 px-2 py-0.5 rounded mt-0.5">${esc(it.category)}</span>` : ''}
+                                            ${it.desc ? `<div class="text-[11px] text-slate-500 mt-1 line-clamp-2">${esc(it.desc)}</div>` : ''}
+                                        </td>
+                                        <td class="py-3 px-3 text-right font-bold text-slate-700 whitespace-nowrap">
+                                            ${it.price > 0 ? esc(formatRs(it.price)) : '—'}
+                                            ${it.oldPrice > it.price ? `<div class="text-[10px] text-slate-400 line-through">${esc(formatRs(it.oldPrice))}</div>` : ''}
+                                        </td>
+                                        <td class="py-3 px-3 text-center font-black text-slate-900">${it.qty}</td>
+                                        <td class="py-3 px-3 text-right font-black text-slate-900 whitespace-nowrap">
+                                            ${lineTotal > 0 ? esc(formatRs(lineTotal)) : '—'}
+                                        </td>
+                                    </tr>`;
+                                }).join('')}
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <!-- Totals Summary Block -->
+                    <div class="flex flex-col sm:flex-row justify-between items-start gap-6 pt-2">
+                        <div class="max-w-sm space-y-1.5 text-[11px] text-slate-500 bg-slate-50 p-3.5 rounded-xl border border-slate-200/80">
+                            <div class="font-extrabold text-slate-700 uppercase tracking-wider text-[10px]">Customer & Care Note</div>
+                            <p>Every item at <strong>HY STORE</strong> is handcrafted and quality-checked before dispatch. Please retain this invoice for order tracking or support.</p>
+                        </div>
+
+                        <div class="w-full sm:w-72 bg-slate-50 rounded-xl p-4 border border-slate-200 space-y-2 text-xs">
+                            <div class="flex items-center justify-between text-slate-600 font-semibold">
+                                <span>Items Subtotal:</span>
+                                <span class="font-bold text-slate-800">${subtotalVal > 0 ? esc(formatRs(subtotalVal)) : esc(data.displayTotal)}</span>
+                            </div>
+                            ${shippingOrAdj !== 0 && subtotalVal > 0 ? `
+                            <div class="flex items-center justify-between text-slate-600 font-semibold">
+                                <span>${shippingOrAdj > 0 ? 'Shipping & Handling:' : 'Discount Applied:'}</span>
+                                <span class="font-bold ${shippingOrAdj < 0 ? 'text-emerald-600' : 'text-slate-800'}">${shippingOrAdj > 0 ? '+' : ''}${esc(formatRs(shippingOrAdj))}</span>
+                            </div>` : `
+                            <div class="flex items-center justify-between text-slate-600 font-semibold">
+                                <span>Shipping / Delivery:</span>
+                                <span class="font-bold text-emerald-600">Included</span>
+                            </div>`}
+                            <div class="pt-2 border-t-2 border-slate-300 flex items-center justify-between">
+                                <span class="text-xs font-black uppercase tracking-wider text-[#0F172A]">Grand Total:</span>
+                                <span class="text-base font-black text-[#E50914]">${esc(finalTotalVal > 0 ? formatRs(finalTotalVal) : data.displayTotal)}</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- BOTTOM INVOICE FOOTER & SIGNATURE -->
+                <div class="pt-8 mt-8 border-t border-slate-200 flex flex-col sm:flex-row items-start sm:items-end justify-between gap-4 text-[11px] text-slate-500">
+                    <div>
+                        <div class="font-black text-slate-800 text-xs">Thank you for shopping with HY STORE!</div>
+                        <div>This is a computer-generated official invoice and requires no physical stamp.</div>
+                    </div>
+                    <div class="text-left sm:text-right">
+                        <div class="w-40 border-b border-slate-400 mb-1 sm:ml-auto"></div>
+                        <div class="font-extrabold text-slate-700 text-[10px] uppercase tracking-wider">Authorized Signatory · HY STORE</div>
+                    </div>
+                </div>
+            `;
+
+            document.getElementById('invoiceModal').classList.remove('hidden');
         }
 
-        // Exact API Backend Wrappers
-        async function apiGet(action) {
-            let r = await fetch(API + '?action=' + encodeURIComponent(action));
-            let j = await r.json();
-            if (j.status !== 'success') throw Error(j.message || 'Google Sheets read failed');
-            return j;
+        function closeInvoiceModal() {
+            const modal = document.getElementById('invoiceModal');
+            if (modal) modal.classList.add('hidden');
         }
 
-        async function apiPost(payload) {
-            let r = await fetch(API, {
-                method: 'POST',
-                headers: { 'Content-Type': 'text/plain;charset=utf-8' },
-                body: JSON.stringify(payload)
-            });
-            let j = await r.json();
-            if (j.status !== 'success') throw Error(j.message || 'Save failed');
-            return j;
-        }
+        async function saveCurrentInvoiceToSheet() {
+            if (!currentInvoicePayload) return;
+            const invoicesSheet = allSheets.find(s => /^invoices$/i.test(s.name.trim()));
+            if (!invoicesSheet) {
+                toast('Invoices tab not found in Google Sheets. You can still Print / Save PDF!', 'info');
+                return;
+            }
 
-        // Sync Google Sheets Data with Loading Spinners
-        async function syncAll() {
-            const headerBtn = document.getElementById('syncBtnHeader');
-            if (headerBtn) {
-                headerBtn.disabled = true;
-                headerBtn.innerHTML = `<i class="fa-solid fa-rotate fa-spin text-xs"></i><span class="hidden xs:inline">Syncing...</span>`;
+            const btn = document.getElementById('saveInvoiceSheetBtn');
+            if (btn) {
+                btn.disabled = true;
+                btn.innerHTML = `<i class="fa-solid fa-circle-notch fa-spin"></i> <span>Saving...</span>`;
             }
 
             try {
-                document.getElementById('syncLabel').textContent = 'Syncing…';
-                let d = await apiGet('erpGetAllSheets');
-                allSheets = d.sheets || [];
+                const values = {};
+                invoicesSheet.headers.forEach(h => {
+                    if (/invoice_id|invoice_no|^id$/i.test(h)) values[h] = currentInvoicePayload.invoiceNo;
+                    else if (/order_id|order_no|order/i.test(h)) values[h] = currentInvoicePayload.orderNo;
+                    else if (/customer|name/i.test(h)) values[h] = currentInvoicePayload.customerName;
+                    else if (/phone|mobile|contact/i.test(h)) values[h] = currentInvoicePayload.phone;
+                    else if (/address|city/i.test(h)) values[h] = currentInvoicePayload.address;
+                    else if (/items|products|details/i.test(h)) values[h] = currentInvoicePayload.itemsSummary;
+                    else if (/subtotal/i.test(h)) values[h] = currentInvoicePayload.subtotal;
+                    else if (/total|amount/i.test(h)) values[h] = currentInvoicePayload.total;
+                    else if (/payment/i.test(h)) values[h] = currentInvoicePayload.paymentStatus;
+                    else if (/status/i.test(h)) values[h] = currentInvoicePayload.orderStatus;
+                    else if (/date|created/i.test(h)) values[h] = currentInvoicePayload.date;
+                    else values[h] = '';
+                });
+
+                await apiPost({
+                    action: 'erpSheetSave',
+                    sheetName: invoicesSheet.name,
+                    mode: 'add',
+                    rowIndex: 0,
+                    values
+                });
+
+                toast(`Invoice ${currentInvoicePayload.invoiceNo} saved to Google Sheets!`, 'success');
+                const d = await apiGet('erpGetAllSheets');
+                allSheets = d.sheets || allSheets;
                 renderNav();
-                document.getElementById('syncLabel').textContent = 'Synced ' + new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
-                if (currentSheet) {
-                    openSheet(currentSheet);
-                } else {
-                    showDashboard();
-                }
-                toast('All Google Sheets data synced successfully.', 'success');
             } catch (e) {
-                document.getElementById('syncLabel').textContent = 'Sync failed';
-                toast('Google Sheets connection error: ' + e.message, 'error');
+                toast('Could not save to Invoices sheet: ' + e.message, 'error');
             } finally {
-                if (headerBtn) {
-                    headerBtn.disabled = false;
-                    headerBtn.innerHTML = `<i class="fa-solid fa-rotate text-xs"></i><span class="hidden xs:inline">Sync Google Sheet</span>`;
+                if (btn) {
+                    btn.disabled = false;
+                    btn.innerHTML = `<i class="fa-solid fa-cloud-arrow-up"></i> <span>Save to Invoices Sheet</span>`;
                 }
             }
         }
@@ -1070,52 +1370,16 @@ We are processing your order with care and will keep you updated. Feel free to r
                 let title = String(r[headers[1]] ?? r[headers[0]] ?? 'Record ' + (i + 1));
 
                 // =========================================================
-                // 1. EXECUTIVE ORDER CARD (Product Picture + Receipt + Smart WhatsApp)
+                // 1. EXECUTIVE ORDER CARD (Product Picture + Clean Items + Create Invoice + Smart WhatsApp)
                 // =========================================================
                 if (isOrderSheet) {
-                    const orderIdCol = headers.find(h => /(order_id|orderid|order_no|orderno|^id$)/i.test(h)) || headers[0];
-                    const orderNo = String(r[orderIdCol] || `ORD-${r._row}`).trim();
-
-                    const custCol = headers.find(h => /(customer_name|customername|customer|^name$|full_name|buyer)/i.test(h));
-                    const customerName = String((custCol ? r[custCol] : '') || r['Customer'] || r['Customer Name'] || r['Name'] || title).trim();
-
-                    const phoneCol = headers.find(h => /(phone|mobile|contact|whatsapp|tel)/i.test(h));
-                    const phoneNum = String((phoneCol ? r[phoneCol] : '') || r['Phone'] || r['Mobile'] || r['Contact'] || r['WhatsApp'] || '').trim();
-
-                    const cityCol = headers.find(h => /(city|address|location|area|shipping)/i.test(h));
-                    const cityOrAddress = String((cityCol ? r[cityCol] : '') || '').trim();
-
-                    const dateCol = headers.find(h => /(date|created|time|timestamp)/i.test(h));
-                    const orderDate = String((dateCol ? r[dateCol] : '') || '').trim();
-
-                    const totalCol = headers.find(h => /(total_amount|totalamount|grand_total|^total$|^amount$|^price$)/i.test(h));
-                    const totalAmt = String((totalCol ? r[totalCol] : '') || r['Total'] || r['Amount'] || r['Price'] || '').trim();
-
-                    const statusHeader = headers.find(h => /(order_status|^status$|orderstatus)/i.test(h)) || 'Status';
-                    const paymentHeader = headers.find(h => /(payment_status|paymentstatus|^payment$)/i.test(h)) || 'Payment Status';
-
-                    const currentStatus = String(r[statusHeader] || r['Status'] || 'Placed').trim();
-                    const currentPayment = String(r[paymentHeader] || r['Payment Status'] || 'Pending').trim();
-
-                    // Smart product photo lookup (from Order row OR cross-referenced from Products/Catalog sheets)
-                    const { images: productImages, itemsDisplay } = findOrderProductImages(r, headers);
-                    const primaryProdImg = productImages[0] || '';
+                    const orderData = extractOrderStructuredData(r, headers);
+                    const primaryProdImg = orderData.productImages[0] || '';
                     const formattedProdImg = formatMediaUrl(primaryProdImg);
+                    const totalQtyCount = orderData.items.reduce((sum, it) => sum + it.qty, 0);
 
-                    // Optional payment receipt / screenshot lookup
-                    const receiptImg = findOrderReceiptImage(r, headers);
-
-                    // Clean phone & pre-drafted bold WhatsApp link
-                    const cleanTel = phoneNum.replace(/[^0-9+]/g, '');
-                    const waHref = buildOrderWhatsAppUrl({
-                        phone: phoneNum,
-                        customerName,
-                        orderNo,
-                        itemsText: itemsDisplay,
-                        totalAmt,
-                        orderStatus: currentStatus,
-                        paymentStatus: currentPayment
-                    });
+                    const cleanTel = orderData.phoneNum.replace(/[^0-9+]/g, '');
+                    const waHref = buildOrderWhatsAppUrl(orderData);
 
                     return `
                     <article class="bg-white rounded-2xl border border-slate-200/90 shadow-xs hover:shadow-xl hover:-translate-y-0.5 transition-all duration-200 flex flex-col justify-between overflow-hidden group">
@@ -1128,29 +1392,29 @@ We are processing your order with care and will keep you updated. Feel free to r
                                         <span class="w-2 h-2 rounded-full bg-[#E50914] animate-pulse"></span>
                                         <span class="text-[10px] font-extrabold uppercase tracking-widest text-blue-200">ORDER</span>
                                     </div>
-                                    <div class="text-xs sm:text-sm font-black tracking-tight text-white truncate">${esc(orderNo)}</div>
+                                    <div class="text-xs sm:text-sm font-black tracking-tight text-white truncate">${esc(orderData.orderNo)}</div>
                                 </div>
                                 <div class="text-right shrink-0">
                                     <span class="inline-block text-[10px] font-mono font-bold bg-white/15 text-blue-100 px-2 py-0.5 rounded-md border border-white/10">Row #${r._row}</span>
-                                    ${orderDate ? `<div class="text-[10px] text-blue-200/80 mt-0.5 truncate max-w-[110px]">${esc(orderDate)}</div>` : ''}
+                                    ${orderData.orderDate ? `<div class="text-[10px] text-blue-200/80 mt-0.5 truncate max-w-[115px]">${esc(orderData.orderDate)}</div>` : ''}
                                 </div>
                             </div>
 
                             <!-- Ordered Product Picture Showcase -->
                             <div class="relative bg-gradient-to-b from-slate-50 to-white border-b border-slate-100">
                                 ${primaryProdImg ? `
-                                <div onclick="openLightbox('${jsq(primaryProdImg)}', '${jsq(orderNo + ' — Product Photo')}')" class="h-48 w-full flex items-center justify-center p-3 cursor-pointer relative overflow-hidden">
+                                <div onclick="openLightbox('${jsq(primaryProdImg)}', '${jsq(orderData.orderNo + ' — Product Photo')}')" class="h-48 w-full flex items-center justify-center p-3 cursor-pointer relative overflow-hidden">
                                     <img src="${esc(formattedProdImg)}" 
                                          data-fallback-step="0"
-                                         alt="${esc(itemsDisplay || orderNo)}"
+                                         alt="${esc(orderData.items[0]?.name || orderData.orderNo)}"
                                          onerror="handleSmartImageError(this, '${jsq(primaryProdImg)}')"
                                          class="w-full h-full object-contain transition-transform duration-300 group-hover:scale-105">
                                     <div class="absolute bottom-2 right-2 bg-slate-900/75 backdrop-blur-xs text-white text-[10px] font-bold px-2 py-1 rounded-lg opacity-0 group-hover:opacity-100 transition flex items-center gap-1">
                                         <i class="fa-solid fa-expand text-[9px]"></i> Zoom
                                     </div>
-                                    ${productImages.length > 1 ? `
-                                    <span class="absolute top-2 left-2 bg-[#1E3A8A] text-white text-[10px] font-extrabold px-2 py-0.5 rounded-full shadow-xs">
-                                        +${productImages.length - 1} more items
+                                    ${orderData.productImages.length > 1 ? `
+                                    <span class="absolute top-2.5 left-2.5 bg-[#1E3A8A] text-white text-[10px] font-extrabold px-2.5 py-0.5 rounded-full shadow-xs">
+                                        +${orderData.productImages.length - 1} more items
                                     </span>` : ''}
                                 </div>` : `
                                 <div class="h-28 w-full flex flex-col items-center justify-center bg-slate-50/70 text-slate-400 p-3">
@@ -1161,8 +1425,8 @@ We are processing your order with care and will keep you updated. Feel free to r
                                 </div>`}
 
                                 <!-- Optional Payment Receipt Pill -->
-                                ${receiptImg ? `
-                                <button type="button" onclick="openLightbox('${jsq(receiptImg)}', '${jsq(orderNo + ' — Payment Receipt')}')" 
+                                ${orderData.receiptImg ? `
+                                <button type="button" onclick="openLightbox('${jsq(orderData.receiptImg)}', '${jsq(orderData.orderNo + ' — Payment Receipt')}')" 
                                     class="absolute top-2.5 right-2.5 bg-emerald-600 hover:bg-emerald-700 text-white text-[10px] font-extrabold px-2.5 py-1 rounded-full shadow-md flex items-center gap-1 transition cursor-pointer">
                                     <i class="fa-solid fa-receipt"></i>
                                     <span>Receipt</span>
@@ -1171,19 +1435,34 @@ We are processing your order with care and will keep you updated. Feel free to r
 
                             <!-- Card Body Content -->
                             <div class="p-4 space-y-3">
-                                <!-- Ordered Product(s) & Order Total Strip -->
+                                <!-- Clean Parsed Product Item(s) & Order Total Strip (NO RAW JSON!) -->
                                 <div class="bg-slate-50 rounded-xl p-2.5 border border-slate-200/70 space-y-2">
-                                    <div class="flex items-start justify-between gap-2">
-                                        <div class="min-w-0">
-                                            <div class="text-[9px] font-extrabold uppercase tracking-wider text-slate-400">Ordered Product(s)</div>
-                                            <div class="text-xs font-extrabold text-slate-800 line-clamp-2 mt-0.5">${esc(itemsDisplay || 'Order Details')}</div>
-                                        </div>
-                                        ${totalAmt ? `
-                                        <div class="shrink-0 bg-red-50 border border-red-200/80 px-2.5 py-1 rounded-lg text-right">
-                                            <div class="text-[8px] font-extrabold uppercase text-red-400 leading-none">Total</div>
-                                            <div class="text-xs font-black text-[#E50914] mt-0.5">${esc(totalAmt.toLowerCase().includes('rs') ? totalAmt : 'Rs ' + totalAmt)}</div>
-                                        </div>` : ''}
+                                    <div class="flex items-center justify-between gap-2">
+                                        <span class="text-[9px] font-extrabold uppercase tracking-wider text-slate-400">
+                                            Ordered Items ${totalQtyCount > 0 ? `(${totalQtyCount} Qty)` : ''}
+                                        </span>
+                                        ${orderData.displayTotal ? `
+                                        <span class="bg-red-50 border border-red-200/80 px-2 py-0.5 rounded-md text-[11px] font-black text-[#E50914]">
+                                            ${esc(orderData.displayTotal)}
+                                        </span>` : ''}
                                     </div>
+
+                                    ${orderData.items.length > 0 ? `
+                                    <div class="space-y-1.5">
+                                        ${orderData.items.slice(0, 3).map(it => `
+                                        <div class="bg-white px-2.5 py-1.5 rounded-lg border border-slate-200/60 flex items-center justify-between gap-2">
+                                            <div class="min-w-0">
+                                                <div class="text-xs font-extrabold text-slate-800 truncate">${esc(it.name)}</div>
+                                                ${it.price > 0 ? `<div class="text-[10px] font-bold text-slate-500">${esc(formatRs(it.price))} each</div>` : ''}
+                                            </div>
+                                            <span class="shrink-0 bg-blue-50 text-[#1E3A8A] border border-blue-200/80 text-[10px] font-black px-2 py-0.5 rounded-md">
+                                                Qty: ${it.qty}
+                                            </span>
+                                        </div>`).join('')}
+                                        ${orderData.items.length > 3 ? `
+                                        <div class="text-[10px] font-bold text-[#1E3A8A] text-right">+${orderData.items.length - 3} more products</div>` : ''}
+                                    </div>` : `
+                                    <div class="text-xs font-extrabold text-slate-700">Web Store Order</div>`}
                                 </div>
 
                                 <!-- Customer Info + Smart WhatsApp & Call Actions -->
@@ -1191,14 +1470,14 @@ We are processing your order with care and will keep you updated. Feel free to r
                                     <div class="min-w-0">
                                         <div class="flex items-center gap-1.5">
                                             <i class="fa-solid fa-circle-user text-[#1E3A8A] text-xs"></i>
-                                            <span class="text-xs font-black text-slate-900 truncate">${esc(customerName)}</span>
+                                            <span class="text-xs font-black text-slate-900 truncate">${esc(orderData.customerName)}</span>
                                         </div>
                                         <div class="text-[11px] font-bold text-slate-600 mt-0.5 truncate">
-                                            <i class="fa-solid fa-phone-volume text-[9px] text-slate-400 mr-1"></i>${esc(phoneNum || 'No phone provided')}
+                                            <i class="fa-solid fa-phone-volume text-[9px] text-slate-400 mr-1"></i>${esc(orderData.phoneNum || 'No phone provided')}
                                         </div>
-                                        ${cityOrAddress ? `
+                                        ${orderData.fullLocation ? `
                                         <div class="text-[10px] font-medium text-slate-500 truncate mt-0.5">
-                                            <i class="fa-solid fa-location-dot text-[9px] text-[#E50914] mr-1"></i>${esc(cityOrAddress)}
+                                            <i class="fa-solid fa-location-dot text-[9px] text-[#E50914] mr-1"></i>${esc(orderData.fullLocation)}
                                         </div>` : ''}
                                     </div>
 
@@ -1221,38 +1500,45 @@ We are processing your order with care and will keep you updated. Feel free to r
                                 <div class="grid grid-cols-2 gap-2">
                                     <div>
                                         <label class="block text-[9px] font-extrabold uppercase tracking-wider text-slate-400 mb-1">Order Status</label>
-                                        <select onchange="quickUpdateRowField(${r._row}, '${jsq(statusHeader)}', this.value, this)" 
-                                            class="w-full px-2.5 py-1.5 border rounded-xl text-[11px] font-extrabold focus:outline-none focus:ring-2 focus:ring-[#E50914] cursor-pointer transition disabled:opacity-50 ${getOrderStatusStyle(currentStatus)}">
-                                            ${ORDER_STATUS_OPTIONS.map(opt => `<option value="${opt}" ${opt.toLowerCase() === currentStatus.toLowerCase() ? 'selected' : ''}>${opt}</option>`).join('')}
-                                            ${!ORDER_STATUS_OPTIONS.some(opt => opt.toLowerCase() === currentStatus.toLowerCase()) && currentStatus ? `<option value="${esc(currentStatus)}" selected>${esc(currentStatus)}</option>` : ''}
+                                        <select onchange="quickUpdateRowField(${r._row}, '${jsq(orderData.statusHeader)}', this.value, this)" 
+                                            class="w-full px-2.5 py-1.5 border rounded-xl text-[11px] font-extrabold focus:outline-none focus:ring-2 focus:ring-[#E50914] cursor-pointer transition disabled:opacity-50 ${getOrderStatusStyle(orderData.currentStatus)}">
+                                            ${ORDER_STATUS_OPTIONS.map(opt => `<option value="${opt}" ${opt.toLowerCase() === orderData.currentStatus.toLowerCase() ? 'selected' : ''}>${opt}</option>`).join('')}
+                                            ${!ORDER_STATUS_OPTIONS.some(opt => opt.toLowerCase() === orderData.currentStatus.toLowerCase()) && orderData.currentStatus ? `<option value="${esc(orderData.currentStatus)}" selected>${esc(orderData.currentStatus)}</option>` : ''}
                                         </select>
                                     </div>
 
                                     <div>
                                         <label class="block text-[9px] font-extrabold uppercase tracking-wider text-slate-400 mb-1">Payment</label>
-                                        <select onchange="quickUpdateRowField(${r._row}, '${jsq(paymentHeader)}', this.value, this)" 
-                                            class="w-full px-2.5 py-1.5 border rounded-xl text-[11px] font-extrabold focus:outline-none focus:ring-2 focus:ring-[#1E3A8A] cursor-pointer transition disabled:opacity-50 ${getPaymentStatusStyle(currentPayment)}">
-                                            ${PAYMENT_STATUS_OPTIONS.map(opt => `<option value="${opt}" ${opt.toLowerCase() === currentPayment.toLowerCase() ? 'selected' : ''}>${opt}</option>`).join('')}
-                                            ${!PAYMENT_STATUS_OPTIONS.some(opt => opt.toLowerCase() === currentPayment.toLowerCase()) && currentPayment ? `<option value="${esc(currentPayment)}" selected>${esc(currentPayment)}</option>` : ''}
+                                        <select onchange="quickUpdateRowField(${r._row}, '${jsq(orderData.paymentHeader)}', this.value, this)" 
+                                            class="w-full px-2.5 py-1.5 border rounded-xl text-[11px] font-extrabold focus:outline-none focus:ring-2 focus:ring-[#1E3A8A] cursor-pointer transition disabled:opacity-50 ${getPaymentStatusStyle(orderData.currentPayment)}">
+                                            ${PAYMENT_STATUS_OPTIONS.map(opt => `<option value="${opt}" ${opt.toLowerCase() === orderData.currentPayment.toLowerCase() ? 'selected' : ''}>${opt}</option>`).join('')}
+                                            ${!PAYMENT_STATUS_OPTIONS.some(opt => opt.toLowerCase() === orderData.currentPayment.toLowerCase()) && orderData.currentPayment ? `<option value="${esc(orderData.currentPayment)}" selected>${esc(orderData.currentPayment)}</option>` : ''}
                                         </select>
                                     </div>
                                 </div>
                             </div>
                         </div>
 
-                        <!-- Card Action Footer -->
-                        <div class="px-4 py-2.5 bg-slate-50/80 border-t border-slate-100 flex items-center justify-between gap-1.5">
-                            <button onclick="viewRecord(${r._row})" class="flex-1 py-1.5 px-2.5 rounded-xl bg-white border border-slate-200 hover:border-blue-300 hover:bg-blue-50 text-[#1D4ED8] text-[11px] font-extrabold transition flex items-center justify-center gap-1.5 cursor-pointer shadow-2xs">
-                                <i class="fa-solid fa-eye"></i>
-                                <span>Details</span>
+                        <!-- Card Action Footer (Create Invoice + Details + Edit + Delete) -->
+                        <div class="px-4 py-3 bg-slate-50/90 border-t border-slate-100 space-y-2">
+                            <button onclick="openOrderInvoice(${r._row})" class="w-full py-2 px-3 rounded-xl bg-gradient-to-r from-[#0F172A] via-[#1E3A8A] to-[#1D4ED8] hover:from-[#E50914] hover:to-[#B80710] text-white text-xs font-extrabold shadow-xs transition-all flex items-center justify-center gap-2 cursor-pointer">
+                                <i class="fa-solid fa-file-invoice-dollar"></i>
+                                <span>Create Invoice (A4)</span>
                             </button>
-                            <button onclick="editRecord(${r._row})" class="flex-1 py-1.5 px-2.5 rounded-xl bg-white border border-slate-200 hover:border-slate-300 hover:bg-slate-100 text-slate-700 text-[11px] font-extrabold transition flex items-center justify-center gap-1.5 cursor-pointer shadow-2xs">
-                                <i class="fa-solid fa-pen-to-square"></i>
-                                <span>Edit</span>
-                            </button>
-                            <button id="del-btn-${r._row}" onclick="deleteRecord(${r._row})" class="py-1.5 px-3 rounded-xl bg-red-50 hover:bg-[#E50914] text-[#E50914] hover:text-white border border-red-100 text-[11px] font-bold transition flex items-center justify-center cursor-pointer" title="Delete Order">
-                                <i class="fa-solid fa-trash"></i>
-                            </button>
+
+                            <div class="flex items-center justify-between gap-1.5">
+                                <button onclick="viewRecord(${r._row})" class="flex-1 py-1.5 px-2.5 rounded-xl bg-white border border-slate-200 hover:border-blue-300 hover:bg-blue-50 text-[#1D4ED8] text-[11px] font-extrabold transition flex items-center justify-center gap-1.5 cursor-pointer shadow-2xs">
+                                    <i class="fa-solid fa-eye"></i>
+                                    <span>Details</span>
+                                </button>
+                                <button onclick="editRecord(${r._row})" class="flex-1 py-1.5 px-2.5 rounded-xl bg-white border border-slate-200 hover:border-slate-300 hover:bg-slate-100 text-slate-700 text-[11px] font-extrabold transition flex items-center justify-center gap-1.5 cursor-pointer shadow-2xs">
+                                    <i class="fa-solid fa-pen-to-square"></i>
+                                    <span>Edit</span>
+                                </button>
+                                <button id="del-btn-${r._row}" onclick="deleteRecord(${r._row})" class="py-1.5 px-3 rounded-xl bg-red-50 hover:bg-[#E50914] text-[#E50914] hover:text-white border border-red-100 text-[11px] font-bold transition flex items-center justify-center cursor-pointer" title="Delete Order">
+                                    <i class="fa-solid fa-trash"></i>
+                                </button>
+                            </div>
                         </div>
                     </article>`;
                 }
@@ -1361,12 +1647,35 @@ We are processing your order with care and will keep you updated. Feel free to r
         function viewRecord(row) {
             let s = allSheets.find(x => x.name === currentSheet);
             let r = s.rows.find(x => x._row === row);
+            const isOrderSheet = currentSheet.toLowerCase().includes('order');
 
             let html = s.headers.map(h => {
                 let v = String(r[h] ?? '').trim();
                 let formatted = formatMediaUrl(v);
                 let isVid = isVideoUrl(v);
                 let isMedia = /^https?:/i.test(v) && (isVid || Boolean(extractDriveFileId(v)) || /(jpg|jpeg|png|webp|gif|svg|bmp|avif)/i.test(v) || /(img|image|photo|pic|banner|media|receipt|screenshot|slip|thumbnail)/i.test(h));
+
+                // Render JSON order items cleanly inside View Record Modal instead of raw JSON string
+                if (/(items|order_items|products|cart)/i.test(h) && (v.startsWith('[') || v.startsWith('{'))) {
+                    const parsedItems = parseOrderItems(v);
+                    if (parsedItems.length > 0) {
+                        return `
+                        <div class="col-span-full bg-slate-50 p-3.5 rounded-xl border border-slate-200 space-y-2">
+                            <label class="block text-[10px] font-black text-slate-400 uppercase tracking-wider">${esc(h)} (Parsed Products)</label>
+                            <div class="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                                ${parsedItems.map(it => `
+                                <div class="bg-white p-2.5 rounded-xl border border-slate-200 flex items-center gap-2.5">
+                                    ${it.image ? `<img src="${esc(formatMediaUrl(it.image))}" data-fallback-step="0" onerror="handleSmartImageError(this, '${jsq(it.image)}')" class="w-12 h-12 rounded-lg object-contain bg-slate-50 border border-slate-100 shrink-0">` : `<div class="w-12 h-12 rounded-lg bg-slate-100 flex items-center justify-center text-slate-400 shrink-0"><i class="fa-solid fa-gift"></i></div>`}
+                                    <div class="min-w-0 flex-1">
+                                        <div class="text-xs font-black text-slate-900 truncate">${esc(it.name)}</div>
+                                        <div class="text-[11px] font-bold text-[#1E3A8A]">Qty: ${it.qty} ${it.price > 0 ? `· ${esc(formatRs(it.price))}` : ''}</div>
+                                        ${it.category ? `<div class="text-[9px] font-extrabold uppercase text-slate-400">${esc(it.category)}</div>` : ''}
+                                    </div>
+                                </div>`).join('')}
+                            </div>
+                        </div>`;
+                    }
+                }
 
                 return `
                 <div class="col-span-1 bg-slate-50 p-3 rounded-xl border border-slate-200">
@@ -1384,6 +1693,10 @@ We are processing your order with care and will keep you updated. Feel free to r
             document.getElementById('formFields').innerHTML = html;
             document.getElementById('modalFooter').innerHTML = `
                 <button class="px-4 py-2 bg-slate-200 hover:bg-slate-300 text-slate-800 text-xs font-bold rounded-xl transition cursor-pointer" onclick="closeModal()">Close</button>
+                ${isOrderSheet ? `
+                <button class="px-4 py-2 bg-[#1E3A8A] hover:bg-[#172554] text-white text-xs font-bold rounded-xl shadow-xs transition cursor-pointer" onclick="closeModal(); openOrderInvoice(${row})">
+                    <i class="fa-solid fa-file-invoice-dollar mr-1"></i> Create Invoice (A4)
+                </button>` : ''}
                 <button class="px-4 py-2 bg-[#E50914] text-white text-xs font-bold rounded-xl shadow-xs transition cursor-pointer" onclick="editRecord(${row})">
                     <i class="fa-solid fa-pen-to-square mr-1"></i> Edit This Record
                 </button>`;
