@@ -87,6 +87,27 @@ button,input,select,textarea{font:inherit}button{cursor:pointer}
 }
 
 .formitem{min-width:0}.formitem .field{width:100%}.invoice-item img{max-width:42px;max-height:42px}.order-thumb{display:block}@media(max-width:420px){.order-actions .mini{font-size:10px;padding:7px 5px}.details-kv{grid-template-columns:1fr}}
+
+/* HY STORE ERP refined workspace */
+:root{--blue:#164fca;--blue-dark:#0b327f;--red:#e33e4d;--page:#f5f7fb;--line:#e3e9f3;--shadow:0 10px 30px rgba(16,38,79,.055)}
+body{background:#f5f7fb;font-family:Inter,Segoe UI,Arial,sans-serif}
+.sidebar{background:linear-gradient(180deg,#102d67 0%,#0b204d 100%);width:250px}
+.logo{border-radius:12px;background:#fff;color:#123b89;box-shadow:0 5px 18px #0002}
+.nav button{border-radius:10px}.nav button.active{background:#ffffff20;border-color:#ffffff24;box-shadow:inset 3px 0 #ed4655}
+.main{padding:30px clamp(16px,3vw,42px) 48px}.top{padding-bottom:17px;border-bottom:1px solid #e5eaf2}
+.top h1{font-size:28px;font-weight:850;letter-spacing:-.8px}.eyebrow{color:#e13f50}
+.btn{background:linear-gradient(135deg,#ed5360,#d92f43);box-shadow:0 7px 18px #d92f4320}.btn.secondary{background:#fff;color:#233b66;border:1px solid #dce3ee;box-shadow:none}
+.panel,.stat{border-color:#e6ebf3;box-shadow:0 8px 28px rgba(24,45,83,.045)}.panelhead{background:#fff}.stat{background:#fff;border-radius:16px}.stat .value{color:#173b80}
+.order-grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:14px}.order-card{border-color:#e3e9f2;border-radius:15px;box-shadow:0 6px 22px #142d5709;transition:.18s}.order-card:hover{transform:translateY(-2px);box-shadow:0 12px 26px #142d5714}
+.order-top{background:#fff;border-bottom:1px solid #edf0f5}.order-id{font-size:16px;color:#153879}.status-chip{border:1px solid #e6ebf3;background:#f5f7fb;color:#435674}
+.order-customer{color:#20375d}.order-actions{background:#fff;gap:8px}.order-actions .mini{border-radius:9px}.status-select{max-width:145px;min-width:115px;padding:7px 9px;border:1px solid #dce3ee;border-radius:9px;background:#fff;color:#263b5c;font-size:11px;font-weight:750}
+.order-card.dispatched{grid-column:1/-1;display:grid;grid-template-columns:minmax(180px,1.1fr) minmax(240px,1.7fr) minmax(210px,1fr);align-items:center;border-left:4px solid #17875e;background:linear-gradient(90deg,#f4fbf7,#fff 42%)}
+.order-card.dispatched .order-top{height:100%;border:0;border-right:1px solid #e7eee9;background:transparent;align-items:center;padding:16px}
+.order-card.dispatched .order-main{display:flex;align-items:center;gap:18px;flex-wrap:wrap;padding:12px 16px}.order-card.dispatched .order-products{margin:0}.order-card.dispatched .order-total{border:0;padding:0;display:grid;gap:2px}
+.order-card.dispatched .order-actions{border:0;border-left:1px solid #e7eee9;justify-content:flex-end;flex-wrap:wrap}
+.mini{border-color:#e0e6ef;color:#24436f}.mini:hover{background:#f4f7fc}.record-card{box-shadow:0 5px 20px #142d5708;border-color:#e4eaf2}.record-head{background:#f7f9fc;border-color:#edf0f5}.record-icon{background:#173d83;box-shadow:none}
+@media(max-width:1050px){.order-card.dispatched{grid-template-columns:1fr}.order-card.dispatched .order-top,.order-card.dispatched .order-actions{border:0;border-bottom:1px solid #e7eee9}.order-card.dispatched .order-actions{justify-content:flex-start}}
+@media(max-width:700px){.sidebar{background:#102d67}.main{padding:16px 12px 28px}.order-grid{grid-template-columns:1fr}.order-card.dispatched{grid-column:auto}.order-card.dispatched .order-main{display:block}.order-card.dispatched .order-products{margin:10px 0}}
 </style>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
@@ -119,14 +140,14 @@ button,input,select,textarea{font:inherit}button{cursor:pointer}
     <div class="sidefoot">Connected to your existing Google Sheets database.<br><span style="color:#6e7887">Users & ERPBackup are restricted.</span></div>
   </aside>
   <main class="main">
-    <div class="top"><div><div class="eyebrow">HY STORE / OPERATIONS</div><h1 id="pageTitle">Overview</h1></div><div class="topright"><span class="pill" id="connectionState">● Connected</span><button class="btn secondary" onclick="refreshData()">↻ Refresh</button><button class="btn secondary" onclick="logout()">Logout</button></div></div>
+    <div class="top"><div><div class="eyebrow">HY STORE / OPERATIONS</div><h1 id="pageTitle">Overview</h1></div><div class="topright"><span class="pill" id="connectionState">● Connected</span><button class="btn secondary" onclick="refreshData()">Refresh</button><button class="btn secondary" onclick="logout()">Logout</button></div></div>
     <section id="overviewView">
       <div class="grid" id="stats"></div>
       <div class="panel"><div class="panelhead"><h2>Database sheets</h2><span class="muted" id="sheetCount"></span></div><div id="sheetCards" class="grid" style="padding:16px;margin:0"></div></div>
       <div class="panel" style="margin-top:16px"><div class="panelhead"><h2>Recent orders</h2><button class="mini" onclick="showSheet('Orders')">View orders →</button></div><div id="recentOrders" class="tablewrap"></div></div>
     </section>
     <section id="tableView" class="panel hidden">
-      <div class="panelhead"><div><h2 id="tableTitle">Records</h2><div class="muted" id="tableMeta" style="font-size:11px;margin-top:3px"></div></div><div class="toolbar"><input id="searchInput" class="field search" placeholder="Search records..." oninput="renderTable()"><button class="btn secondary" onclick="openScanner()">▦ Scan QR</button><button class="btn" onclick="openEditor()">＋ Add record</button></div></div>
+      <div class="panelhead"><div><h2 id="tableTitle">Records</h2><div class="muted" id="tableMeta" style="font-size:11px;margin-top:3px"></div></div><div class="toolbar"><input id="searchInput" class="field search" placeholder="Search records..." oninput="renderTable()"><button class="btn secondary" onclick="openScanner()">Scan QR</button><button class="btn" onclick="openEditor()">+ Add record</button></div></div>
       <div id="tableContainer" class="tablewrap"><div class="loading">Loading records...</div></div>
     </section>
   </main>
@@ -283,7 +304,6 @@ function makeOrderCards(sh,rows,withActions){
     const id=rowVal(sh,r,['OrderID','Order ID','ID'])||'Order';
     const customer=rowVal(sh,r,['Customer Name','Name','Customer'])||'Customer';
     const phone=rowVal(sh,r,['Phone','Mobile']);
-    const email=rowVal(sh,r,['Email',' EMail']);
     const total=rowVal(sh,r,['Total','Grand Total','Amount']);
     const status=rowVal(sh,r,['Status','Order Status'])||'Received';
     const date=rowVal(sh,r,['Date','Order Date']);
@@ -292,14 +312,22 @@ function makeOrderCards(sh,rows,withActions){
     const names=items.map(it=>it.name||it.title||it.productName||'Product').filter(Boolean);
     const preview=pics.slice(0,3).map((u,i)=>imageTag(u,names[i]||'Order product','order-thumb')).join('');
     const slip=safeHttpUrl(rowVal(sh,r,['Payment_Slip','Payment Slip','Screenshot']));
-    return `<article class="order-card">
+    const isDispatched=/dispatch|shipped|out for delivery/i.test(String(status));
+    return `<article class="order-card ${isDispatched?'dispatched':''}">
       <div class="order-top"><div><div class="order-id">#${escapeHtml(id)}</div><div class="order-meta">${escapeHtml(date||'Date not available')}</div></div><span class="status-chip" style="${orderStatusClass(status)}">${escapeHtml(status)}</span></div>
-      <div class="order-main"><div class="order-customer">👤 ${escapeHtml(customer)}</div><div class="order-meta">📞 ${escapeHtml(prettyPhone(phone)||'Phone not available')}</div>
-      <div class="order-products">${preview||'<div class="order-thumb" style="display:grid;place-items:center;color:#93a5c3">🛍️</div>'}<span class="order-more">${items.length?`${items.length} item${items.length===1?'':'s'}${pics.length>3?' · + more':''}`:'No item images'}${slip?' · Payment slip attached':''}</span></div>
-      <div class="order-total"><span class="muted" style="font-size:11px">ORDER TOTAL</span><strong>${escapeHtml(money(total))}</strong></div></div>
-      ${withActions?`<div class="order-actions"><button class="mini" onclick="viewOrder(${r._row})">👁 View</button><button class="mini" onclick="openEditor(${r._row})">✏️ Edit</button><button class="mini" onclick="createInvoiceForOrder(${r._row})">🧾 Invoice</button></div>`:''}
+      <div class="order-main"><div><div class="order-customer">${escapeHtml(customer)}</div><div class="order-meta">${escapeHtml(prettyPhone(phone)||'Phone not available')}</div></div>
+      <div class="order-products">${preview||'<div class="order-thumb" style="display:grid;place-items:center;color:#93a5c3">—</div>'}<span class="order-more">${items.length?`${items.length} item${items.length===1?'':'s'}${pics.length>3?' · + more':''}`:'No item images'}${slip?' · Payment slip attached':''}</span></div>
+      <div class="order-total"><span class="muted" style="font-size:10px">ORDER TOTAL</span><strong>${escapeHtml(money(total))}</strong></div></div>
+      ${withActions?`<div class="order-actions"><button class="mini" title="View order" onclick="viewOrder(${r._row})">View</button><button class="mini" title="Edit order" onclick="openEditor(${r._row})">Edit</button><button class="mini" title="Create invoice" onclick="createInvoiceForOrder(${r._row})">Invoice</button><select class="status-select" aria-label="Update order status" onchange="updateOrderStatus(${r._row},this.value)"><option value="">Update status</option>${['Received','Processing','Ready','Dispatched','Delivered','Cancelled'].map(v=>`<option value="${v}" ${String(status).toLowerCase()===v.toLowerCase()?'selected':''}>${v}</option>`).join('')}</select></div>`:''}
     </article>`;
   }).join('')}</div>`;
+}
+async function updateOrderStatus(rowIndex,status){
+  if(!status)return;
+  const statusHeader=activeSheet?.headers?.find(h=>/^(status|order status)$/i.test(String(h).trim()));
+  if(!statusHeader){toast('Orders sheet has no Status column. Add it first, then retry.',true);return;}
+  try{await api({action:'erpAdminSave',sheetName:activeSheet.name,mode:'update',rowIndex,values:{[statusHeader]:status}});await loadSheets();activeSheet=sheets.find(s=>s.name===activeView);renderTable();toast('Order status updated.');}
+  catch(e){toast(e.message,true)}
 }
 function makeInvoiceCards(sh,rows,withActions){
   if(!rows.length)return '<div class="empty">No invoices yet. Open an order and choose Invoice to create one.</div>';
