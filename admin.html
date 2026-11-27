@@ -60,7 +60,7 @@ button,input,select,textarea{font:inherit}button{cursor:pointer}
 .invoice-paper{width:min(790px,100%);margin:auto;background:#fff;color:#172b4d;padding:34px;border:1px solid #dce7fa;border-radius:14px}
 .invoice-head{display:flex;justify-content:space-between;gap:15px;align-items:flex-start;border-bottom:3px solid #1557d5;padding-bottom:18px}
 .invoice-brand{font-size:24px;font-weight:1000;letter-spacing:1px;color:#0b3caa}.invoice-brand small{display:block;font-size:10px;color:#71819e;letter-spacing:2px}
-.invoice-head-right{display:flex;align-items:flex-start;gap:15px}.invoice-barcode-top{width:148px;text-align:center;margin-top:4px}.invoice-barcode-top svg{width:100%;height:43px}.invoice-barcode-top small{display:block;font-size:8px;color:#8190aa;letter-spacing:.6px;margin-top:1px}.invoice-panel-actions{display:flex;gap:8px;flex-wrap:wrap}.invoice-panel-actions button{min-width:110px}.invoice-title{text-align:right}.invoice-title h2{margin:0;color:#1557d5;font-size:24px}.invoice-title small{color:#8190aa}.invoice-qr-top{width:105px;text-align:center;border:1px dashed #cbdaf3;border-radius:9px;padding:6px}.invoice-qr-top canvas,.invoice-qr-top img{width:86px!important;height:86px!important;display:block;margin:auto}.invoice-qr-top small{display:block;font-size:8px;font-weight:900;color:#0b3caa;margin-top:4px;letter-spacing:.4px}
+.invoice-head-right{display:flex;align-items:flex-start;gap:15px}.invoice-barcode-top{display:none}.invoice-barcode-top svg{width:100%;height:43px}.invoice-barcode-top small{display:block;font-size:8px;color:#8190aa;letter-spacing:.6px;margin-top:1px}.invoice-panel-actions{display:flex;gap:8px;flex-wrap:wrap}.invoice-panel-actions button{min-width:110px}.invoice-title{text-align:right}.invoice-title h2{margin:0;color:#1557d5;font-size:24px}.invoice-title small{color:#8190aa}.invoice-qr-top{display:none}.invoice-qr-top canvas,.invoice-qr-top img{width:86px!important;height:86px!important;display:block;margin:auto}.invoice-qr-top small{display:block;font-size:8px;font-weight:900;color:#0b3caa;margin-top:4px;letter-spacing:.4px}
 .invoice-meta{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;margin:18px 0}
 .invoice-meta div,.invoice-customer{background:#f5f8ff;border:1px solid #e1eafb;border-radius:10px;padding:11px}
 .invoice-meta small,.invoice-customer small{display:block;color:#8190aa;font-size:9px;font-weight:900;letter-spacing:.8px}.invoice-meta b,.invoice-customer b{display:block;font-size:12px;margin-top:4px;overflow-wrap:anywhere}
@@ -69,10 +69,11 @@ button,input,select,textarea{font:inherit}button{cursor:pointer}
 .invoice-bottom{display:grid;grid-template-columns:1fr 180px;gap:16px;margin-top:18px;align-items:end}
 .invoice-qr{border:1px dashed #cbdaf3;border-radius:12px;padding:12px;text-align:center}.invoice-qr b{display:block;font-size:10px;color:#0b3caa;margin-bottom:8px}.invoice-qr small{display:block;color:#8190aa;font-size:9px;margin-top:7px}
 .invoice-totals{display:grid;gap:7px}.invoice-totals div{display:flex;justify-content:space-between;font-size:11px}.invoice-totals .grand{border-top:2px solid #1557d5;padding-top:10px;font-size:17px;font-weight:1000;color:#0b3caa}
-.invoice-paper{break-inside:avoid;page-break-inside:avoid}.invoice-head,.invoice-meta,.invoice-customer,.invoice-items tr,.invoice-bottom{break-inside:avoid;page-break-inside:avoid}.invoice-foot{text-align:center;border-top:1px solid #e1eafb;margin-top:24px;padding-top:13px;color:#8190aa;font-size:9px}
+.invoice-paper{break-inside:avoid;page-break-inside:avoid}.invoice-head,.invoice-meta,.invoice-customer,.invoice-items tr,.invoice-bottom{break-inside:avoid;page-break-inside:avoid}.invoice-foot{text-align:center;border-top:1px solid #e1eafb;margin-top:24px;padding-top:13px;color:#8190aa;font-size:9px}.invoice-scan-footer{margin-top:22px;padding-top:14px;border-top:1px dashed #cbdaf3;display:flex;align-items:flex-end;justify-content:space-between;gap:20px}.invoice-scan-qr{text-align:center;min-width:115px}.invoice-scan-qr canvas,.invoice-scan-qr img{width:96px!important;height:96px!important;display:block;margin:0 auto 5px}.invoice-scan-qr b{font-size:9px;color:#0b3caa}.invoice-scan-barcode{flex:1;text-align:right}.invoice-scan-barcode svg{width:240px;max-width:100%;height:56px}.invoice-scan-barcode small{display:block;color:#8190aa;font-size:9px;letter-spacing:1px}
 .scanner-box{min-height:240px;background:#f4f8ff;border:1px dashed #cbdaf3;border-radius:13px;padding:12px}
 .verify-result{margin-top:12px;border-radius:12px;padding:14px;background:#e9f8f1;color:#116b4a;border:1px solid #bde8d4}
 .verify-result.bad{background:#fff1f2;color:#a52b38;border-color:#f2c6cb}
+.delivery-panel{padding:20px}.delivery-search{display:flex;gap:10px;max-width:620px}.delivery-search input{flex:1}.delivery-paper{max-width:780px;margin:22px auto;background:#fff;border:1px solid #dce7fa;border-radius:14px;padding:28px;color:#172b4d;box-shadow:0 10px 30px #0b3caa12}.delivery-head{display:flex;justify-content:space-between;gap:15px;border-bottom:3px solid #1557d5;padding-bottom:14px}.delivery-head h2{margin:0;color:#0b3caa}.delivery-meta{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:16px 0}.delivery-box{background:#f5f8ff;border:1px solid #e1eafb;border-radius:9px;padding:11px}.delivery-box small{display:block;color:#8190aa;font-size:9px;font-weight:900}.delivery-box b{display:block;margin-top:4px;font-size:12px;overflow-wrap:anywhere}.delivery-items{width:100%;border-collapse:collapse;margin-top:12px}.delivery-items th{background:#0b3caa;color:white;padding:9px;text-align:left}.delivery-items td{padding:10px;border-bottom:1px solid #e6edf8;font-size:12px}.delivery-code{display:flex;justify-content:space-between;align-items:flex-end;gap:16px;border-top:1px dashed #cbdaf3;margin-top:18px;padding-top:14px}.delivery-code svg{width:230px;height:58px}.delivery-qr{text-align:center}.delivery-qr canvas,.delivery-qr img{width:94px!important;height:94px!important}.delivery-qr small{display:block;font-size:9px;color:#71819e}.delivery-print-actions{display:flex;justify-content:center;gap:10px;margin:12px auto}.delivery-scan-footer{display:flex;align-items:flex-end;justify-content:space-between;gap:18px;border-top:1px dashed #cbdaf3;margin-top:18px;padding-top:14px}.delivery-scan-footer>div:first-child{flex:1;text-align:center}.delivery-scan-footer svg{width:100%;max-width:300px;height:58px}.delivery-qr{min-width:125px;text-align:center}.delivery-qr canvas,.delivery-qr img{width:100px!important;height:100px!important;display:block;margin:0 auto 4px}.delivery-qr small{font-size:9px;color:#71819e}.delivery-brand{font-weight:1000;font-size:24px;color:#0b3caa}.delivery-brand small{display:block;font-size:9px;letter-spacing:1.5px;color:#8190aa}.delivery-number{font-size:20px;font-weight:900;color:#0b3caa}@media print{body{background:#fff}.sidebar,.top,.delivery-search,.delivery-print-actions,.panelhead{display:none!important}.main{padding:0!important}.delivery-paper{border:0;box-shadow:none;margin:0 auto;padding:12mm;max-width:none}.invoice-scan-footer{break-inside:avoid}}
 @media(max-width:1200px){.order-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
 @media(max-width:700px){.order-grid{grid-template-columns:1fr}.details-kv{grid-template-columns:1fr 1fr}.invoice-paper{padding:15px}.invoice-head{flex-direction:row;align-items:flex-start}.invoice-head-right{gap:7px;flex-direction:column;align-items:flex-end}.invoice-title{text-align:right}.invoice-barcode-top{width:125px}.invoice-qr-top{width:88px}.invoice-qr-top canvas,.invoice-qr-top img{width:72px!important;height:72px!important}.invoice-meta{grid-template-columns:1fr 1fr}.invoice-bottom{grid-template-columns:1fr}.modalback{padding:7px}.modal{max-height:94vh}.modalbody{padding:13px}.item-row{grid-template-columns:64px minmax(0,1fr)}.item-img{width:64px;height:64px}}
 @media print{
@@ -108,6 +109,16 @@ body{background:#f5f7fb;font-family:Inter,Segoe UI,Arial,sans-serif}
 .mini{border-color:#e0e6ef;color:#24436f}.mini:hover{background:#f4f7fc}.record-card{box-shadow:0 5px 20px #142d5708;border-color:#e4eaf2}.record-head{background:#f7f9fc;border-color:#edf0f5}.record-icon{background:#173d83;box-shadow:none}
 @media(max-width:1050px){.order-card.dispatched{grid-template-columns:1fr}.order-card.dispatched .order-top,.order-card.dispatched .order-actions{border:0;border-bottom:1px solid #e7eee9}.order-card.dispatched .order-actions{justify-content:flex-start}}
 @media(max-width:700px){.sidebar{background:#102d67}.main{padding:16px 12px 28px}.order-grid{grid-template-columns:1fr}.order-card.dispatched{grid-column:auto}.order-card.dispatched .order-main{display:block}.order-card.dispatched .order-products{margin:10px 0}}
+
+.delivery-paper{max-width:760px;margin:0 auto;background:#fff;border:1px solid #dce3ee;border-radius:14px;padding:26px;color:#172b4d;box-shadow:0 8px 28px #142d5708}
+.delivery-head{display:flex;justify-content:space-between;align-items:flex-start;gap:15px;border-bottom:2px solid #173d83;padding-bottom:14px}
+.delivery-brand{font-size:23px;font-weight:950;color:#173d83;letter-spacing:.8px}.delivery-brand small{display:block;font-size:9px;letter-spacing:1.5px;color:#75839b}
+.delivery-code{text-align:center;min-width:180px}.delivery-code svg{width:100%;height:48px}.delivery-code small{font-size:9px;color:#657493;display:block}
+.delivery-number{font-size:24px;font-weight:950;color:#173d83;margin:16px 0}
+.delivery-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin:12px 0}.delivery-box{border:1px solid #e0e7f1;border-radius:10px;padding:12px}.delivery-box small{display:block;font-size:9px;font-weight:900;color:#7a879b;letter-spacing:.8px}.delivery-box b{display:block;font-size:13px;margin-top:4px;overflow-wrap:anywhere}
+.delivery-items{width:100%;border-collapse:collapse;margin-top:14px}.delivery-items th{background:#173d83;color:#fff;text-align:left;padding:9px;font-size:10px}.delivery-items td{border-bottom:1px solid #e7ebf2;padding:9px;font-size:11px}.delivery-foot{margin-top:18px;border-top:1px dashed #cbd4e2;padding-top:10px;font-size:10px;color:#718099;display:flex;justify-content:space-between;gap:10px}
+@media(max-width:700px){.delivery-paper{padding:14px}.delivery-head{flex-direction:column}.delivery-code{width:100%;max-width:230px}.delivery-grid{grid-template-columns:1fr}}
+@media print{body.print-delivery *{visibility:hidden!important}body.print-delivery #deliverySlipPreview,body.print-delivery #deliverySlipPreview *{visibility:visible!important}body.print-delivery #deliverySlipPreview{position:absolute;left:0;top:0;width:100%}body.print-delivery .delivery-paper{max-width:none;border:0;box-shadow:none;border-radius:0}@page{size:A4;margin:10mm}}
 </style>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
@@ -133,6 +144,7 @@ body{background:#f5f7fb;font-family:Inter,Segoe UI,Arial,sans-serif}
       <button data-view="Payments" onclick="showSheet('Payments',this)"><span class="ico">＄</span>Payments</button>
       <button data-view="inventory" onclick="showSheet('inventory',this)"><span class="ico">▣</span>Inventory</button>
       <button data-view="invoices" onclick="showSheet('invoices',this)"><span class="ico">▧</span>Invoices</button>
+      <button data-view="deliverySlip" onclick="showDeliverySlip(this)"><span class="ico">▤</span>Delivery Slip</button>
       <button data-view="expenses" onclick="showSheet('expenses',this)"><span class="ico">↗</span>Expenses</button>
       <button data-view="customers" onclick="showSheet('customers',this)"><span class="ico">♙</span>Customers</button>
     </div></div>
@@ -146,10 +158,15 @@ body{background:#f5f7fb;font-family:Inter,Segoe UI,Arial,sans-serif}
       <div class="panel"><div class="panelhead"><h2>Database sheets</h2><span class="muted" id="sheetCount"></span></div><div id="sheetCards" class="grid" style="padding:16px;margin:0"></div></div>
       <div class="panel" style="margin-top:16px"><div class="panelhead"><h2>Recent orders</h2><button class="mini" onclick="showSheet('Orders')">View orders →</button></div><div id="recentOrders" class="tablewrap"></div></div>
     </section>
+    <section id="deliverySlipView" class="panel hidden">
+      <div class="panelhead"><div><h2>Delivery Slip Generator</h2><div class="muted" style="font-size:11px">Enter an Order ID. Customer and parcel details load from your existing Orders sheet.</div></div></div>
+      <div class="tablewrap"><div class="toolbar" style="margin-bottom:16px"><input id="deliveryOrderInput" class="field" style="width:min(360px,100%)" placeholder="Enter Order Number / Order ID"><button class="btn" onclick="generateDeliverySlip()">Generate Slip</button><button class="btn secondary" onclick="printDeliverySlip()">Print / Save PDF</button></div><div id="deliverySlipPreview"><div class="empty">Enter an order number to generate a parcel delivery slip.</div></div></div>
+    </section>
     <section id="tableView" class="panel hidden">
       <div class="panelhead"><div><h2 id="tableTitle">Records</h2><div class="muted" id="tableMeta" style="font-size:11px;margin-top:3px"></div></div><div class="toolbar"><input id="searchInput" class="field search" placeholder="Search records..." oninput="renderTable()"><button class="btn secondary" onclick="openScanner()">Scan QR</button><button class="btn" onclick="openEditor()">+ Add record</button></div></div>
       <div id="tableContainer" class="tablewrap"><div class="loading">Loading records...</div></div>
     </section>
+
   </main>
 </div>
 <div id="modalBack" class="modalback hidden" onclick="if(event.target===this)closeEditor()"><div class="modal"><div class="modalhead"><b id="modalTitle">Add record</b><button class="mini" onclick="closeEditor()">✕</button></div><div class="modalbody"><div id="editorFields" class="formgrid"></div></div><div class="modalfoot"><button class="btn secondary" onclick="closeEditor()">Cancel</button><button class="btn" onclick="saveEditor()">Save changes</button></div></div></div>
@@ -187,18 +204,18 @@ async function loadSheets(){
   if(inv && !inv.headers.some(h=>/^(image|img|photo|picture)$/i.test(String(h).trim()))) inv.headers.push('Image');
   buildDynamicNav()
  }
-async function refreshData(){try{await loadSheets();if(activeView==='overview')renderOverview();else renderTable();toast('Database refreshed.')}catch(e){toast(e.message,true)}}
+async function refreshData(){try{await loadSheets();if(activeView==='overview')renderOverview();else if(activeView==='deliverySlip')generateDeliverySlip();else renderTable();toast('Database refreshed.')}catch(e){toast(e.message,true)}}
 function buildDynamicNav(){
   $('dynamicNav').innerHTML='';
   sheets.filter(s=>!['Orders','Products','Payments','inventory','invoices','expenses','customers'].includes(s.name)).forEach(s=>{
     const b=document.createElement('button');b.innerHTML='<span class="ico">▤</span>'+escapeHtml(s.name);b.onclick=()=>showSheet(s.name,b);$('dynamicNav').appendChild(b)
   });
 }
-function showView(view,btn){activeView=view;activeSheet=null;document.querySelectorAll('.nav button').forEach(b=>b.classList.remove('active'));if(btn)btn.classList.add('active');$('pageTitle').textContent='Overview';$('overviewView').classList.remove('hidden');$('tableView').classList.add('hidden');renderOverview()}
+function showView(view,btn){activeView=view;activeSheet=null;document.querySelectorAll('.nav button').forEach(b=>b.classList.remove('active'));if(btn)btn.classList.add('active');$('pageTitle').textContent='Overview';$('overviewView').classList.remove('hidden');$('tableView').classList.add('hidden');$('deliverySlipView').classList.add('hidden');renderOverview()}
 function showSheet(name,btn){
   activeView=name;activeSheet=sheets.find(s=>s.name===name);if(!activeSheet){toast('Sheet not found.',true);return}
   document.querySelectorAll('.nav button').forEach(b=>b.classList.remove('active'));if(btn)btn.classList.add('active');else{const b=[...document.querySelectorAll('.nav button')].find(x=>x.textContent.trim().endsWith(name));if(b)b.classList.add('active')}
-  $('pageTitle').textContent=name;$('tableTitle').textContent=name+' records';$('tableMeta').textContent=activeSheet.total+' records · '+activeSheet.headers.length+' columns';$('searchInput').value='';$('overviewView').classList.add('hidden');$('tableView').classList.remove('hidden');renderTable()
+  $('pageTitle').textContent=name;$('tableTitle').textContent=name+' records';$('tableMeta').textContent=activeSheet.total+' records · '+activeSheet.headers.length+' columns';$('searchInput').value='';$('overviewView').classList.add('hidden');$('tableView').classList.remove('hidden');$('deliverySlipView').classList.add('hidden');renderTable()
 }
 function renderOverview(){
   const find=n=>sheets.find(s=>s.name.toLowerCase()===n.toLowerCase());
@@ -214,11 +231,11 @@ function renderOverview(){
   $('stats').innerHTML=cards.map(c=>`<div class="stat"><div class="label">${c[0]}</div><div class="value">${c[1]}</div><div class="hint">${c[2]}</div></div>`).join('');
   $('sheetCount').textContent=sheets.length+' accessible sheets';
   $('sheetCards').innerHTML=sheets.map(s=>`<div class="stat" style="min-height:80px;cursor:pointer" onclick="showSheet(${JSON.stringify(s.name)})"><div class="label">${escapeHtml(s.name)}</div><div class="value" style="font-size:22px">${s.total}</div><div class="hint">${s.headers.length} columns · Open sheet →</div></div>`).join('');
-  if(orders){const rows=orders.rows.slice(-6).reverse();$('recentOrders').innerHTML=makeOrderCards(orders,rows,true)}else $('recentOrders').innerHTML='<div class="empty">Orders sheet not found.</div>';
+  if(orders){const rows=[...orders.rows].sort((a,b)=>{const ad=/dispatch|shipped|out for delivery/i.test(String(rowVal(orders,a,['Status','Order Status']))),bd=/dispatch|shipped|out for delivery/i.test(String(rowVal(orders,b,['Status','Order Status'])));const da=new Date(rowVal(orders,b,['Date','Order Date'])||0).getTime()||0,db=new Date(rowVal(orders,a,['Date','Order Date'])||0).getTime()||0;return (ad-bd)||(da-db)}).slice(0,6);$('recentOrders').innerHTML=makeOrderCards(orders,rows,true)}else $('recentOrders').innerHTML='<div class="empty">Orders sheet not found.</div>';
 }
 function renderTable(){
   if(!activeSheet)return;const q=$('searchInput').value.trim().toLowerCase();
-  const rows=activeSheet.rows.filter(r=>!q||activeSheet.headers.some(h=>String(r[h]??'').toLowerCase().includes(q)));
+  let rows=activeSheet.rows.filter(r=>!q||activeSheet.headers.some(h=>String(r[h]??'').toLowerCase().includes(q)));if(!['orders','invoices'].includes(String(activeSheet.name).toLowerCase()))rows.sort((a,b)=>(Number(b._row)||0)-(Number(a._row)||0));
   $('tableMeta').textContent=`${rows.length} of ${activeSheet.total} records · ${activeSheet.headers.length} columns`;
   $('tableContainer').innerHTML=makeTable(activeSheet,rows,true);
 }
@@ -300,7 +317,8 @@ function orderStatusClass(value){
 }
 function makeOrderCards(sh,rows,withActions){
   if(!rows.length)return '<div class="empty">No orders found.</div>';
-  return `<div class="order-grid">${rows.map(r=>{
+  const ordered=rows.slice().sort((a,b)=>{const sa=String(rowVal(sh,a,['Status','Order Status'])||'').toLowerCase(),sb=String(rowVal(sh,b,['Status','Order Status'])||'').toLowerCase();const da=/dispatch|shipped|out for delivery/.test(sa),db=/dispatch|shipped|out for delivery/.test(sb);if(da!==db)return da?1:-1;const ta=Date.parse(rowVal(sh,a,['Date','Order Date'])||'')||0,tb=Date.parse(rowVal(sh,b,['Date','Order Date'])||'')||0;return tb-ta||Number(b._row)-Number(a._row)});
+  return `<div class="order-grid">${ordered.map(r=>{
     const id=rowVal(sh,r,['OrderID','Order ID','ID'])||'Order';
     const customer=rowVal(sh,r,['Customer Name','Name','Customer'])||'Customer';
     const phone=rowVal(sh,r,['Phone','Mobile']);
@@ -310,18 +328,19 @@ function makeOrderCards(sh,rows,withActions){
     const items=parseOrderItems(r,sh);
     const pics=items.map(imageUrlForItem).filter(Boolean);
     const names=items.map(it=>it.name||it.title||it.productName||'Product').filter(Boolean);
-    const preview=pics.slice(0,3).map((u,i)=>imageTag(u,names[i]||'Order product','order-thumb')).join('');
+    const preview='';
     const slip=safeHttpUrl(rowVal(sh,r,['Payment_Slip','Payment Slip','Screenshot']));
     const isDispatched=/dispatch|shipped|out for delivery/i.test(String(status));
     return `<article class="order-card ${isDispatched?'dispatched':''}">
       <div class="order-top"><div><div class="order-id">#${escapeHtml(id)}</div><div class="order-meta">${escapeHtml(date||'Date not available')}</div></div><span class="status-chip" style="${orderStatusClass(status)}">${escapeHtml(status)}</span></div>
       <div class="order-main"><div><div class="order-customer">${escapeHtml(customer)}</div><div class="order-meta">${escapeHtml(prettyPhone(phone)||'Phone not available')}</div></div>
-      <div class="order-products">${preview||'<div class="order-thumb" style="display:grid;place-items:center;color:#93a5c3">—</div>'}<span class="order-more">${items.length?`${items.length} item${items.length===1?'':'s'}${pics.length>3?' · + more':''}`:'No item images'}${slip?' · Payment slip attached':''}</span></div>
+      <div class="order-products"><span class="order-more">${items.length?`${items.length} item${items.length===1?'':'s'}${pics.length>3?' · + more':''}`:'No items recorded'}${slip?' · Payment slip attached':''}</span></div>
       <div class="order-total"><span class="muted" style="font-size:10px">ORDER TOTAL</span><strong>${escapeHtml(money(total))}</strong></div></div>
-      ${withActions?`<div class="order-actions"><button class="mini" title="View order" onclick="viewOrder(${r._row})">View</button><button class="mini" title="Edit order" onclick="openEditor(${r._row})">Edit</button><button class="mini" title="Create invoice" onclick="createInvoiceForOrder(${r._row})">Invoice</button><select class="status-select" aria-label="Update order status" onchange="updateOrderStatus(${r._row},this.value)"><option value="">Update status</option>${['Received','Processing','Ready','Dispatched','Delivered','Cancelled'].map(v=>`<option value="${v}" ${String(status).toLowerCase()===v.toLowerCase()?'selected':''}>${v}</option>`).join('')}</select></div>`:''}
+      ${withActions?`<div class="order-actions"><button class="mini" title="View order" onclick="viewOrder(${r._row})">View</button><button class="mini" title="Edit order" onclick="openEditor(${r._row})">Edit</button><button class="mini" title="Create invoice" onclick="createInvoiceForOrder(${r._row})">Invoice</button><button class="mini" title="Delivery slip" onclick="quickDeliverySlip('${escapeHtml(id)}')">Slip</button><select class="status-select" aria-label="Update order status" onchange="updateOrderStatus(${r._row},this.value)"><option value="">Update status</option>${['Received','Processing','Ready','Dispatched','Delivered','Cancelled'].map(v=>`<option value="${v}" ${String(status).toLowerCase()===v.toLowerCase()?'selected':''}>${v}</option>`).join('')}</select></div>`:''}
     </article>`;
   }).join('')}</div>`;
 }
+function quickDeliverySlip(orderId){showDeliverySlip([...document.querySelectorAll('.nav button')].find(b=>b.dataset.view==='deliverySlip'));$('deliveryOrderInput').value=orderId;generateDeliverySlip()}
 async function updateOrderStatus(rowIndex,status){
   if(!status)return;
   const statusHeader=activeSheet?.headers?.find(h=>/^(status|order status)$/i.test(String(h).trim()));
@@ -331,7 +350,8 @@ async function updateOrderStatus(rowIndex,status){
 }
 function makeInvoiceCards(sh,rows,withActions){
   if(!rows.length)return '<div class="empty">No invoices yet. Open an order and choose Invoice to create one.</div>';
-  return `<div class="order-grid">${rows.map(r=>{
+  const ordered=rows.slice().sort((a,b)=>{const sa=String(rowVal(sh,a,['Status','Order Status'])||'').toLowerCase(),sb=String(rowVal(sh,b,['Status','Order Status'])||'').toLowerCase();const da=/dispatch|shipped|out for delivery/.test(sa),db=/dispatch|shipped|out for delivery/.test(sb);if(da!==db)return da?1:-1;const ta=Date.parse(rowVal(sh,a,['Date','Order Date'])||'')||0,tb=Date.parse(rowVal(sh,b,['Date','Order Date'])||'')||0;return tb-ta||Number(b._row)-Number(a._row)});
+  return `<div class="order-grid">${ordered.map(r=>{
     const id=rowVal(sh,r,['InvoiceID','Invoice ID'])||'Invoice';
     const order=rowVal(sh,r,['OrderID','Order ID']);
     const customer=rowVal(sh,r,['Customer','Name']);
@@ -342,7 +362,7 @@ function makeInvoiceCards(sh,rows,withActions){
   }).join('')}</div>`;
 }
 function makeTable(sh,rows,withActions){
-  if(sh.name==='Orders')return makeOrderCards(sh,rows,withActions);
+  if(sh.name==='Orders'){const ordered=[...rows].sort((a,b)=>{const da=new Date(rowVal(sh,b,['Date','Order Date'])||0).getTime()||0,db=new Date(rowVal(sh,a,['Date','Order Date'])||0).getTime()||0;const ad=/dispatch|shipped|out for delivery/i.test(String(rowVal(sh,a,['Status','Order Status']))),bd=/dispatch|shipped|out for delivery/i.test(String(rowVal(sh,b,['Status','Order Status'])));return (ad-bd)||(da-db)});return makeOrderCards(sh,ordered,withActions);}
   if(String(sh.name).toLowerCase()==='invoices')return makeInvoiceCards(sh,rows,withActions);
   if(!rows.length)return '<div class="empty">No records found.</div>';
   const icon=sheetIcon(sh.name);
@@ -376,13 +396,14 @@ function viewOrder(rowIndex){
     ['Order Status',status],['Order Date',get(['Date'])],['Payment Slip',get(['Payment_Slip','Payment Slip','Screenshot'])],['Order ID',id]
   ];
   const slip=safeHttpUrl(get(['Payment_Slip','Payment Slip','Screenshot']));
+  const firstProductImage=items.map(imageUrlForItem).find(Boolean)||'';
   const itemHtml=items.length?items.map((it,i)=>{
     const name=it.name||it.title||it.productName||'Product';
     const qty=Number(it.qty||it.quantity||1),price=Number(it.price||it.unitPrice||0),sub=Number(it.subtotal??(qty*price));
-    const img=imageUrlForItem(it);
-    return `<div class="item-row">${img?imageTag(img,name,'item-img'):'<div class="item-img" style="display:grid;place-items:center">🎁</div>'}<div><div class="item-name">${escapeHtml(name)}</div><div class="item-sub">${escapeHtml(it.category||'')}${it.badge?' · '+escapeHtml(it.badge):''}</div><div class="item-sub">Qty: ${qty} · Unit: ${escapeHtml(money(price))} · Subtotal: <b>${escapeHtml(money(sub))}</b></div>${img?`<a href="${escapeHtml(img)}" target="_blank" rel="noopener" class="item-sub">Open product image ↗</a>`:''}</div></div>`;
+    const img=i===0?firstProductImage:'';
+    return `<div class="item-row">${img?imageTag(img,name,'item-img'):(i===0?'<div class="item-img" style="display:grid;place-items:center">🎁</div>':'')}<div><div class="item-name">${escapeHtml(name)}</div><div class="item-sub">${escapeHtml(it.category||'')}${it.badge?' · '+escapeHtml(it.badge):''}</div><div class="item-sub">Qty: ${qty} · Unit: ${escapeHtml(money(price))} · Subtotal: <b>${escapeHtml(money(sub))}</b></div>${img?`<a href="${escapeHtml(img)}" target="_blank" rel="noopener" class="item-sub">Open product image ↗</a>`:''}</div></div>`;
   }).join(''):'<p class="muted">No readable product item JSON was found in the CCC column.</p>';
-  $('detailsBody').innerHTML=`<div class="details-section"><h3>👤 CUSTOMER & ORDER INFORMATION</h3><div class="details-kv">${meta.filter(x=>x[1]!==''&&x[1]!=null).map(x=>`<div><small>${escapeHtml(x[0])}</small><b>${escapeHtml(x[1])}</b></div>`).join('')}</div>${slip?`<p style="margin:10px 0 0"><a href="${escapeHtml(slip)}" target="_blank" rel="noopener">View payment slip ↗</a></p>`:''}</div><div class="details-section"><h3>🛍️ ORDERED PRODUCTS · ${items.length}</h3>${itemHtml}</div><div class="detail-total"><span>GRAND TOTAL</span><span>${escapeHtml(money(get(['Total'])))}</span></div>`;
+  $('detailsBody').innerHTML=`<div class="details-section"><h3>🛍️ ORDERED PRODUCTS · ${items.length}</h3>${itemHtml}</div><div class="details-section"><h3>👤 CUSTOMER & ORDER INFORMATION</h3><div class="details-kv">${meta.filter(x=>x[1]!==''&&x[1]!=null).map(x=>`<div><small>${escapeHtml(x[0])}</small><b>${escapeHtml(x[1])}</b></div>`).join('')}</div>${slip?`<p style="margin:10px 0 0"><a href="${escapeHtml(slip)}" target="_blank" rel="noopener">View payment slip ↗</a></p>`:''}</div><div class="detail-total"><span>GRAND TOTAL</span><span>${escapeHtml(money(get(['Total'])))}</span></div>`;
   $('detailsModalBack').classList.remove('hidden');
 }
 function closeDetails(){$('detailsModalBack').classList.add('hidden')}
@@ -390,7 +411,7 @@ function closeDetails(){$('detailsModalBack').classList.add('hidden')}
 function openEditor(rowIndex=null){
   if(!activeSheet)return;editingRow=rowIndex;const record=rowIndex?activeSheet.rows.find(r=>r._row===rowIndex):{};
   $('modalTitle').textContent=rowIndex?'Edit record · Row '+rowIndex:'Add record · '+activeSheet.name;
-  const imageHeaders=activeSheet.headers.map((h,i)=>({h,i})).filter(x=>/^(img|image|photo|picture|thumbnail)$/i.test(String(x.h).trim()));
+  const imageHeaders=activeSheet.headers.map((h,i)=>({h,i})).filter(x=>/(img|image|photo|picture|thumbnail|media.?url)/i.test(String(x.h).trim()));
   const isOrders=activeSheet.name==='Orders';
   const fields=activeSheet.headers.map((h,i)=>{
     if(isOrders && String(h).trim().toLowerCase()==='ccc'){
@@ -398,7 +419,7 @@ function openEditor(rowIndex=null){
       return `<div class="formitem" style="grid-column:1/-1"><label>Order Products (protected JSON)</label><div class="details-section"><b style="font-size:11px;color:#0b3caa">${items.length} product item(s)</b><p class="upload-hint">The original CCC JSON is kept unchanged to protect your storefront order data. Use View Details to inspect full item information and photos.</p>${items.slice(0,3).map(it=>`<div class="item-sub">• ${escapeHtml(it.name||it.title||'Product')} · Qty ${Number(it.qty||it.quantity||1)} · ${escapeHtml(money(it.price||0))}</div>`).join('')}</div></div>`;
     }
     const val=record?.[h]??'';
-    const imageField=/^(img|image|photo|picture|thumbnail)$/i.test(String(h).trim());
+    const imageField=/(img|image|photo|picture|thumbnail|media.?url)/i.test(String(h).trim());
     if(imageField){
       const safeId='imagePreview_'+i;
       return `<div class="formitem" style="grid-column:1/-1"><label>${escapeHtml(h)} · Image URL</label><input class="field" data-col="${i}" id="imageUrl_${i}" value="${escapeHtml(String(val))}" placeholder="Paste image URL here" oninput="previewImageField(${i},this.value)"><div class="image-editor-preview" id="${safeId}">${safeHttpUrl(val)?imageTag(val,'Image preview',''):'<span class="upload-hint">Image preview will appear here.</span>'}</div><label style="margin-top:10px">Or upload from your phone / computer gallery</label><input class="field" type="file" accept="image/jpeg,image/png,image/webp,image/gif" onchange="uploadImageForField(this,${i})"><div class="upload-hint">Uploaded image is saved in HY STORE Drive Media and its URL is filled automatically.</div></div>`;
@@ -406,7 +427,7 @@ function openEditor(rowIndex=null){
     const isLong=String(val).length>90||/json|description|address|notes|desc|comment/i.test(h);
     return `<div class="formitem"><label>${escapeHtml(h||('Column '+(i+1)))}</label>${isLong?`<textarea class="field" data-col="${i}">${escapeHtml(String(val))}</textarea>`:`<input class="field" data-col="${i}" value="${escapeHtml(String(val))}" ${/date|time/i.test(h)?'placeholder="Date / time"':''}>`}</div>`;
   }).join('');
-  const inventoryNeedsImage=String(activeSheet.name).toLowerCase()==='inventory'&&!activeSheet.headers.some(h=>/^(img|image|photo|picture|thumbnail)$/i.test(String(h).trim()));
+  const inventoryNeedsImage=String(activeSheet.name).toLowerCase()==='inventory'&&!activeSheet.headers.some(h=>/(img|image|photo|picture|thumbnail|media.?url)/i.test(String(h).trim()));
   const inventoryImage=inventoryNeedsImage?`<div class="formitem" style="grid-column:1/-1"><label>Image · Image URL</label><input class="field" data-extra="Image" id="imageUrl_extra" value="${escapeHtml(String(record?.Image||''))}" placeholder="Paste image URL here" oninput="previewExtraImage(this.value)"><div class="image-editor-preview" id="imagePreview_extra">${safeHttpUrl(record?.Image)?imageTag(record.Image,'Image preview',''):'<span class="upload-hint">Image preview will appear here.</span>'}</div><label style="margin-top:10px">Or upload from gallery</label><input class="field" type="file" accept="image/*" onchange="uploadExtraImage(this)"><div class="upload-hint">The Image column will be added to the existing inventory sheet when saved.</div></div>`:'';
   $('editorFields').innerHTML=fields+inventoryImage;
   $('modalBack').classList.remove('hidden');
@@ -459,25 +480,36 @@ async function deleteRow(rowIndex){
   try{await api({action:'erpAdminSave',sheetName:activeSheet.name,mode:'delete',rowIndex});await loadSheets();activeSheet=sheets.find(s=>s.name===activeView);renderTable();toast('Record deleted.')}
   catch(e){toast(e.message,true)}
 }
+function showDeliverySlip(btn){
+  activeView='deliverySlip';activeSheet=null;document.querySelectorAll('.nav button').forEach(b=>b.classList.remove('active'));if(btn)btn.classList.add('active');
+  $('pageTitle').textContent='Delivery Slip';$('overviewView').classList.add('hidden');$('tableView').classList.add('hidden');$('deliverySlipView').classList.remove('hidden');
+}
+function findOrderById(orderId){const sh=sheets.find(x=>String(x.name).toLowerCase()==='orders');if(!sh)return null;const wanted=String(orderId||'').trim().toLowerCase();return sh.rows.find(r=>String(rowVal(sh,r,['OrderID','Order ID','ID'])||'').trim().toLowerCase()===wanted)||null;}
+function makeDeliverySlipHtml(sh,r){
+  const get=names=>rowVal(sh,r,names)||'';const orderId=get(['OrderID','Order ID','ID']);const items=parseOrderItems(r,sh);
+  const customer=get(['Customer Name','Customer','Name']);const phone=prettyPhone(get(['Phone','Mobile']));const address=get(['Total Address','Address','Shipping Address','Delivery Address']);const paymentSheet=sheets.find(x=>String(x.name).toLowerCase()==='payments');const paymentRow=paymentSheet&&paymentSheet.rows.find(x=>String(rowVal(paymentSheet,x,['OrderID','Order ID'])||'').trim()===String(orderId).trim());const paymentStatus=paymentRow?rowVal(paymentSheet,paymentRow,['Status','Payment Status']):get(['Payment Status','Payment_Status','Payment Verification']);const paymentGateway=paymentRow?rowVal(paymentSheet,paymentRow,['Gateway','Payment Method']):get(['Payment Method','Payment']);
+  const city=get(['City']);const district=get(['District']);const country=get(['Country'])||'Pakistan';const fullAddress=[address,district,city,country].filter(Boolean).join(', ');
+  const rows=items.length?items.map(it=>`<tr><td><b>${escapeHtml(it.name||it.title||it.productName||'Product')}</b>${it.variant?'<br>'+escapeHtml(it.variant):''}</td><td>${Number(it.qty||it.quantity||1)}</td><td>${escapeHtml(it.sku||it.productId||'—')}</td></tr>`).join(''):'<tr><td colspan="3">No item details saved with this order.</td></tr>';
+  return `<div class="delivery-paper"><div class="delivery-head"><div class="delivery-brand">HY STORE<small>PARCEL DISPATCH / DELIVERY SLIP</small></div><div class="delivery-number">ORDER #${escapeHtml(orderId)}</div></div><div class="delivery-grid"><div class="delivery-box"><small>SHIP TO / CUSTOMER</small><b>${escapeHtml(customer||'—')}</b><b>${escapeHtml(phone||'')}</b><b>${escapeHtml(get(['Email'])||'')}</b></div><div class="delivery-box"><small>DELIVERY ADDRESS</small><b>${escapeHtml(fullAddress||'Address not provided')}</b></div><div class="delivery-box"><small>PAYMENT METHOD / STATUS</small><b>${escapeHtml(paymentGateway||'—')}</b><b>${escapeHtml(paymentStatus||'Not confirmed in payment records')}</b></div><div class="delivery-box"><small>ORDER DETAILS</small><b>${escapeHtml(get(['Date','Order Date'])||'—')}</b><b>${escapeHtml(get(['Status','Order Status'])||'Received')}</b><b>${escapeHtml(money(get(['Total','Grand Total','Amount'])))}</b></div></div><table class="delivery-items"><thead><tr><th>ITEM / PRODUCT</th><th>QTY</th><th>SKU / CODE</th></tr></thead><tbody>${rows}</tbody></table><div class="delivery-scan-footer"><div><svg id="deliveryBarcode"></svg><small style="display:block;text-align:center">ORDER BARCODE · ${escapeHtml(orderId)}</small></div><div class="delivery-qr"><div id="deliveryQr"></div><small>SCAN QR TO OPEN LIVE DELIVERY DETAILS</small></div></div><div class="delivery-foot"><span>HY STORE · Thank you</span><span>Parcel copy · Order ${escapeHtml(orderId)}</span></div></div>`;
+}
+function renderDeliveryBarcode(orderId){const target=$('deliveryBarcode');const url=API_ENDPOINT+'?action=deliverySlip&code='+encodeURIComponent(orderId);if(target&&window.JsBarcode){try{JsBarcode(target,String(orderId).replace(/[^A-Za-z0-9-]/g,'').slice(0,40),{format:'CODE128',width:1.5,height:48,displayValue:false,margin:2});}catch(e){target.outerHTML='<small>'+escapeHtml(orderId)+'</small>'}}const qr=$('deliveryQr');if(qr&&window.QRCode)new QRCode(qr,{text:url,width:110,height:110,colorDark:'#083b9a',colorLight:'#ffffff',correctLevel:QRCode.CorrectLevel.M});}
+function generateDeliverySlip(){const id=$('deliveryOrderInput').value.trim();if(!id){toast('Enter an Order ID first.',true);return}const sh=sheets.find(x=>String(x.name).toLowerCase()==='orders');const r=findOrderById(id);if(!r){$('deliverySlipPreview').innerHTML='<div class="empty">Order not found. Check the exact Order ID.</div>';return}$('deliverySlipPreview').innerHTML=makeDeliverySlipHtml(sh,r);renderDeliveryBarcode(id);}
+function printDeliverySlip(){if(!$('deliverySlipPreview').querySelector('.delivery-paper')){toast('Generate a delivery slip first.',true);return}document.body.classList.add('print-delivery');window.print();setTimeout(()=>document.body.classList.remove('print-delivery'),500)}
+
 function makeInvoiceHtml(inv,verifyUrl){
   const items=Array.isArray(inv.items)?inv.items:[];
-  const rows=items.length?items.map((it,i)=>{
-    const name=it.name||it.title||it.productName||'Product',qty=Number(it.qty||it.quantity||1),price=Number(it.price||it.unitPrice||0),sub=Number(it.subtotal??(qty*price)),img=imageUrlForItem(it);
-    return `<tr><td><div class="invoice-item">${img?imageTag(img,name,''):'<span>🎁</span>'}<span><b>${escapeHtml(name)}</b><br><small>${escapeHtml(it.category||'')}</small></span></div></td><td>${qty}</td><td>${escapeHtml(money(price))}</td><td>${escapeHtml(money(sub))}</td></tr>`;
-  }).join(''):'<tr><td colspan="4">No item details were saved for this order.</td></tr>';
+  const rows=items.length?items.map((it,i)=>{const name=it.name||it.title||it.productName||'Product',qty=Number(it.qty||it.quantity||1),price=Number(it.price||it.unitPrice||0),sub=Number(it.subtotal??(qty*price));return `<tr><td><b>${escapeHtml(name)}</b><br><small>${escapeHtml(it.category||'')}</small></td><td>${qty}</td><td>${escapeHtml(money(price))}</td><td>${escapeHtml(money(sub))}</td></tr>`}).join(''):'<tr><td colspan="4">No item details were saved for this order.</td></tr>';
   const subtotal=Number(inv.subtotal||0),discount=Number(inv.discount||0),total=Number(inv.total||0);
-  $('invoicePaper').innerHTML=`<div class="invoice-head"><div class="invoice-brand">HY STORE<small>PERSONALIZED GIFTS & CUSTOM PRINTING</small></div><div class="invoice-head-right"><div class="invoice-title"><h2>INVOICE</h2><small>OFFICIAL SALES DOCUMENT</small></div><div class="invoice-barcode-top"><svg id="invoiceLinearBarcode"></svg><small>INVOICE REFERENCE BARCODE</small></div><div class="invoice-qr-top"><div id="invoiceQrCode"></div><small>SCAN TO VERIFY</small></div></div></div>
+  $('invoicePaper').innerHTML=`<div class="invoice-head"><div class="invoice-brand">HY STORE<small>PERSONALIZED GIFTS & CUSTOM PRINTING</small></div><div class="invoice-title"><h2>INVOICE</h2><small>OFFICIAL SALES DOCUMENT</small></div></div>
   <div class="invoice-meta"><div><small>INVOICE NUMBER</small><b>${escapeHtml(inv.invoiceId||'—')}</b></div><div><small>ORDER NUMBER</small><b>${escapeHtml(inv.orderId||'—')}</b></div><div><small>ISSUE DATE</small><b>${escapeHtml(inv.date||new Date().toLocaleDateString())}</b></div></div>
   <div class="invoice-customer"><small>BILLED TO</small><b>${escapeHtml(inv.customer||'Customer')}</b><b>${escapeHtml(inv.phone||'')}</b><b>${escapeHtml(inv.email||'')}</b></div>
   <table class="invoice-items"><thead><tr><th>PRODUCT / DESCRIPTION</th><th>QTY</th><th>UNIT PRICE</th><th>SUBTOTAL</th></tr></thead><tbody>${rows}</tbody></table>
   <div class="invoice-bottom"><div></div><div class="invoice-totals"><div><span>Subtotal</span><b>${escapeHtml(money(subtotal))}</b></div><div><span>Discount</span><b>${escapeHtml(money(discount))}</b></div><div class="grand"><span>GRAND TOTAL</span><span>${escapeHtml(money(total))}</span></div></div></div>
-  <div class="invoice-foot">Thank you for choosing HY STORE · This invoice is digitally verifiable using its QR code.<br>Verification confirms invoice authenticity and order record, not payment settlement.</div>`;
-  const qr=$('invoiceQrCode');
-  if(window.QRCode&&verifyUrl)new QRCode(qr,{text:verifyUrl,width:128,height:128,colorDark:'#083b9a',colorLight:'#ffffff',correctLevel:QRCode.CorrectLevel.M});
-  else qr.innerHTML='<small>QR library unavailable. Verification link: <a href="'+escapeHtml(verifyUrl||'#')+'" target="_blank">Open verify page</a></small>';
-  const barcodeValue=String(inv.invoiceId||inv.orderId||'HYSTORE').replace(/[^A-Za-z0-9-]/g,'').slice(0,35)||'HYSTORE';
-  if(window.JsBarcode){try{JsBarcode('#invoiceLinearBarcode',barcodeValue,{format:'CODE128',lineColor:'#0b3caa',width:1.35,height:34,displayValue:false,margin:0});}catch(e){const b=$('invoiceLinearBarcode');if(b)b.outerHTML='<small>'+escapeHtml(barcodeValue)+'</small>';}}
-  else {const b=$('invoiceLinearBarcode');if(b)b.outerHTML='<small>'+escapeHtml(barcodeValue)+'</small>';}
+  <div class="invoice-scan-footer"><div class="invoice-scan-qr"><div id="invoiceQrCode"></div><b>SCAN TO VIEW ORDER & PAYMENT DETAILS</b></div><div class="invoice-scan-barcode"><svg id="invoiceLinearBarcode"></svg><small>ORDER / INVOICE REFERENCE · ${escapeHtml(inv.orderId||inv.invoiceId||'')}</small></div></div>
+  <div class="invoice-foot">Thank you for choosing HY STORE · Scan the QR code to view the complete order record and current payment verification status.</div>`;
+  const qr=$('invoiceQrCode');if(window.QRCode&&verifyUrl)new QRCode(qr,{text:verifyUrl,width:120,height:120,colorDark:'#083b9a',colorLight:'#ffffff',correctLevel:QRCode.CorrectLevel.M});else qr.innerHTML='<small>Verification link unavailable</small>';
+  const barcodeValue=String(inv.orderId||inv.invoiceId||'HYSTORE').replace(/[^A-Za-z0-9-]/g,'').slice(0,35)||'HYSTORE';
+  if(window.JsBarcode){try{JsBarcode('#invoiceLinearBarcode',barcodeValue,{format:'CODE128',lineColor:'#0b3caa',width:1.45,height:44,displayValue:true,fontSize:10,margin:0})}catch(e){}}
 }
 function openInvoice(inv,verifyUrl){makeInvoiceHtml(inv,verifyUrl);$('invoiceModalBack').classList.remove('hidden')}
 function closeInvoice(){$('invoiceModalBack').classList.add('hidden')}
@@ -550,8 +582,8 @@ async function verifyScannedInvoice(raw){
   $('scanResult').innerHTML='<div class="loading">Checking QR against HY STORE database...</div>';
   try{
     const result=await api({action:'erpAdminVerifyInvoice',code});
-    if(result.valid){$('scanResult').innerHTML=`<div class="verify-result"><b>✓ GENUINE HY STORE INVOICE</b><div style="margin-top:8px;font-size:12px">Invoice: ${escapeHtml(result.invoiceId)}<br>Order: ${escapeHtml(result.orderId)}<br>Order status: ${escapeHtml(result.orderStatus||'Recorded')}<br>Total: ${escapeHtml(money(result.total))}</div></div>`}
-    else $('scanResult').innerHTML=`<div class="verify-result bad"><b>⚠ NOT VERIFIED</b><div>${escapeHtml(result.message||'This QR could not be authenticated.')}</div></div>`;
+    if(result.valid){$('scanResult').innerHTML=`<div class="verify-result"><b>✓ GENUINE HY STORE INVOICE</b><div style="margin-top:8px;font-size:12px">Invoice: ${escapeHtml(result.invoiceId)}<br>Order: ${escapeHtml(result.orderId)}<br>Order status: ${escapeHtml(result.orderStatus||'Recorded')}<br>Payment status: ${escapeHtml(result.paymentStatus||'Not confirmed')}<br>Total: ${escapeHtml(money(result.total))}<br><a href="${escapeHtml(result.deliveryUrl||'#')}" target="_blank" rel="noopener">Open full delivery slip ↗</a></div></div>`}
+    else {const sh=sheets.find(x=>String(x.name).toLowerCase()==='orders');const order=sh&&sh.rows.find(r=>String(rowVal(sh,r,['OrderID','Order ID','ID'])||'').trim()===String(code).trim());if(order){const url=API_ENDPOINT+'?action=deliverySlip&code='+encodeURIComponent(code);$('scanResult').innerHTML=`<div class="verify-result"><b>✓ HY STORE ORDER FOUND</b><div><a href="${escapeHtml(url)}" target="_blank" rel="noopener">Open full delivery slip ↗</a></div></div>`}else $('scanResult').innerHTML=`<div class="verify-result bad"><b>⚠ NOT VERIFIED</b><div>${escapeHtml(result.message||'This QR could not be authenticated.')}</div></div>`}
   }catch(e){$('scanResult').innerHTML=`<div class="verify-result bad">${escapeHtml(e.message)}</div>`}
 }
 
