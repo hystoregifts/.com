@@ -1,0 +1,2008 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>HY STORE | ERP Control Center</title>
+<link rel="icon" type="image/png" href="favicon.png">
+<link rel="apple-touch-icon" href="favicon.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+:root{
+  --navy:#173B70;
+  --navy-deep:#0E2549;
+  --navy-mid:#214D8C;
+  --red:#E32936;
+  --red-dark:#BD1B27;
+  --red-soft:#FFF1F2;
+  --red-border:#FECDD3;
+  --blue-soft:#EEF4FC;
+  --blue-border:#D2E1F6;
+  
+  --page:#F4F7FB;
+  --surface:#FFFFFF;
+  --line:#E2E8F0;
+  --text:#0F172A;
+  --text-secondary:#334155;
+  --muted:#64748B;
+  --green:#0D9488;
+  --green-soft:#CCFBF1;
+  --amber:#D97706;
+  --amber-soft:#FEF3C7;
+  
+  --radius:20px;
+  --radius-md:14px;
+  --radius-sm:10px;
+  --shadow:0 10px 30px -5px rgba(23,59,112,0.07), 0 4px 12px -4px rgba(23,59,112,0.04);
+  --shadow-lg:0 24px 60px -12px rgba(14,37,73,0.25);
+}
+
+*{box-sizing:border-box}
+body{
+  margin:0;
+  background:
+    radial-gradient(circle at 100% 0%, rgba(227,41,54,0.06) 0%, transparent 32%),
+    radial-gradient(circle at 0% 100%, rgba(23,59,112,0.07) 0%, transparent 38%),
+    var(--page);
+  color:var(--text);
+  font:14px/1.55 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  -webkit-font-smoothing:antialiased;
+}
+button,input,select,textarea{font:inherit}
+button{cursor:pointer;transition:all 0.2s cubic-bezier(0.16,1,0.3,1)}
+
+/* Crisp SVG Icon Styling */
+.ic{
+  width:15px;
+  height:15px;
+  stroke:currentColor;
+  stroke-width:2;
+  stroke-linecap:round;
+  stroke-linejoin:round;
+  fill:none;
+  display:inline-block;
+  vertical-align:-2.5px;
+  flex-shrink:0;
+}
+.ic-sm{width:13px;height:13px;vertical-align:-2px}
+.ic-lg{width:19px;height:19px}
+
+/* Button Spinner & Loading State */
+@keyframes hySpin{to{transform:rotate(360deg)}}
+.btn-spinner{
+  display:inline-block;
+  width:13px;
+  height:13px;
+  border:2px solid currentColor;
+  border-right-color:transparent;
+  border-radius:50%;
+  animation:hySpin 0.65s linear infinite;
+  vertical-align:-2px;
+  flex-shrink:0;
+}
+button.is-loading{
+  pointer-events:none;
+  opacity:0.82 !important;
+}
+
+/* Brand Logo */
+.brand-mark{
+  display:inline-flex;
+  align-items:center;
+  gap:12px;
+  min-width:0;
+}
+.brand-gift-box{
+  width:46px;
+  height:46px;
+  border-radius:13px;
+  background:#fff;
+  display:grid;
+  place-items:center;
+  box-shadow:0 8px 20px rgba(14,37,73,0.22);
+  border:2px solid rgba(255,255,255,0.9);
+  flex-shrink:0;
+  overflow:hidden;
+  padding:4px;
+}
+.brand-gift-box img{
+  width:100%;
+  height:100%;
+  object-fit:contain;
+  display:block;
+}
+.brand-wordmark{
+  line-height:1.05;
+  white-space:nowrap;
+  overflow:hidden;
+}
+.brand-wordmark .hy{
+  font-size:20px;
+  font-weight:800;
+  color:#fff;
+  letter-spacing:0.5px;
+}
+.brand-wordmark .st{
+  font-size:20px;
+  font-weight:800;
+  color:var(--red);
+  letter-spacing:0.5px;
+}
+.brand-wordmark small{
+  display:block;
+  font-size:9px;
+  font-weight:700;
+  letter-spacing:1.6px;
+  color:#94B4E4;
+  margin-top:3px;
+  text-transform:uppercase;
+}
+
+/* Login Screen */
+.login-wrap{
+  min-height:100vh;
+  display:grid;
+  place-items:center;
+  padding:20px;
+  background:
+    radial-gradient(circle at 15% 20%, rgba(227,41,54,0.10) 0%, transparent 35%),
+    radial-gradient(circle at 85% 80%, rgba(23,59,112,0.14) 0%, transparent 40%),
+    var(--page);
+}
+.login{
+  width:100%;
+  max-width:440px;
+  background:var(--surface);
+  border:1px solid var(--blue-border);
+  border-top:5px solid var(--red);
+  padding:36px 32px;
+  border-radius:24px;
+  box-shadow:0 24px 64px rgba(23,59,112,0.13);
+}
+.login-brand{
+  display:flex;
+  align-items:center;
+  gap:14px;
+  padding-bottom:22px;
+  margin-bottom:22px;
+  border-bottom:1px solid var(--line);
+}
+.login-brand .brand-gift-box{
+  width:54px;
+  height:54px;
+  background:var(--blue-soft);
+  border-color:var(--blue-border);
+  box-shadow:0 6px 16px rgba(23,59,112,0.10);
+}
+.login-brand .hy{color:var(--navy);font-size:24px}
+.login-brand .st{color:var(--red);font-size:24px}
+.login-brand small{color:var(--muted)}
+.login h1{margin:0 0 6px;color:var(--navy);font-size:22px;font-weight:800;letter-spacing:-0.4px}
+.login p{color:var(--muted);margin:0 0 22px;font-size:13px}
+.login .field{width:100%;margin-bottom:14px;padding:12px 14px;border-radius:12px}
+.notice{color:var(--red);font-size:12px;font-weight:600;min-height:20px}
+.security-note{
+  display:flex;
+  align-items:center;
+  gap:7px;
+  font-size:11px;
+  margin-top:16px;
+  margin-bottom:0;
+  color:var(--muted);
+}
+
+/* App Shell & Collapsible Sidebar */
+.shell{display:flex;min-height:100vh;position:relative}
+.sidebar{
+  width:270px;
+  background:linear-gradient(180deg, var(--navy) 0%, var(--navy-deep) 100%);
+  color:#fff;
+  padding:22px 14px;
+  display:flex;
+  flex-direction:column;
+  gap:20px;
+  flex-shrink:0;
+  box-shadow:6px 0 32px rgba(14,37,73,0.16);
+  position:sticky;
+  top:0;
+  height:100vh;
+  overflow-y:auto;
+  overflow-x:hidden;
+  transition:width 0.28s cubic-bezier(0.16,1,0.3,1), padding 0.28s cubic-bezier(0.16,1,0.3,1), transform 0.28s cubic-bezier(0.16,1,0.3,1);
+  z-index:35;
+}
+.sidebar::after{
+  content:"";
+  position:absolute;
+  top:0;right:0;bottom:0;
+  width:3px;
+  background:linear-gradient(180deg, var(--red) 0%, var(--navy-mid) 50%, var(--red) 100%);
+  opacity:0.85;
+}
+.sidebar-head{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:8px;
+}
+.sidebar-collapse-btn{
+  width:32px;
+  height:32px;
+  border-radius:9px;
+  border:1px solid rgba(255,255,255,0.18);
+  background:rgba(255,255,255,0.08);
+  color:#DCE8FA;
+  display:grid;
+  place-items:center;
+  flex-shrink:0;
+}
+.sidebar-collapse-btn:hover{
+  background:var(--red);
+  border-color:var(--red);
+  color:#fff;
+}
+
+/* Desktop Collapsed Sidebar State */
+.shell.sidebar-collapsed .sidebar{
+  width:78px;
+  padding:22px 11px;
+}
+.shell.sidebar-collapsed .brand-wordmark,
+.shell.sidebar-collapsed .navlabel,
+.shell.sidebar-collapsed .nav-text,
+.shell.sidebar-collapsed .sidefoot{
+  display:none;
+}
+.shell.sidebar-collapsed .sidebar-head{
+  flex-direction:column;
+  gap:12px;
+}
+.shell.sidebar-collapsed .brand-gift-box{
+  width:42px;
+  height:42px;
+}
+.shell.sidebar-collapsed .nav button{
+  justify-content:center;
+  padding:11px 0;
+}
+.shell.sidebar-collapsed .sidebar-collapse-btn svg{
+  transform:rotate(180deg);
+}
+
+/* Mobile Sidebar Backdrop */
+.sidebar-backdrop{
+  position:fixed;
+  inset:0;
+  background:rgba(14,37,73,0.58);
+  backdrop-filter:blur(3px);
+  z-index:30;
+  display:none;
+}
+.sidebar-backdrop.show{display:block}
+
+.navlabel{
+  color:#8FB0DF;
+  font-size:10px;
+  font-weight:800;
+  letter-spacing:1.8px;
+  padding:0 12px;
+  margin:4px 0 8px;
+  text-transform:uppercase;
+}
+.nav{display:grid;gap:5px}
+.nav button{
+  border:1px solid transparent;
+  background:transparent;
+  color:#DCE8FA;
+  text-align:left;
+  padding:10px 13px;
+  border-radius:12px;
+  display:flex;
+  align-items:center;
+  gap:11px;
+  font-weight:600;
+  font-size:13.5px;
+  white-space:nowrap;
+}
+.nav button:hover{
+  background:rgba(255,255,255,0.09);
+  color:#fff;
+  transform:translateX(2px);
+}
+.nav button.active{
+  background:linear-gradient(90deg, var(--red) 0%, #C81E2B 100%);
+  color:#fff;
+  font-weight:700;
+  box-shadow:0 8px 20px rgba(227,41,54,0.35);
+  border-color:rgba(255,255,255,0.18);
+}
+.nav .ico{
+  width:26px;
+  height:26px;
+  border-radius:8px;
+  background:rgba(255,255,255,0.10);
+  display:grid;
+  place-items:center;
+  flex-shrink:0;
+}
+.nav button.active .ico{
+  background:rgba(255,255,255,0.22);
+}
+.sidefoot{
+  margin-top:auto;
+  border:1px solid rgba(255,255,255,0.14);
+  background:rgba(255,255,255,0.05);
+  border-radius:14px;
+  padding:14px;
+  color:#C4D7F5;
+  font-size:11px;
+  line-height:1.5;
+}
+.sidefoot strong{color:#fff;display:block;margin-bottom:2px}
+
+/* Main Content Area */
+.main{min-width:0;flex:1;padding:26px 32px 48px}
+.top{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:16px;
+  margin-bottom:26px;
+  padding-bottom:18px;
+  border-bottom:1px solid var(--blue-border);
+}
+.top-left{
+  display:flex;
+  align-items:center;
+  gap:14px;
+}
+.menu-toggle-btn{
+  width:42px;
+  height:42px;
+  border-radius:12px;
+  border:1px solid var(--blue-border);
+  background:#fff;
+  color:var(--navy);
+  display:grid;
+  place-items:center;
+  box-shadow:0 3px 10px rgba(23,59,112,0.06);
+  flex-shrink:0;
+}
+.menu-toggle-btn:hover{
+  background:var(--navy);
+  color:#fff;
+  border-color:var(--navy);
+}
+.eyebrow{
+  display:inline-flex;
+  align-items:center;
+  gap:6px;
+  color:var(--red);
+  font-size:10.5px;
+  font-weight:800;
+  letter-spacing:2px;
+  text-transform:uppercase;
+}
+.eyebrow::before{
+  content:"";
+  width:8px;height:8px;
+  border-radius:2px;
+  background:var(--red);
+  display:inline-block;
+}
+.top h1{
+  font-size:27px;
+  font-weight:800;
+  margin:3px 0 0;
+  letter-spacing:-0.6px;
+  color:var(--navy);
+}
+.topright{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.pill{
+  border:1px solid #BBF7D0;
+  background:#F0FDF4;
+  border-radius:30px;
+  padding:8px 14px;
+  color:#15803D;
+  font-size:12px;
+  font-weight:700;
+  display:inline-flex;
+  align-items:center;
+  gap:7px;
+}
+.status-dot{
+  width:8px;
+  height:8px;
+  border-radius:50%;
+  background:#16A34A;
+  box-shadow:0 0 0 3px rgba(22,163,74,0.2);
+}
+
+/* Buttons */
+.btn{
+  border:0;
+  border-radius:12px;
+  padding:10px 17px;
+  font-weight:700;
+  font-size:13px;
+  color:#fff;
+  background:linear-gradient(135deg, var(--red) 0%, var(--red-dark) 100%);
+  box-shadow:0 8px 20px rgba(227,41,54,0.24);
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  gap:7px;
+}
+.btn:hover{
+  transform:translateY(-1px);
+  box-shadow:0 12px 24px rgba(227,41,54,0.32);
+}
+.btn.navy{
+  background:linear-gradient(135deg, var(--navy-mid) 0%, var(--navy) 100%);
+  box-shadow:0 8px 20px rgba(23,59,112,0.22);
+}
+.btn.navy:hover{
+  box-shadow:0 12px 24px rgba(23,59,112,0.30);
+}
+.btn.secondary{
+  background:#fff;
+  border:1px solid var(--blue-border);
+  color:var(--navy);
+  box-shadow:0 2px 6px rgba(23,59,112,0.04);
+}
+.btn.secondary:hover{
+  background:var(--blue-soft);
+  border-color:#B3CCF0;
+}
+.btn.danger{
+  background:var(--red-soft);
+  color:var(--red-dark);
+  border:1px solid var(--red-border);
+  box-shadow:none;
+}
+.btn:disabled{opacity:.6;cursor:not-allowed;transform:none}
+
+/* KPI Stat Cards */
+.grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:16px;margin-bottom:22px}
+.stat{
+  background:var(--surface);
+  border:1px solid var(--blue-border);
+  border-radius:var(--radius);
+  padding:20px;
+  min-height:122px;
+  box-shadow:var(--shadow);
+  position:relative;
+  overflow:hidden;
+  transition:transform 0.2s, box-shadow 0.2s;
+}
+.stat::before{
+  content:"";
+  position:absolute;
+  top:0;left:0;right:0;
+  height:4px;
+  background:var(--navy);
+}
+.stat:nth-child(2)::before,.stat:nth-child(4)::before{
+  background:var(--red);
+}
+.stat:hover{
+  transform:translateY(-3px);
+  box-shadow:0 16px 36px rgba(23,59,112,0.11);
+}
+.stat-top{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:8px;
+}
+.stat-ico{
+  width:34px;
+  height:34px;
+  border-radius:10px;
+  background:var(--blue-soft);
+  color:var(--navy);
+  display:grid;
+  place-items:center;
+}
+.stat:nth-child(2) .stat-ico,.stat:nth-child(4) .stat-ico{
+  background:var(--red-soft);
+  color:var(--red);
+}
+.stat .label{
+  color:var(--muted);
+  font-size:11.5px;
+  font-weight:700;
+  text-transform:uppercase;
+  letter-spacing:0.6px;
+}
+.stat .value{
+  font-size:28px;
+  font-weight:800;
+  margin-top:8px;
+  letter-spacing:-0.8px;
+  color:var(--navy);
+}
+.stat:nth-child(4) .value{color:var(--red)}
+.stat .hint{color:var(--muted);font-size:11.5px;margin-top:4px}
+
+/* Panels */
+.panel{
+  background:var(--surface);
+  border:1px solid var(--blue-border);
+  border-radius:var(--radius);
+  overflow:hidden;
+  box-shadow:var(--shadow);
+}
+.panelhead{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:12px;
+  padding:18px 22px;
+  border-bottom:1px solid var(--blue-border);
+  background:linear-gradient(90deg, #FFFFFF 0%, var(--blue-soft) 100%);
+}
+.panelhead h2{
+  font-size:16px;
+  font-weight:800;
+  margin:0;
+  color:var(--navy);
+  display:flex;
+  align-items:center;
+  gap:8px;
+}
+.panelhead h2::before{
+  content:"";
+  width:4px;height:18px;
+  border-radius:4px;
+  background:var(--red);
+  display:inline-block;
+}
+.muted{color:var(--muted)}
+.toolbar{display:flex;gap:9px;align-items:center;flex-wrap:wrap}
+.field{
+  background:#fff;
+  border:1px solid #CBD5E1;
+  color:var(--text);
+  border-radius:11px;
+  padding:10px 13px;
+  min-width:0;
+  outline:none;
+  transition:border-color 0.15s, box-shadow 0.15s;
+}
+.field:focus{
+  border-color:var(--navy);
+  box-shadow:0 0 0 3px rgba(23,59,112,0.12);
+}
+.search{width:min(300px,65vw)}
+
+/* Record Cards */
+.tablewrap{padding:18px;max-height:none;overflow:visible}
+.record-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:16px}
+.record-card{
+  min-width:0;
+  background:var(--surface);
+  border:1px solid var(--blue-border);
+  border-radius:18px;
+  overflow:hidden;
+  box-shadow:0 6px 20px rgba(23,59,112,0.06);
+  transition:transform .2s,box-shadow .2s,border-color .2s;
+  display:flex;
+  flex-direction:column;
+  position:relative;
+}
+.record-card:hover{
+  transform:translateY(-3px);
+  box-shadow:0 16px 32px rgba(23,59,112,0.12);
+  border-color:#A8C5EE;
+}
+.record-head{
+  display:flex;
+  align-items:center;
+  gap:12px;
+  padding:14px 16px;
+  background:linear-gradient(110deg, var(--blue-soft) 0%, #FFFFFF 100%);
+  border-bottom:1px solid var(--blue-border);
+}
+.record-icon{
+  width:40px;height:40px;
+  flex:0 0 40px;
+  border-radius:12px;
+  background:linear-gradient(145deg, var(--navy-mid), var(--navy));
+  color:#fff;
+  display:grid;
+  place-items:center;
+  box-shadow:0 6px 14px rgba(23,59,112,0.22);
+}
+.record-title{font-weight:800;color:var(--navy);font-size:14.5px;min-width:0;overflow-wrap:anywhere}
+.record-subtitle{font-size:10.5px;color:var(--red);font-weight:700;margin-top:2px;display:flex;align-items:center;gap:6px;flex-wrap:wrap}
+.new-badge{
+  display:inline-flex;
+  align-items:center;
+  gap:3px;
+  background:linear-gradient(135deg, var(--red), var(--red-dark));
+  color:#fff;
+  font-size:9px;
+  font-weight:800;
+  letter-spacing:0.6px;
+  padding:2px 7px;
+  border-radius:20px;
+  text-transform:uppercase;
+  box-shadow:0 3px 8px rgba(227,41,54,0.28);
+}
+.record-body{padding:15px 16px;flex:1}
+.record-image{
+  width:100%;height:180px;
+  object-fit:contain;
+  background:#F8FAFC;
+  border:1px solid var(--blue-border);
+  border-radius:13px;
+  margin:0 0 13px;
+  display:block;
+}
+.record-fields{display:grid;gap:9px}
+.record-field{
+  display:grid;
+  grid-template-columns:minmax(96px,.85fr) minmax(0,1.5fr);
+  gap:9px;
+  padding-bottom:8px;
+  border-bottom:1px dashed #E2E8F0;
+}
+.record-field:last-child{border-bottom:0;padding-bottom:0}
+.field-name{
+  font-size:10px;
+  text-transform:uppercase;
+  letter-spacing:.6px;
+  color:var(--muted);
+  font-weight:800;
+  display:flex;
+  gap:6px;
+  align-items:center;
+}
+.field-value{font-size:12.5px;color:var(--text-secondary);font-weight:600;overflow-wrap:anywhere;word-break:break-word}
+.field-value a{color:var(--navy);text-decoration:none;font-weight:700}
+.field-value a:hover{color:var(--red);text-decoration:underline}
+.record-actions{
+  display:flex;gap:8px;
+  padding:12px 15px;
+  border-top:1px solid var(--blue-border);
+  background:#F8FAFC;
+}
+.record-actions .mini{flex:1}
+.mini{
+  padding:8px 11px;
+  border:1px solid var(--blue-border);
+  background:#fff;
+  color:var(--navy);
+  border-radius:9px;
+  font-size:11.5px;
+  font-weight:700;
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  gap:5px;
+}
+.mini:hover{background:var(--navy);color:#fff;border-color:var(--navy)}
+.mini.del{color:var(--red);border-color:var(--red-border);background:var(--red-soft)}
+.mini.del:hover{background:var(--red);color:#fff;border-color:var(--red)}
+.empty{padding:48px 20px;text-align:center;color:var(--muted);font-weight:600}
+.hidden{display:none!important}
+
+/* Order & Invoice Cards */
+.section-divider{
+  display:flex;
+  align-items:center;
+  gap:12px;
+  margin:26px 0 14px;
+  color:var(--muted);
+  font-size:11.5px;
+  font-weight:800;
+  letter-spacing:1.2px;
+  text-transform:uppercase;
+}
+.section-divider::before,.section-divider::after{
+  content:"";
+  flex:1;
+  height:1px;
+  background:var(--blue-border);
+}
+.section-divider span{
+  background:var(--blue-soft);
+  color:var(--navy);
+  padding:5px 14px;
+  border-radius:20px;
+  border:1px solid var(--blue-border);
+  display:inline-flex;
+  align-items:center;
+  gap:6px;
+}
+.order-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:16px}
+.order-card{
+  background:var(--surface);
+  border:1px solid var(--blue-border);
+  border-radius:18px;
+  overflow:hidden;
+  box-shadow:0 6px 20px rgba(23,59,112,0.06);
+  min-width:0;
+  display:flex;
+  flex-direction:column;
+  transition:transform .2s, box-shadow .2s;
+}
+.order-card:hover{
+  transform:translateY(-3px);
+  box-shadow:0 16px 32px rgba(23,59,112,0.12);
+}
+.order-card.is-dispatched{
+  opacity:0.86;
+  background:#FAFCFF;
+  border-color:#DCE6F4;
+}
+.order-card.is-dispatched:hover{
+  opacity:1;
+}
+.order-top{
+  padding:14px 16px;
+  background:linear-gradient(110deg, var(--blue-soft) 0%, #FFFFFF 100%);
+  border-bottom:1px solid var(--blue-border);
+  display:flex;
+  justify-content:space-between;
+  align-items:flex-start;
+  gap:8px;
+}
+.order-id{font-weight:800;color:var(--navy);font-size:14.5px;overflow-wrap:anywhere;display:flex;align-items:center;gap:6px;flex-wrap:wrap}
+.status-chip{
+  font-size:10.5px;
+  font-weight:800;
+  padding:5px 10px;
+  border-radius:30px;
+  background:var(--blue-soft);
+  color:var(--navy);
+  white-space:nowrap;
+  letter-spacing:0.3px;
+}
+.order-main{padding:15px 16px;flex:1}
+.order-customer{font-weight:800;color:var(--text);font-size:13.5px;display:flex;align-items:center;gap:6px}
+.order-meta{color:var(--muted);font-size:11.5px;margin-top:4px;overflow-wrap:anywhere;display:flex;align-items:center;gap:6px}
+.order-products{display:flex;gap:8px;align-items:center;margin:13px 0 11px;overflow:hidden}
+.order-thumb{
+  width:68px;height:68px;
+  object-fit:contain;
+  background:#F8FAFC;
+  border:1px solid var(--blue-border);
+  border-radius:12px;
+  flex:0 0 68px;
+  display:grid;
+  place-items:center;
+  color:#93A5C3;
+}
+.order-more{font-size:11px;color:var(--muted);font-weight:700;line-height:1.4}
+.order-total{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  padding-top:11px;
+  border-top:1px dashed var(--blue-border);
+}
+.order-total strong{font-size:18px;font-weight:800;color:var(--red)}
+.order-actions{
+  display:flex;gap:7px;
+  padding:12px 14px;
+  border-top:1px solid var(--blue-border);
+  background:#F8FAFC;
+}
+.order-actions button{flex:1;min-width:0}
+
+/* Modals */
+.modalback{
+  position:fixed;inset:0;
+  background:rgba(14,37,73,0.72);
+  backdrop-filter:blur(4px);
+  display:grid;
+  place-items:center;
+  padding:18px;
+  z-index:50;
+}
+.modal{
+  width:min(760px,100%);
+  max-height:92vh;
+  overflow:auto;
+  background:var(--surface);
+  border:1px solid var(--blue-border);
+  border-radius:22px;
+  box-shadow:var(--shadow-lg);
+}
+.modalhead{
+  padding:18px 22px;
+  border-bottom:1px solid var(--blue-border);
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  background:linear-gradient(90deg, var(--blue-soft) 0%, #FFFFFF 100%);
+}
+.modalhead b{color:var(--navy);font-size:16px;display:inline-flex;align-items:center;gap:8px}
+.modalbody{padding:22px}
+.formgrid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px}
+.formitem{min-width:0}
+.formitem label{display:block;color:var(--navy);font-size:11.5px;font-weight:700;margin-bottom:6px}
+.formitem .field,.formitem input,.formitem textarea{width:100%}
+.formitem textarea{min-height:80px;resize:vertical}
+.modalfoot{
+  display:flex;
+  justify-content:flex-end;
+  gap:10px;
+  padding:16px 22px;
+  border-top:1px solid var(--blue-border);
+  background:#F8FAFC;
+}
+
+/* Order Details Inside Modal */
+.details-section{
+  border:1px solid var(--blue-border);
+  background:#F8FAFC;
+  border-radius:15px;
+  padding:15px;
+  margin-bottom:14px;
+}
+.details-section h3{margin:0 0 11px;font-size:12px;font-weight:800;color:var(--navy);letter-spacing:.5px;display:flex;align-items:center;gap:7px}
+.details-kv{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:11px}
+.details-kv div{min-width:0}
+.details-kv small{display:block;color:var(--muted);font-size:9.5px;font-weight:800;letter-spacing:.8px;text-transform:uppercase}
+.details-kv b{display:block;color:var(--text);font-size:12.5px;overflow-wrap:anywhere;margin-top:3px}
+.item-row{display:grid;grid-template-columns:76px minmax(0,1fr);gap:13px;padding:12px 0;border-bottom:1px solid var(--blue-border)}
+.item-row:last-child{border-bottom:0}
+.item-img{width:76px;height:76px;object-fit:contain;border-radius:11px;background:#fff;border:1px solid var(--blue-border);display:grid;place-items:center;color:var(--navy)}
+.item-name{font-weight:800;color:var(--navy);font-size:13px}
+.item-sub{color:var(--muted);font-size:11.5px;margin-top:4px}
+.detail-total{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  padding:15px 18px;
+  border-radius:14px;
+  background:linear-gradient(110deg, var(--navy) 0%, var(--navy-deep) 100%);
+  font-weight:800;
+  font-size:15px;
+  color:#fff;
+}
+.detail-total span:last-child{color:#FCA5A5;font-size:19px}
+
+.image-editor-preview{margin-top:8px;display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.image-editor-preview img{width:96px;height:84px;object-fit:contain;background:#F8FAFC;border:1px solid var(--blue-border);border-radius:11px}
+.upload-hint{font-size:11px;color:var(--muted);margin-top:5px}
+
+/* Official HY STORE Invoice */
+.invoice-paper{
+  width:min(790px,100%);
+  margin:auto;
+  background:#fff;
+  color:#1E293B;
+  padding:34px;
+  border:1px solid var(--blue-border);
+  border-top:6px solid var(--red);
+  border-radius:14px;
+  break-inside:avoid;
+  page-break-inside:avoid;
+}
+.invoice-head{
+  display:flex;
+  justify-content:space-between;
+  gap:15px;
+  align-items:flex-start;
+  border-bottom:3px solid var(--navy);
+  padding-bottom:18px;
+  break-inside:avoid;
+}
+.invoice-brand-wrap{display:flex;align-items:center;gap:12px}
+.invoice-logo-box{width:46px;height:46px;display:grid;place-items:center;flex-shrink:0}
+.invoice-logo-box img{width:100%;height:100%;object-fit:contain;display:block}
+.invoice-brand{font-size:26px;font-weight:900;letter-spacing:.8px;color:var(--navy);line-height:1.1}
+.invoice-brand span{color:var(--red)}
+.invoice-brand small{display:block;font-size:9.5px;font-weight:800;color:var(--navy);letter-spacing:1.8px;margin-top:3px}
+.invoice-head-right{display:flex;align-items:flex-start;gap:14px}
+.invoice-barcode-top{width:148px;text-align:center;margin-top:4px}
+.invoice-barcode-top svg{width:100%;height:43px}
+.invoice-barcode-top small{display:block;font-size:8px;color:var(--muted);letter-spacing:.6px;margin-top:2px;font-weight:700}
+.invoice-panel-actions{display:flex;gap:8px;flex-wrap:wrap}
+.invoice-panel-actions button{min-width:115px}
+.invoice-title{text-align:right}
+.invoice-title h2{margin:0;color:var(--red);font-size:25px;font-weight:900;letter-spacing:0.5px}
+.invoice-title small{color:var(--navy);font-weight:700;font-size:9.5px;letter-spacing:1px}
+.invoice-qr-top{width:105px;text-align:center;border:1.5px dashed var(--red-border);background:var(--red-soft);border-radius:10px;padding:6px}
+.invoice-qr-top canvas,.invoice-qr-top img{width:86px!important;height:86px!important;display:block;margin:auto;background:#fff;padding:2px;border-radius:4px}
+.invoice-qr-top small{display:block;font-size:8px;font-weight:900;color:var(--red);margin-top:4px;letter-spacing:.4px}
+.invoice-meta{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;margin:18px 0;break-inside:avoid}
+.invoice-meta div,.invoice-customer{background:var(--blue-soft);border:1px solid var(--blue-border);border-radius:10px;padding:11px 13px}
+.invoice-meta small,.invoice-customer small{display:block;color:var(--navy);font-size:9px;font-weight:800;letter-spacing:.8px}
+.invoice-meta b,.invoice-customer b{display:block;font-size:12.5px;margin-top:4px;color:#0F172A;overflow-wrap:anywhere}
+.invoice-customer{margin-bottom:16px;border-left:4px solid var(--red);break-inside:avoid}
+.invoice-items{width:100%;border-collapse:collapse;white-space:normal}
+.invoice-items th{position:static;background:var(--navy);color:#fff;padding:10px 12px;text-align:left;font-size:11px;letter-spacing:0.5px}
+.invoice-items td{padding:10px 12px;border-bottom:1px solid var(--blue-border);color:#1E293B;font-size:11.5px;max-width:none;white-space:normal}
+.invoice-items tr{break-inside:avoid}
+.invoice-item{display:flex;align-items:center;gap:10px}
+.invoice-item img{width:42px;height:42px;max-width:42px;max-height:42px;object-fit:contain;border:1px solid var(--blue-border);border-radius:7px}
+.invoice-bottom{display:grid;grid-template-columns:1fr 220px;gap:16px;margin-top:18px;align-items:end;break-inside:avoid}
+.invoice-totals{display:grid;gap:8px;background:#F8FAFC;padding:14px;border-radius:12px;border:1px solid var(--blue-border)}
+.invoice-totals div{display:flex;justify-content:space-between;font-size:12px}
+.invoice-totals .grand{border-top:2px solid var(--red);padding-top:10px;font-size:17px;font-weight:900;color:var(--navy)}
+.invoice-totals .grand span:last-child{color:var(--red)}
+.invoice-foot{text-align:center;border-top:1px solid var(--blue-border);margin-top:24px;padding-top:14px;color:var(--muted);font-size:9.5px;line-height:1.6}
+
+/* QR Scanner */
+.scanner-box{min-height:240px;background:var(--blue-soft);border:2px dashed var(--navy-mid);border-radius:14px;padding:12px}
+.verify-result{margin-top:14px;border-radius:13px;padding:15px;background:#ECFDF5;color:#065F46;border:1px solid #A7F3D0;font-size:13px}
+.verify-result.bad{background:var(--red-soft);color:var(--red-dark);border-color:var(--red-border)}
+
+/* Toast Notification */
+.toast{
+  position:fixed;right:22px;bottom:22px;
+  background:var(--navy);
+  border-left:4px solid #34D399;
+  color:#fff;
+  padding:13px 18px;
+  border-radius:12px;
+  font-weight:600;
+  z-index:99;
+  box-shadow:0 14px 36px rgba(14,37,73,0.28);
+}
+.toast.bad{
+  background:var(--red-dark);
+  border-left-color:#FCA5A5;
+}
+.loading{color:var(--muted);padding:38px;text-align:center;font-weight:600}
+
+/* Responsive Breakpoints */
+@media(max-width:1200px){
+  .record-grid,.order-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .grid{grid-template-columns:repeat(2,1fr)}
+}
+@media(max-width:768px){
+  .sidebar{
+    position:fixed;
+    top:0;
+    left:0;
+    bottom:0;
+    width:270px !important;
+    padding:22px 14px !important;
+    transform:translateX(-105%);
+    z-index:45;
+  }
+  .shell.mobile-menu-open .sidebar{
+    transform:translateX(0);
+  }
+  .shell.sidebar-collapsed .brand-wordmark,
+  .shell.sidebar-collapsed .navlabel,
+  .shell.sidebar-collapsed .nav-text,
+  .shell.sidebar-collapsed .sidefoot{
+    display:block;
+  }
+  .shell.sidebar-collapsed .nav button{
+    justify-content:flex-start;
+    padding:10px 13px;
+  }
+  .shell.sidebar-collapsed .sidebar-head{
+    flex-direction:row;
+  }
+  .main{padding:18px 14px 34px}
+  .top{align-items:flex-start;flex-direction:column}
+  .top h1{font-size:23px}
+  .grid{gap:10px}
+  .stat{padding:15px;min-height:105px}
+  .stat .value{font-size:23px}
+  .formgrid{grid-template-columns:1fr}
+  .panelhead{align-items:flex-start;flex-direction:column}
+  .search{width:100%}
+  .record-grid,.order-grid{grid-template-columns:1fr}
+  .record-image{height:210px}
+  .details-kv{grid-template-columns:1fr 1fr}
+  .invoice-paper{padding:16px}
+  .invoice-head{flex-direction:row;align-items:flex-start}
+  .invoice-head-right{gap:7px;flex-direction:column;align-items:flex-end}
+  .invoice-barcode-top{width:125px}
+  .invoice-qr-top{width:88px}
+  .invoice-qr-top canvas,.invoice-qr-top img{width:72px!important;height:72px!important}
+  .invoice-meta{grid-template-columns:1fr 1fr}
+  .invoice-bottom{grid-template-columns:1fr}
+  .modalback{padding:8px}
+  .modal{max-height:94vh}
+  .modalbody{padding:14px}
+  .item-row{grid-template-columns:64px minmax(0,1fr)}
+  .item-img{width:64px;height:64px}
+}
+@media(max-width:420px){
+  .order-actions .mini{font-size:10.5px;padding:7px 6px}
+  .details-kv{grid-template-columns:1fr}
+}
+
+/* Print Styles */
+@media print{
+  @page{size:A4;margin:12mm}
+  body{background:#fff!important}
+  body *{visibility:hidden!important}
+  #invoiceModalBack,#invoiceModalBack *{visibility:visible!important}
+  #invoiceModalBack{position:static!important;display:block!important;background:#fff!important;padding:0!important}
+  #invoiceModalBack .modal{position:static!important;max-height:none!important;overflow:visible!important;border:0!important;box-shadow:none!important;width:100%!important}
+  #invoiceModalBack .modalhead,#invoiceModalBack .modalfoot{display:none!important}
+  #invoicePaper{position:absolute!important;left:0;top:0;width:100%!important;border:0!important;border-top:5px solid #E32936!important;box-shadow:none!important;border-radius:0!important;padding:0!important}
+}
+</style>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jsbarcode/3.11.6/JsBarcode.all.min.js"></script>
+<script src="https://unpkg.com/html5-qrcode@2.3.8/html5-qrcode.min.js"></script>
+</head>
+<body>
+
+<!-- Login View -->
+<div id="loginView" class="login-wrap">
+  <div class="login">
+    <div class="login-brand">
+      <div class="brand-gift-box">
+        <img src="favicon.png" alt="HY STORE Logo" onerror="this.style.display='none';this.nextElementSibling.style.display='block'">
+        <svg style="display:none" width="30" height="30" viewBox="0 0 64 64" fill="none">
+          <path d="M32 20C22 20 18 11 23 7C27 4 32 10 32 20Z" stroke="#E32936" stroke-width="5" stroke-linecap="round" stroke-linejoin="round"/>
+          <path d="M32 20C42 20 46 11 41 7C37 4 32 10 32 20Z" stroke="#E32936" stroke-width="5" stroke-linecap="round" stroke-linejoin="round"/>
+          <rect x="11" y="29" width="42" height="27" rx="3" fill="#173B70"/>
+          <rect x="8" y="20" width="48" height="9" rx="2.5" fill="#E32936"/>
+          <rect x="29" y="20" width="6" height="36" fill="#FFFFFF"/>
+        </svg>
+      </div>
+      <div class="brand-wordmark">
+        <div><span class="hy">HY</span> <span class="st">STORE</span></div>
+        <small>CUSTOMIZED GIFTS &amp; PRINTING</small>
+      </div>
+    </div>
+    <h1>ERP Control Center</h1>
+    <p>Enter your private ERP admin token to securely connect to your Google Sheets database.</p>
+    <input id="tokenInput" class="field" type="password" placeholder="Enter ERP Admin Token" autocomplete="current-password">
+    <button id="connectBtn" class="btn" style="width:100%;padding:12px" onclick="connectERP(this)">
+      <span>Connect Securely</span>
+      <svg class="ic" viewBox="0 0 24 24"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
+    </button>
+    <div id="loginError" class="notice" style="margin-top:12px"></div>
+    <p class="security-note">
+      <svg class="ic ic-sm" viewBox="0 0 24 24"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+      <span>Session-only authentication. Credential and backup sheets remain restricted.</span>
+    </p>
+  </div>
+</div>
+
+<!-- Mobile Sidebar Backdrop -->
+<div id="sidebarBackdrop" class="sidebar-backdrop" onclick="closeMobileSidebar()"></div>
+
+<!-- Main ERP Application -->
+<div id="app" class="shell hidden">
+  <aside class="sidebar" id="sidebar">
+    <div class="sidebar-head">
+      <div class="brand-mark">
+        <div class="brand-gift-box">
+          <img src="favicon.png" alt="HY STORE Logo" onerror="this.style.display='none';this.nextElementSibling.style.display='block'">
+          <svg style="display:none" width="28" height="28" viewBox="0 0 64 64" fill="none">
+            <path d="M32 20C22 20 18 11 23 7C27 4 32 10 32 20Z" stroke="#E32936" stroke-width="5" stroke-linecap="round" stroke-linejoin="round"/>
+            <path d="M32 20C42 20 46 11 41 7C37 4 32 10 32 20Z" stroke="#E32936" stroke-width="5" stroke-linecap="round" stroke-linejoin="round"/>
+            <rect x="11" y="29" width="42" height="27" rx="3" fill="#173B70"/>
+            <rect x="8" y="20" width="48" height="9" rx="2.5" fill="#E32936"/>
+            <rect x="29" y="20" width="6" height="36" fill="#FFFFFF"/>
+          </svg>
+        </div>
+        <div class="brand-wordmark">
+          <div><span class="hy">HY</span> <span class="st">STORE</span></div>
+          <small>ERP CONTROL CENTER</small>
+        </div>
+      </div>
+      <button class="sidebar-collapse-btn" onclick="toggleSidebar()" title="Collapse or Expand Sidebar">
+        <svg class="ic" viewBox="0 0 24 24"><path d="m15 18-6-6 6-6"/></svg>
+      </button>
+    </div>
+
+    <div>
+      <div class="navlabel">Workspace</div>
+      <div class="nav">
+        <button class="active" data-view="overview" onclick="showView('overview',this)" title="Overview">
+          <span class="ico"><svg class="ic" viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/></svg></span>
+          <span class="nav-text">Overview</span>
+        </button>
+        <button data-view="Orders" onclick="showSheet('Orders',this)" title="Orders">
+          <span class="ico"><svg class="ic" viewBox="0 0 24 24"><path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4Z"/><path d="M3 6h18"/><path d="M16 10a4 4 0 0 1-8 0"/></svg></span>
+          <span class="nav-text">Orders</span>
+        </button>
+        <button data-view="Products" onclick="showSheet('Products',this)" title="Products">
+          <span class="ico"><svg class="ic" viewBox="0 0 24 24"><polyline points="20 12 20 22 4 22 4 12"/><rect x="2" y="7" width="20" height="5"/><line x1="12" y1="22" x2="12" y2="7"/><path d="M12 7H7.5a2.5 2.5 0 0 1 0-5C11 2 12 7 12 7z"/><path d="M12 7h4.5a2.5 2.5 0 0 0 0-5C13 2 12 7 12 7z"/></svg></span>
+          <span class="nav-text">Products</span>
+        </button>
+        <button data-view="Payments" onclick="showSheet('Payments',this)" title="Payments">
+          <span class="ico"><svg class="ic" viewBox="0 0 24 24"><rect x="2" y="5" width="20" height="14" rx="2"/><line x1="2" y1="10" x2="22" y2="10"/></svg></span>
+          <span class="nav-text">Payments</span>
+        </button>
+        <button data-view="inventory" onclick="showSheet('inventory',this)" title="Inventory">
+          <span class="ico"><svg class="ic" viewBox="0 0 24 24"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/><polyline points="3.29 7 12 12 20.71 7"/><line x1="12" y1="22" x2="12" y2="12"/></svg></span>
+          <span class="nav-text">Inventory</span>
+        </button>
+        <button data-view="invoices" onclick="showSheet('invoices',this)" title="Invoices">
+          <span class="ico"><svg class="ic" viewBox="0 0 24 24"><path d="M4 2v20l2-1 2 1 2-1 2 1 2-1 2 1 2-1 2 1V2l-2 1-2-1-2 1-2-1-2 1-2-1-2 1Z"/><path d="M16 8h-6a2 2 0 1 0 0 4h4a2 2 0 1 1 0 4H8"/><path d="M12 17.5v.5"/><path d="M12 6v.5"/></svg></span>
+          <span class="nav-text">Invoices</span>
+        </button>
+        <button data-view="expenses" onclick="showSheet('expenses',this)" title="Expenses">
+          <span class="ico"><svg class="ic" viewBox="0 0 24 24"><path d="M19 7V4a1 1 0 0 0-1-1H5a2 2 0 0 0 0 4h15a1 1 0 0 1 1 1v4h-3a2 2 0 0 0 0 4h3a1 1 0 0 0 1-1v-2a1 1 0 0 0-1-1"/><path d="M3 5v14a2 2 0 0 0 2 2h15a1 1 0 0 0 1-1v-4"/></svg></span>
+          <span class="nav-text">Expenses</span>
+        </button>
+        <button data-view="customers" onclick="showSheet('customers',this)" title="Customers">
+          <span class="ico"><svg class="ic" viewBox="0 0 24 24"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg></span>
+          <span class="nav-text">Customers</span>
+        </button>
+      </div>
+    </div>
+
+    <div>
+      <div class="navlabel">Store Content &amp; Data</div>
+      <div class="nav" id="dynamicNav"></div>
+    </div>
+
+    <div class="sidefoot">
+      <strong>HY STORE Live Sync</strong>
+      Connected to Google Sheets database.<br>
+      <span style="color:#8FB0DF">Users &amp; ERPBackup are restricted.</span>
+    </div>
+  </aside>
+
+  <main class="main">
+    <div class="top">
+      <div class="top-left">
+        <button class="menu-toggle-btn" onclick="toggleSidebar()" title="Toggle Navigation Menu">
+          <svg class="ic ic-lg" viewBox="0 0 24 24"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+        </button>
+        <div>
+          <div class="eyebrow">HY STORE · OPERATIONS</div>
+          <h1 id="pageTitle">Overview</h1>
+        </div>
+      </div>
+      <div class="topright">
+        <span class="pill" id="connectionState"><span class="status-dot"></span>Connected</span>
+        <button class="btn secondary" onclick="refreshData(this)">
+          <svg class="ic" viewBox="0 0 24 24"><path d="M3 12a9 9 0 0 1 9-9 9.75 9.75 0 0 1 6.74 2.74L21 8"/><path d="M21 3v5h-5"/><path d="M21 12a9 9 0 0 1-9 9 9.75 9.75 0 0 1-6.74-2.74L3 16"/><path d="M8 16H3v5"/></svg>
+          <span>Refresh</span>
+        </button>
+        <button class="btn navy" onclick="logout(this)">
+          <svg class="ic" viewBox="0 0 24 24"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+          <span>Logout</span>
+        </button>
+      </div>
+    </div>
+
+    <section id="overviewView">
+      <div class="grid" id="stats"></div>
+      <div class="panel">
+        <div class="panelhead">
+          <h2>Database Sheets</h2>
+          <span class="muted" id="sheetCount" style="font-size:12px;font-weight:600"></span>
+        </div>
+        <div id="sheetCards" class="grid" style="padding:18px;margin:0"></div>
+      </div>
+      <div class="panel" style="margin-top:20px">
+        <div class="panelhead">
+          <h2>Recent Orders (Latest First)</h2>
+          <button class="mini" onclick="showSheet('Orders',null,this)">
+            <span>View All Orders</span>
+            <svg class="ic ic-sm" viewBox="0 0 24 24"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
+          </button>
+        </div>
+        <div id="recentOrders" class="tablewrap"></div>
+      </div>
+    </section>
+
+    <section id="tableView" class="panel hidden">
+      <div class="panelhead">
+        <div>
+          <h2 id="tableTitle">Records</h2>
+          <div class="muted" id="tableMeta" style="font-size:11.5px;margin-top:4px;font-weight:600"></div>
+        </div>
+        <div class="toolbar">
+          <input id="searchInput" class="field search" placeholder="Search records..." oninput="renderTable()">
+          <button class="btn secondary" onclick="openScanner(this)">
+            <svg class="ic" viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><path d="M14 14h3v3h-3z"/><path d="M18 18h3v3h-3z"/><path d="M14 20h3"/><path d="M20 14v3"/></svg>
+            <span>Scan QR</span>
+          </button>
+          <button class="btn" onclick="openEditor(null,this)">
+            <svg class="ic" viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+            <span>Add Record</span>
+          </button>
+        </div>
+      </div>
+      <div id="tableContainer" class="tablewrap"><div class="loading">Loading records...</div></div>
+    </section>
+  </main>
+</div>
+
+<!-- Editor Modal -->
+<div id="modalBack" class="modalback hidden" onclick="if(event.target===this)closeEditor()">
+  <div class="modal">
+    <div class="modalhead">
+      <b id="modalTitle">Add Record</b>
+      <button class="mini" onclick="closeEditor()" title="Close">
+        <svg class="ic ic-sm" viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+      </button>
+    </div>
+    <div class="modalbody">
+      <div id="editorFields" class="formgrid"></div>
+    </div>
+    <div class="modalfoot">
+      <button class="btn secondary" onclick="closeEditor()">Cancel</button>
+      <button id="saveEditorBtn" class="btn" onclick="saveEditor(this)">
+        <svg class="ic" viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>
+        <span>Save Changes</span>
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- Order Details Modal -->
+<div id="detailsModalBack" class="modalback hidden" onclick="if(event.target===this)closeDetails()">
+  <div class="modal">
+    <div class="modalhead">
+      <div>
+        <b id="detailsTitle">Order Details</b>
+        <div class="muted" id="detailsSubtitle" style="font-size:11px;margin-top:2px"></div>
+      </div>
+      <button class="mini" onclick="closeDetails()" title="Close">
+        <svg class="ic ic-sm" viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+      </button>
+    </div>
+    <div class="modalbody" id="detailsBody"></div>
+    <div class="modalfoot">
+      <button class="btn secondary" onclick="closeDetails()">Close</button>
+    </div>
+  </div>
+</div>
+
+<!-- Official Invoice Modal -->
+<div id="invoiceModalBack" class="modalback hidden" onclick="if(event.target===this)closeInvoice()">
+  <div class="modal">
+    <div class="modalhead">
+      <b>HY STORE · Official Invoice</b>
+      <button class="mini" onclick="closeInvoice()" title="Close">
+        <svg class="ic ic-sm" viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+      </button>
+    </div>
+    <div class="modalbody" style="background:var(--page)">
+      <div id="invoicePaper" class="invoice-paper"></div>
+    </div>
+    <div class="modalfoot invoice-panel-actions">
+      <button class="btn secondary" onclick="closeInvoice()">Close</button>
+      <button class="btn navy" onclick="printInvoice()">
+        <svg class="ic" viewBox="0 0 24 24"><polyline points="6 9 6 2 18 2 18 9"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><rect x="6" y="14" width="12" height="8"/></svg>
+        <span>Print</span>
+      </button>
+      <button class="btn" id="downloadInvoiceBtn" onclick="downloadInvoicePDF(this)">
+        <svg class="ic" viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+        <span>Download PDF</span>
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- QR Scanner Modal -->
+<div id="scannerModalBack" class="modalback hidden" onclick="if(event.target===this)closeScanner()">
+  <div class="modal">
+    <div class="modalhead">
+      <b>
+        <svg class="ic" viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><path d="M14 14h3v3h-3z"/><path d="M18 18h3v3h-3z"/></svg>
+        <span>Verify HY STORE Invoice</span>
+      </b>
+      <button class="mini" onclick="closeScanner()" title="Close">
+        <svg class="ic ic-sm" viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+      </button>
+    </div>
+    <div class="modalbody">
+      <p class="muted" style="font-size:12.5px;margin-top:0">Scan the QR code printed on an HY STORE invoice. Results are verified live against your Orders and invoices sheets.</p>
+      <div id="qrReader" class="scanner-box"></div>
+      <div id="scanResult"></div>
+    </div>
+    <div class="modalfoot">
+      <button class="btn secondary" onclick="closeScanner()">Close Scanner</button>
+    </div>
+  </div>
+</div>
+
+<div id="toast" class="toast hidden"></div>
+
+<script>
+const API_ENDPOINT = "https://script.google.com/macros/s/AKfycbxDmDvjqGJRUWoLrWlY6M0T7XTW9N3nfSdEnE2Dycm8B7Jg_qdLjtj0YR0ca2Ghjs2a/exec";
+let adminToken='', sheets=[], activeSheet=null, editingRow=null, activeView='overview';
+const blockedSheets=['Users','ERPBackup'];
+const $=id=>document.getElementById(id);
+
+/* Professional SVG Icons Library (Zero Emojis) */
+const ICONS = {
+  eye: `<svg class="ic ic-sm" viewBox="0 0 24 24"><path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z"/><circle cx="12" cy="12" r="3"/></svg>`,
+  edit: `<svg class="ic ic-sm" viewBox="0 0 24 24"><path d="M17 3a2.85 2.83 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5Z"/><path d="m15 5 4 4"/></svg>`,
+  trash: `<svg class="ic ic-sm" viewBox="0 0 24 24"><path d="M3 6h18"/><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"/><path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"/><line x1="10" y1="11" x2="10" y2="17"/><line x1="14" y1="11" x2="14" y2="17"/></svg>`,
+  invoice: `<svg class="ic ic-sm" viewBox="0 0 24 24"><path d="M4 2v20l2-1 2 1 2-1 2 1 2-1 2 1 2-1 2 1V2l-2 1-2-1-2 1-2-1-2 1-2-1-2 1Z"/><line x1="8" y1="8" x2="16" y2="8"/><line x1="8" y1="12" x2="16" y2="12"/><line x1="8" y1="16" x2="12" y2="16"/></svg>`,
+  user: `<svg class="ic ic-sm" viewBox="0 0 24 24"><path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>`,
+  phone: `<svg class="ic ic-sm" viewBox="0 0 24 24"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/></svg>`,
+  mail: `<svg class="ic ic-sm" viewBox="0 0 24 24"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"/></svg>`,
+  bag: `<svg class="ic" viewBox="0 0 24 24"><path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4Z"/><path d="M3 6h18"/><path d="M16 10a4 4 0 0 1-8 0"/></svg>`,
+  gift: `<svg class="ic" viewBox="0 0 24 24"><polyline points="20 12 20 22 4 22 4 12"/><rect x="2" y="7" width="20" height="5"/><line x1="12" y1="22" x2="12" y2="7"/><path d="M12 7H7.5a2.5 2.5 0 0 1 0-5C11 2 12 7 12 7z"/><path d="M12 7h4.5a2.5 2.5 0 0 0 0-5C13 2 12 7 12 7z"/></svg>`,
+  card: `<svg class="ic" viewBox="0 0 24 24"><rect x="2" y="5" width="20" height="14" rx="2"/><line x1="2" y1="10" x2="22" y2="10"/></svg>`,
+  box: `<svg class="ic" viewBox="0 0 24 24"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/><polyline points="3.29 7 12 12 20.71 7"/><line x1="12" y1="22" x2="12" y2="12"/></svg>`,
+  wallet: `<svg class="ic" viewBox="0 0 24 24"><path d="M19 7V4a1 1 0 0 0-1-1H5a2 2 0 0 0 0 4h15a1 1 0 0 1 1 1v4h-3a2 2 0 0 0 0 4h3a1 1 0 0 0 1-1v-2a1 1 0 0 0-1-1"/><path d="M3 5v14a2 2 0 0 0 2 2h15a1 1 0 0 0 1-1v-4"/></svg>`,
+  star: `<svg class="ic ic-sm" viewBox="0 0 24 24"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>`,
+  folder: `<svg class="ic ic-sm" viewBox="0 0 24 24"><path d="M20 20a2 2 0 0 0 2-2V8a2 2 0 0 0-2-2h-7.9a2 2 0 0 1-1.69-.9L9.6 3.9A2 2 0 0 0 7.93 3H4a2 2 0 0 0-2 2v13a2 2 0 0 0 2 2Z"/></svg>`,
+  table: `<svg class="ic ic-sm" viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2"/><line x1="3" y1="9" x2="21" y2="9"/><line x1="3" y1="15" x2="21" y2="15"/><line x1="9" y1="9" x2="9" y2="21"/></svg>`,
+  image: `<svg class="ic ic-sm" viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>`,
+  dollar: `<svg class="ic ic-sm" viewBox="0 0 24 24"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>`,
+  hash: `<svg class="ic ic-sm" viewBox="0 0 24 24"><line x1="4" y1="9" x2="20" y2="9"/><line x1="4" y1="15" x2="20" y2="15"/><line x1="10" y1="3" x2="8" y2="21"/><line x1="16" y1="3" x2="14" y2="21"/></svg>`,
+  calendar: `<svg class="ic ic-sm" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>`,
+  tag: `<svg class="ic ic-sm" viewBox="0 0 24 24"><path d="M12 2H2v10l9.29 9.29c.94.94 2.48.94 3.42 0l6.58-6.58c.94-.94.94-2.48 0-3.42L12 2Z"/><path d="M7 7h.01"/></svg>`,
+  pin: `<svg class="ic ic-sm" viewBox="0 0 24 24"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"/><circle cx="12" cy="10" r="3"/></svg>`,
+  note: `<svg class="ic ic-sm" viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>`,
+  check: `<svg class="ic ic-sm" viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>`,
+  alert: `<svg class="ic ic-sm" viewBox="0 0 24 24"><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>`,
+  ext: `<svg class="ic ic-sm" viewBox="0 0 24 24"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>`,
+  trend: `<svg class="ic" viewBox="0 0 24 24"><polyline points="22 7 13.5 15.5 8.5 10.5 2 17"/><polyline points="16 7 22 7 22 13"/></svg>`
+};
+
+/* Sidebar Toggle (Desktop Collapse + Mobile Drawer) */
+function toggleSidebar(){
+  const app = $('app');
+  const backdrop = $('sidebarBackdrop');
+  if(window.innerWidth <= 768){
+    const isOpen = app.classList.toggle('mobile-menu-open');
+    backdrop.classList.toggle('show', isOpen);
+  } else {
+    app.classList.toggle('sidebar-collapsed');
+  }
+}
+
+function closeMobileSidebar(){
+  const app = $('app');
+  const backdrop = $('sidebarBackdrop');
+  if(app) app.classList.remove('mobile-menu-open');
+  if(backdrop) backdrop.classList.remove('show');
+}
+
+/* Reusable Button Loading Helper */
+function setBtnLoading(btn, isLoading, label='Loading...'){
+  if(!btn) return;
+  if(isLoading){
+    if(btn.dataset.loading === '1') return;
+    btn.dataset.loading = '1';
+    btn.dataset.origHtml = btn.innerHTML;
+    btn.disabled = true;
+    btn.classList.add('is-loading');
+    btn.innerHTML = `<span class="btn-spinner"></span><span>${escapeHtml(label)}</span>`;
+  } else {
+    if(btn.dataset.origHtml !== undefined){
+      btn.innerHTML = btn.dataset.origHtml;
+      delete btn.dataset.origHtml;
+    }
+    delete btn.dataset.loading;
+    btn.disabled = false;
+    btn.classList.remove('is-loading');
+  }
+}
+
+async function withBtnLoading(btn, label, asyncFn){
+  setBtnLoading(btn, true, label);
+  try{
+    return await asyncFn();
+  } finally {
+    setBtnLoading(btn, false);
+  }
+}
+
+async function api(payload){
+  const res=await fetch(API_ENDPOINT,{method:'POST',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify({...payload,token:adminToken})});
+  const data=await res.json(); if(!res.ok||data.status==='error')throw new Error(data.message||'Request failed'); return data;
+}
+
+async function connectERP(btn){
+  btn = btn || $('connectBtn');
+  const token=$('tokenInput').value.trim();
+  if(!token){$('loginError').textContent='Enter your admin token.';return}
+  adminToken=token;
+  $('loginError').textContent='';
+  await withBtnLoading(btn, 'Connecting...', async ()=>{
+    try{
+      await loadSheets();
+      $('loginView').classList.add('hidden');
+      $('app').classList.remove('hidden');
+      renderOverview();
+    } catch(e){
+      adminToken='';
+      $('loginError').textContent=e.message;
+    }
+  });
+}
+
+function logout(btn){
+  if(btn) setBtnLoading(btn, true, 'Logging out...');
+  setTimeout(()=>{
+    closeMobileSidebar();
+    adminToken='';sheets=[];
+    $('app').classList.add('hidden');
+    $('loginView').classList.remove('hidden');
+    $('tokenInput').value='';
+    if(btn) setBtnLoading(btn, false);
+  }, 150);
+}
+
+async function loadSheets(){
+  const d=await api({action:'erpAdminGetSheets'});sheets=d.sheets||[];
+  const inv=sheets.find(s=>String(s.name).toLowerCase()==='inventory');
+  if(inv && !inv.headers.some(h=>/^(image|img|photo|picture)$/i.test(String(h).trim()))) inv.headers.push('Image');
+  buildDynamicNav()
+}
+
+async function refreshData(btn){
+  await withBtnLoading(btn, 'Refreshing...', async ()=>{
+    try{
+      await loadSheets();
+      if(activeView==='overview') renderOverview();
+      else renderTable();
+      toast('Database refreshed.');
+    } catch(e){
+      toast(e.message,true);
+    }
+  });
+}
+
+function buildDynamicNav(){
+  $('dynamicNav').innerHTML='';
+  sheets.filter(s=>!['Orders','Products','Payments','inventory','invoices','expenses','customers'].includes(s.name)).forEach(s=>{
+    const b=document.createElement('button');
+    b.title=s.name;
+    b.innerHTML=`<span class="ico">${ICONS.table}</span><span class="nav-text">${escapeHtml(s.name)}</span>`;
+    b.onclick=()=>showSheet(s.name,b);
+    $('dynamicNav').appendChild(b);
+  });
+}
+
+function showView(view,btn){
+  closeMobileSidebar();
+  activeView=view;activeSheet=null;
+  document.querySelectorAll('.nav button').forEach(b=>b.classList.remove('active'));
+  if(btn)btn.classList.add('active');
+  $('pageTitle').textContent='Overview';
+  $('overviewView').classList.remove('hidden');
+  $('tableView').classList.add('hidden');
+  renderOverview();
+}
+
+function showSheet(name,btn,triggerBtn){
+  if(triggerBtn) setBtnLoading(triggerBtn, true, 'Opening...');
+  setTimeout(()=>{
+    try{
+      closeMobileSidebar();
+      activeView=name;
+      activeSheet=sheets.find(s=>s.name===name);
+      if(!activeSheet){toast('Sheet not found.',true);return}
+      document.querySelectorAll('.nav button').forEach(b=>b.classList.remove('active'));
+      if(btn)btn.classList.add('active');
+      else{
+        const b=[...document.querySelectorAll('.nav button')].find(x=>x.textContent.trim().endsWith(name));
+        if(b)b.classList.add('active');
+      }
+      $('pageTitle').textContent=name;
+      $('tableTitle').textContent=name+' Records';
+      $('tableMeta').textContent=activeSheet.total+' records · '+activeSheet.headers.length+' columns';
+      $('searchInput').value='';
+      $('overviewView').classList.add('hidden');
+      $('tableView').classList.remove('hidden');
+      renderTable();
+    } finally {
+      if(triggerBtn) setBtnLoading(triggerBtn, false);
+    }
+  }, 60);
+}
+
+/* Smart Sorting: Latest rows at TOP, Dispatched/Delivered orders moved to BOTTOM */
+function isDispatchedOrder(sh, row){
+  const status = String(rowVal(sh, row, ['Status', 'Order Status', 'State']) || '').toLowerCase();
+  return /dispatch|delivered|completed|shipped/.test(status);
+}
+
+function sortRowsLatestFirst(sh, rows){
+  const newestFirst = [...rows].sort((a, b) => (Number(b._row) || 0) - (Number(a._row) || 0));
+  if(sh && String(sh.name).toLowerCase() === 'orders'){
+    const activeOrders = newestFirst.filter(r => !isDispatchedOrder(sh, r));
+    const dispatchedOrders = newestFirst.filter(r => isDispatchedOrder(sh, r));
+    return [...activeOrders, ...dispatchedOrders];
+  }
+  return newestFirst;
+}
+
+function getLatestRowNumbers(sh){
+  if(!sh || !Array.isArray(sh.rows) || !sh.rows.length) return new Set();
+  const sortedByRow = [...sh.rows].sort((a, b) => (Number(b._row) || 0) - (Number(a._row) || 0));
+  return new Set(sortedByRow.slice(0, 3).map(r => r._row));
+}
+
+function renderOverview(){
+  const find=n=>sheets.find(s=>s.name.toLowerCase()===n.toLowerCase());
+  const orders=find('Orders'),products=find('Products'),payments=find('Payments');
+  const sum=(sh,field)=>{if(!sh)return 0;const h=sh.headers.find(x=>x.trim().toLowerCase()===field.toLowerCase());return h?sh.rows.reduce((a,r)=>a+(Number(String(r[h]||'').replace(/[^0-9.-]/g,''))||0),0):0};
+  const currency=n=>'Rs '+Math.round(n).toLocaleString('en-PK');
+  const cards=[
+    ['Total Orders',orders?.total||0,'Records in Orders sheet',ICONS.bag],
+    ['Products',products?.total||0,'Products in store catalogue',ICONS.gift],
+    ['Payments',payments?.total||0,'Payment records',ICONS.card],
+    ['Order Value',currency(sum(orders,'Total')),'Sum of Orders.Total',ICONS.trend]
+  ];
+  $('stats').innerHTML=cards.map(c=>`<div class="stat"><div class="stat-top"><div class="label">${c[0]}</div><div class="stat-ico">${c[3]}</div></div><div class="value">${c[1]}</div><div class="hint">${c[2]}</div></div>`).join('');
+  $('sheetCount').textContent=sheets.length+' accessible sheets';
+  $('sheetCards').innerHTML=sheets.map(s=>`<div class="stat" style="min-height:96px;cursor:pointer" onclick="showSheet(${JSON.stringify(s.name)})"><div class="stat-top"><div class="label">${escapeHtml(s.name)}</div><div class="stat-ico">${sheetIcon(s.name)}</div></div><div class="value" style="font-size:24px">${s.total}</div><div class="hint">${s.headers.length} columns · Open sheet</div></div>`).join('');
+  if(orders){
+    const sortedOrders = sortRowsLatestFirst(orders, orders.rows).slice(0, 6);
+    $('recentOrders').innerHTML=makeOrderCards(orders, sortedOrders, true);
+  } else {
+    $('recentOrders').innerHTML='<div class="empty">Orders sheet not found.</div>';
+  }
+}
+
+function renderTable(){
+  if(!activeSheet)return;const q=$('searchInput').value.trim().toLowerCase();
+  const filtered=activeSheet.rows.filter(r=>!q||activeSheet.headers.some(h=>String(r[h]??'').toLowerCase().includes(q)));
+  const rows=sortRowsLatestFirst(activeSheet, filtered);
+  $('tableMeta').textContent=`${rows.length} of ${activeSheet.total} records · ${activeSheet.headers.length} columns · Latest on top`;
+  $('tableContainer').innerHTML=makeTable(activeSheet,rows,true);
+}
+
+function sheetIcon(name){
+  const n=String(name||'').toLowerCase();
+  if(n.includes('order'))return ICONS.bag;
+  if(n.includes('product')||n.includes('catalog'))return ICONS.gift;
+  if(n.includes('payment'))return ICONS.card;
+  if(n.includes('invent')||n.includes('stock'))return ICONS.box;
+  if(n.includes('invoice'))return ICONS.invoice;
+  if(n.includes('expense'))return ICONS.wallet;
+  if(n.includes('customer'))return ICONS.user;
+  if(n.includes('review'))return ICONS.star;
+  if(n.includes('collection'))return ICONS.folder;
+  if(n.includes('email'))return ICONS.mail;
+  return ICONS.table;
+}
+
+function fieldIcon(header){
+  const h=String(header||'').trim().toLowerCase();
+  if(/image|photo|picture|thumbnail|url/.test(h))return ICONS.image;
+  if(/name|customer|user/.test(h))return ICONS.user;
+  if(/phone|mobile|contact/.test(h))return ICONS.phone;
+  if(/email/.test(h))return ICONS.mail;
+  if(/price|total|amount|cost|fee/.test(h))return ICONS.dollar;
+  if(/qty|quantity|stock/.test(h))return ICONS.hash;
+  if(/date|time|created/.test(h))return ICONS.calendar;
+  if(/status|state/.test(h))return ICONS.tag;
+  if(/address|city|district|country/.test(h))return ICONS.pin;
+  if(/description|details|note|comment/.test(h))return ICONS.note;
+  if(/id|code|sku/.test(h))return ICONS.tag;
+  return ICONS.note;
+}
+
+function safeHttpUrl(value){
+  const s=String(value||'').trim();
+  return /^https?:\/\/[^\s"'<>]+$/i.test(s) ? s : '';
+}
+function isImageField(header,url){
+  return /image|photo|picture|thumbnail|img/i.test(String(header||'')) ||
+    /\.(png|jpe?g|gif|webp|bmp|svg)(\?.*)?$/i.test(url) ||
+    /drive\.google\.com\/thumbnail/i.test(url);
+}
+function cardHeading(sh,row){
+  const candidates=['Name','Customer Name','Product Name','Title','Order ID','OrderID','ID','Email'];
+  for(const wanted of candidates){
+    const h=sh.headers.find(x=>String(x).trim().toLowerCase()===wanted.toLowerCase());
+    if(h && String(row[h]??'').trim())return String(row[h]).trim();
+  }
+  for(const h of sh.headers){const v=String(row[h]??'').trim();if(v)return v}
+  return 'Record';
+}
+function headerName(sh, candidates){
+  const wanted=candidates.map(x=>String(x).toLowerCase());
+  return sh.headers.find(h=>wanted.includes(String(h).trim().toLowerCase())) || '';
+}
+function rowVal(sh,row,candidates){
+  const h=headerName(sh,candidates);return h?row[h]:'';
+}
+function parseOrderItems(row,sh){
+  const raw=rowVal(sh,row,['CCC','Items','ItemsJSON','Order Items']);
+  if(Array.isArray(raw))return raw;
+  try{const x=JSON.parse(String(raw||'[]'));return Array.isArray(x)?x:[]}catch(e){return []}
+}
+function imageUrlForItem(item){
+  const raw=item && (item.image||item.img||item.imageUrl||item.photo||item.url||'');
+  return safeHttpUrl(raw);
+}
+function imageTag(url,alt,cls){
+  const u=safeHttpUrl(url);
+  if(!u)return `<div class="${cls||'record-image'}" style="display:grid;place-items:center;color:#9aabc6">${ICONS.image}</div>`;
+  return `<img class="${cls||'record-image'}" src="${escapeHtml(u)}" alt="${escapeHtml(alt||'Product')}" loading="lazy" referrerpolicy="no-referrer" onerror="this.style.display='none'">`;
+}
+function prettyPhone(value){
+  const raw=String(value??'').trim();
+  const digits=raw.replace(/\D/g,'');
+  if(digits.length===10 && digits[0]==='3')return '0'+digits;
+  if(digits.length===12 && digits.startsWith('92'))return '+'+digits;
+  return raw;
+}
+function money(value){
+  const n=Number(String(value??'').replace(/,/g,''));
+  return Number.isFinite(n)?'Rs '+n.toLocaleString('en-PK',{maximumFractionDigits:2}):String(value??'—');
+}
+function orderStatusClass(value){
+  const s=String(value||'').toLowerCase();
+  if(/verified|paid|delivered|complete|dispatch/.test(s))return 'background:#DCFCE7;color:#15803D';
+  if(/cancel|reject|fail/.test(s))return 'background:#FFE4E6;color:#BE123C';
+  if(/pending|received|placed|process|craft|packag/.test(s))return 'background:#FEF3C7;color:#B45309';
+  return '';
+}
+
+function renderOrderCardHtml(sh, r, withActions, latestRowsSet){
+  const id=rowVal(sh,r,['OrderID','Order ID','ID'])||'Order';
+  const customer=rowVal(sh,r,['Customer Name','Name','Customer'])||'Customer';
+  const phone=rowVal(sh,r,['Phone','Mobile']);
+  const total=rowVal(sh,r,['Total','Grand Total','Amount']);
+  const status=rowVal(sh,r,['Status','Order Status'])||'Received';
+  const date=rowVal(sh,r,['Date','Order Date']);
+  const items=parseOrderItems(r,sh);
+  const pics=items.map(imageUrlForItem).filter(Boolean);
+  const names=items.map(it=>it.name||it.title||it.productName||'Product').filter(Boolean);
+  const preview=pics.slice(0,3).map((u,i)=>imageTag(u,names[i]||'Order product','order-thumb')).join('');
+  const slip=safeHttpUrl(rowVal(sh,r,['Payment_Slip','Payment Slip','Screenshot']));
+  const dispatched = isDispatchedOrder(sh, r);
+  const isNew = !dispatched && latestRowsSet.has(r._row);
+
+  return `<article class="order-card ${dispatched ? 'is-dispatched' : ''}">
+    <div class="order-top">
+      <div>
+        <div class="order-id">#${escapeHtml(id)} ${isNew ? '<span class="new-badge">NEW</span>' : ''}</div>
+        <div class="order-meta">${ICONS.calendar}<span>${escapeHtml(date||'Date not available')}</span></div>
+      </div>
+      <span class="status-chip" style="${orderStatusClass(status)}">${escapeHtml(status)}</span>
+    </div>
+    <div class="order-main">
+      <div class="order-customer">${ICONS.user}<span>${escapeHtml(customer)}</span></div>
+      <div class="order-meta">${ICONS.phone}<span>${escapeHtml(prettyPhone(phone)||'Phone not available')}</span></div>
+      <div class="order-products">${preview||`<div class="order-thumb">${ICONS.bag}</div>`}<span class="order-more">${items.length?`${items.length} item${items.length===1?'':'s'}${pics.length>3?' · + more':''}`:'No item images'}${slip?' · Payment slip attached':''}</span></div>
+      <div class="order-total"><span class="muted" style="font-size:11px;font-weight:700">ORDER TOTAL</span><strong>${escapeHtml(money(total))}</strong></div>
+    </div>
+    ${withActions?`<div class="order-actions">
+      <button class="mini" onclick="viewOrder(${r._row},this)">${ICONS.eye}<span>View</span></button>
+      <button class="mini" onclick="openEditor(${r._row},this)">${ICONS.edit}<span>Edit</span></button>
+      <button class="mini" onclick="createInvoiceForOrder(${r._row},this)">${ICONS.invoice}<span>Invoice</span></button>
+    </div>`:''}
+  </article>`;
+}
+
+function makeOrderCards(sh,rows,withActions){
+  if(!rows.length)return '<div class="empty">No orders found.</div>';
+  const latestRowsSet = getLatestRowNumbers(sh);
+  const active = rows.filter(r => !isDispatchedOrder(sh, r));
+  const dispatched = rows.filter(r => isDispatchedOrder(sh, r));
+
+  let html = '';
+  if(active.length){
+    html += `<div class="order-grid">${active.map(r => renderOrderCardHtml(sh, r, withActions, latestRowsSet)).join('')}</div>`;
+  }
+  if(dispatched.length){
+    html += `<div class="section-divider"><span>${ICONS.check} Dispatched &amp; Completed Orders (${dispatched.length})</span></div>`;
+    html += `<div class="order-grid">${dispatched.map(r => renderOrderCardHtml(sh, r, withActions, latestRowsSet)).join('')}</div>`;
+  }
+  return html;
+}
+
+function makeInvoiceCards(sh,rows,withActions){
+  if(!rows.length)return '<div class="empty">No invoices yet. Open an order and choose Invoice to create one.</div>';
+  const latestRowsSet = getLatestRowNumbers(sh);
+  return `<div class="order-grid">${rows.map(r=>{
+    const id=rowVal(sh,r,['InvoiceID','Invoice ID'])||'Invoice';
+    const order=rowVal(sh,r,['OrderID','Order ID']);
+    const customer=rowVal(sh,r,['Customer','Name']);
+    const total=rowVal(sh,r,['Total','Grand Total']);
+    const date=rowVal(sh,r,['Date']);
+    const status=rowVal(sh,r,['Status'])||'Issued';
+    const isNew = latestRowsSet.has(r._row);
+    return `<article class="order-card"><div class="order-top"><div><div class="order-id">${ICONS.invoice}<span>${escapeHtml(id)}</span> ${isNew ? '<span class="new-badge">NEW</span>' : ''}</div><div class="order-meta">Order #${escapeHtml(order)}</div></div><span class="status-chip">${escapeHtml(status)}</span></div><div class="order-main"><div class="order-customer">${ICONS.user}<span>${escapeHtml(customer||'Customer')}</span></div><div class="order-meta">${ICONS.calendar}<span>${escapeHtml(date||'—')}</span></div><div class="order-total" style="margin-top:12px"><span class="muted" style="font-size:11px;font-weight:700">GRAND TOTAL</span><strong>${escapeHtml(money(total))}</strong></div></div><div class="order-actions"><button class="mini" onclick="openSavedInvoice(${r._row},this)">${ICONS.eye}<span>View / Print</span></button></div></article>`;
+  }).join('')}</div>`;
+}
+
+function makeTable(sh,rows,withActions){
+  if(sh.name==='Orders')return makeOrderCards(sh,rows,withActions);
+  if(String(sh.name).toLowerCase()==='invoices')return makeInvoiceCards(sh,rows,withActions);
+  if(!rows.length)return '<div class="empty">No records found.</div>';
+  const icon=sheetIcon(sh.name);
+  const latestRowsSet = getLatestRowNumbers(sh);
+  return `<div class="record-grid">${rows.map((r,index)=>{
+    let imageHtml='';
+    for(const h of sh.headers){
+      const url=safeHttpUrl(r[h]);
+      if(url && isImageField(h,url)){imageHtml=`<a href="${escapeHtml(url)}" target="_blank" rel="noopener noreferrer" title="Open original image">${imageTag(url,cardHeading(sh,r),'record-image')}</a>`;break}
+    }
+    const fields=sh.headers.filter(h=>String(h).trim().toLowerCase()!=='ccc').map(h=>{
+      const value=String(r[h]??'').trim();if(!value)return '';
+      const url=safeHttpUrl(value);
+      let rendered;
+      if(url && isImageField(h,url))rendered=`<a href="${escapeHtml(url)}" target="_blank" rel="noopener noreferrer">${imageTag(url,h,'record-image')}<span>Open image ${ICONS.ext}</span></a>`;
+      else if(url)rendered=`<a href="${escapeHtml(url)}" target="_blank" rel="noopener noreferrer">Open link ${ICONS.ext}</a>`;
+      else rendered=escapeHtml(value);
+      return `<div class="record-field"><div class="field-name">${fieldIcon(h)}<span>${escapeHtml(String(h||'Field'))}</span></div><div class="field-value">${rendered}</div></div>`;
+    }).join('');
+    const isNew = latestRowsSet.has(r._row);
+    return `<article class="record-card"><div class="record-head"><div class="record-icon">${icon}</div><div style="min-width:0"><div class="record-title">${escapeHtml(cardHeading(sh,r))}</div><div class="record-subtitle"><span>${escapeHtml(sh.name)} · Row #${r._row}</span>${isNew ? '<span class="new-badge">LATEST</span>' : ''}</div></div></div><div class="record-body">${imageHtml}<div class="record-fields">${fields||'<span class="muted">No field data</span>'}</div></div>${withActions?`<div class="record-actions"><button class="mini" onclick="openEditor(${r._row},this)">${ICONS.edit}<span>Edit record</span></button><button class="mini del" onclick="deleteRow(${r._row},this)">${ICONS.trash}<span>Delete</span></button></div>`:''}</article>`;
+  }).join('')}</div>`;
+}
+
+function viewOrder(rowIndex, btn){
+  if(btn) setBtnLoading(btn, true, 'Opening...');
+  setTimeout(()=>{
+    try{
+      const sh=sheets.find(s=>s.name==='Orders');const r=sh&&sh.rows.find(x=>x._row===rowIndex);if(!r)return;
+      const get=(names)=>rowVal(sh,r,names);
+      const items=parseOrderItems(r,sh),id=get(['OrderID','Order ID']),status=get(['Status']);
+      $('detailsTitle').textContent='Order Details · '+String(id||'');
+      $('detailsSubtitle').textContent='Complete order information and product photos';
+      const customer=get(['Customer Name','Customer','Name']),phone=get(['Phone']),email=get(['Email',' EMail']);
+      const meta=[
+        ['Customer',customer],['Phone',prettyPhone(phone)],['Email',email],['Payment Method',get(['Payment Method'])],
+        ['Order Status',status],['Order Date',get(['Date'])],['Payment Slip',get(['Payment_Slip','Payment Slip','Screenshot'])],['Order ID',id]
+      ];
+      const slip=safeHttpUrl(get(['Payment_Slip','Payment Slip','Screenshot']));
+      const itemHtml=items.length?items.map((it,i)=>{
+        const name=it.name||it.title||it.productName||'Product';
+        const qty=Number(it.qty||it.quantity||1),price=Number(it.price||it.unitPrice||0),sub=Number(it.subtotal??(qty*price));
+        const img=imageUrlForItem(it);
+        return `<div class="item-row">${img?imageTag(img,name,'item-img'):`<div class="item-img">${ICONS.gift}</div>`}<div><div class="item-name">${escapeHtml(name)}</div><div class="item-sub">${escapeHtml(it.category||'')}${it.badge?' · '+escapeHtml(it.badge):''}</div><div class="item-sub">Qty: ${qty} · Unit: ${escapeHtml(money(price))} · Subtotal: <b>${escapeHtml(money(sub))}</b></div>${img?`<a href="${escapeHtml(img)}" target="_blank" rel="noopener" class="item-sub" style="color:var(--red);font-weight:700">Open product image ${ICONS.ext}</a>`:''}</div></div>`;
+      }).join(''):'<p class="muted">No readable product item JSON was found in the CCC column.</p>';
+      $('detailsBody').innerHTML=`<div class="details-section"><h3>${ICONS.user} CUSTOMER &amp; ORDER INFORMATION</h3><div class="details-kv">${meta.filter(x=>x[1]!==''&&x[1]!=null).map(x=>`<div><small>${escapeHtml(x[0])}</small><b>${escapeHtml(x[1])}</b></div>`).join('')}</div>${slip?`<p style="margin:11px 0 0"><a href="${escapeHtml(slip)}" target="_blank" rel="noopener" style="color:var(--red);font-weight:700">View payment slip ${ICONS.ext}</a></p>`:''}</div><div class="details-section"><h3>${ICONS.bag} ORDERED PRODUCTS · ${items.length}</h3>${itemHtml}</div><div class="detail-total"><span>GRAND TOTAL</span><span>${escapeHtml(money(get(['Total'])))}</span></div>`;
+      $('detailsModalBack').classList.remove('hidden');
+    } finally {
+      if(btn) setBtnLoading(btn, false);
+    }
+  }, 60);
+}
+function closeDetails(){$('detailsModalBack').classList.add('hidden')}
+
+function openEditor(rowIndex=null, btn=null){
+  if(!activeSheet)return;
+  if(btn) setBtnLoading(btn, true, 'Loading...');
+  setTimeout(()=>{
+    try{
+      editingRow=rowIndex;const record=rowIndex?activeSheet.rows.find(r=>r._row===rowIndex):{};
+      $('modalTitle').textContent=rowIndex?'Edit Record · Row '+rowIndex:'Add Record · '+activeSheet.name;
+      const isOrders=activeSheet.name==='Orders';
+      const fields=activeSheet.headers.map((h,i)=>{
+        if(isOrders && String(h).trim().toLowerCase()==='ccc'){
+          const items=parseOrderItems(record||{},activeSheet);
+          return `<div class="formitem" style="grid-column:1/-1"><label>Order Products (protected JSON)</label><div class="details-section"><b style="font-size:11px;color:var(--navy)">${items.length} product item(s)</b><p class="upload-hint">The original CCC JSON is kept unchanged to protect your storefront order data. Use View Details to inspect full item information and photos.</p>${items.slice(0,3).map(it=>`<div class="item-sub">• ${escapeHtml(it.name||it.title||'Product')} · Qty ${Number(it.qty||it.quantity||1)} · ${escapeHtml(money(it.price||0))}</div>`).join('')}</div></div>`;
+        }
+        const val=record?.[h]??'';
+        const imageField=/^(img|image|photo|picture|thumbnail)$/i.test(String(h).trim());
+        if(imageField){
+          const safeId='imagePreview_'+i;
+          return `<div class="formitem" style="grid-column:1/-1"><label>${escapeHtml(h)} · Image URL</label><input class="field" data-col="${i}" id="imageUrl_${i}" value="${escapeHtml(String(val))}" placeholder="Paste image URL here" oninput="previewImageField(${i},this.value)"><div class="image-editor-preview" id="${safeId}">${safeHttpUrl(val)?imageTag(val,'Image preview',''):'<span class="upload-hint">Image preview will appear here.</span>'}</div><label style="margin-top:10px">Or upload from your phone / computer gallery</label><input class="field" type="file" accept="image/jpeg,image/png,image/webp,image/gif" onchange="uploadImageForField(this,${i})"><div class="upload-hint">Uploaded image is saved in HY STORE Drive Media and its URL is filled automatically.</div></div>`;
+        }
+        const isLong=String(val).length>90||/json|description|address|notes|desc|comment/i.test(h);
+        return `<div class="formitem"><label>${escapeHtml(h||('Column '+(i+1)))}</label>${isLong?`<textarea class="field" data-col="${i}">${escapeHtml(String(val))}</textarea>`:`<input class="field" data-col="${i}" value="${escapeHtml(String(val))}" ${/date|time/i.test(h)?'placeholder="Date / time"':''}>`}</div>`;
+      }).join('');
+      const inventoryNeedsImage=String(activeSheet.name).toLowerCase()==='inventory'&&!activeSheet.headers.some(h=>/^(img|image|photo|picture|thumbnail)$/i.test(String(h).trim()));
+      const inventoryImage=inventoryNeedsImage?`<div class="formitem" style="grid-column:1/-1"><label>Image · Image URL</label><input class="field" data-extra="Image" id="imageUrl_extra" value="${escapeHtml(String(record?.Image||''))}" placeholder="Paste image URL here" oninput="previewExtraImage(this.value)"><div class="image-editor-preview" id="imagePreview_extra">${safeHttpUrl(record?.Image)?imageTag(record.Image,'Image preview',''):'<span class="upload-hint">Image preview will appear here.</span>'}</div><label style="margin-top:10px">Or upload from gallery</label><input class="field" type="file" accept="image/*" onchange="uploadExtraImage(this)"><div class="upload-hint">The Image column will be added to the existing inventory sheet when saved.</div></div>`:'';
+      $('editorFields').innerHTML=fields+inventoryImage;
+      $('modalBack').classList.remove('hidden');
+    } finally {
+      if(btn) setBtnLoading(btn, false);
+    }
+  }, 60);
+}
+function previewImageField(index,url){
+  const box=$('imagePreview_'+index);if(!box)return;
+  box.innerHTML=safeHttpUrl(url)?imageTag(url,'Image preview',''):'<span class="upload-hint">Paste a valid http(s) image URL to preview it.</span>';
+}
+function previewExtraImage(url){
+  const box=$('imagePreview_extra');if(box)box.innerHTML=safeHttpUrl(url)?imageTag(url,'Image preview',''):'<span class="upload-hint">Paste a valid http(s) image URL to preview it.</span>';
+}
+async function compressImageFile(file){
+  if(!file.type.startsWith('image/'))throw new Error('Please select an image file.');
+  const dataUrl=await new Promise((resolve,reject)=>{const rd=new FileReader();rd.onload=()=>resolve(rd.result);rd.onerror=reject;rd.readAsDataURL(file)});
+  const img=await new Promise((resolve,reject)=>{const im=new Image();im.onload=()=>resolve(im);im.onerror=reject;im.src=dataUrl});
+  const max=1700,scale=Math.min(1,max/Math.max(img.width,img.height));
+  const canvas=document.createElement('canvas');canvas.width=Math.max(1,Math.round(img.width*scale));canvas.height=Math.max(1,Math.round(img.height*scale));
+  canvas.getContext('2d').drawImage(img,0,0,canvas.width,canvas.height);
+  const compressed=canvas.toDataURL('image/jpeg',.84);
+  return {base64:compressed.split(',')[1],mimeType:'image/jpeg',fileName:(file.name||'HY-STORE-image').replace(/\.[^.]+$/,'')+'.jpg'};
+}
+async function uploadImageFile(file){
+  const image=await compressImageFile(file);
+  const result=await api({action:'erpAdminUploadImage',...image});
+  if(!result.url)throw new Error('Upload completed but no image URL was returned.');
+  return result.url;
+}
+async function uploadImageForField(input,index){
+  if(!input.files||!input.files[0])return;
+  input.disabled=true;
+  toast('Uploading image to Drive...');
+  try{const url=await uploadImageFile(input.files[0]);const field=$('imageUrl_'+index);field.value=url;previewImageField(index,url);toast('Image uploaded. URL filled automatically.')}
+  catch(e){toast(e.message,true)}finally{input.disabled=false}
+}
+async function uploadExtraImage(input){
+  if(!input.files||!input.files[0])return;input.disabled=true;
+  toast('Uploading image to Drive...');
+  try{const url=await uploadImageFile(input.files[0]);$('imageUrl_extra').value=url;previewExtraImage(url);toast('Image uploaded. URL filled automatically.')}
+  catch(e){toast(e.message,true)}finally{input.disabled=false}
+}
+
+function closeEditor(){$('modalBack').classList.add('hidden')}
+
+async function saveEditor(btn){
+  btn = btn || $('saveEditorBtn');
+  await withBtnLoading(btn, 'Saving...', async ()=>{
+    const fields=[...$('editorFields').querySelectorAll('[data-col]')],values={};
+    fields.forEach(el=>{const h=activeSheet.headers[Number(el.dataset.col)];values[h]=el.value});
+    const extra=$('editorFields').querySelector('[data-extra="Image"]');if(extra)values.Image=extra.value;
+    try{
+      await api({action:'erpAdminSave',sheetName:activeSheet.name,mode:editingRow?'update':'add',rowIndex:editingRow||0,values});
+      closeEditor();
+      await loadSheets();
+      activeSheet=sheets.find(s=>s.name===activeView);
+      renderTable();
+      toast('Record saved successfully.');
+    } catch(e){
+      toast(e.message,true);
+    }
+  });
+}
+
+async function deleteRow(rowIndex, btn){
+  if(!confirm('Delete this row from '+activeSheet.name+'? This cannot be undone.'))return;
+  await withBtnLoading(btn, 'Deleting...', async ()=>{
+    try{
+      await api({action:'erpAdminSave',sheetName:activeSheet.name,mode:'delete',rowIndex});
+      await loadSheets();
+      activeSheet=sheets.find(s=>s.name===activeView);
+      renderTable();
+      toast('Record deleted.');
+    } catch(e){
+      toast(e.message,true);
+    }
+  });
+}
+
+function makeInvoiceHtml(inv,verifyUrl){
+  const items=Array.isArray(inv.items)?inv.items:[];
+  const rows=items.length?items.map((it,i)=>{
+    const name=it.name||it.title||it.productName||'Product',qty=Number(it.qty||it.quantity||1),price=Number(it.price||it.unitPrice||0),sub=Number(it.subtotal??(qty*price)),img=imageUrlForItem(it);
+    return `<tr><td><div class="invoice-item">${img?imageTag(img,name,''):`<span>${ICONS.gift}</span>`}<span><b>${escapeHtml(name)}</b><br><small>${escapeHtml(it.category||'')}</small></span></div></td><td>${qty}</td><td>${escapeHtml(money(price))}</td><td>${escapeHtml(money(sub))}</td></tr>`;
+  }).join(''):'<tr><td colspan="4">No item details were saved for this order.</td></tr>';
+  const subtotal=Number(inv.subtotal||0),discount=Number(inv.discount||0),total=Number(inv.total||0);
+  $('invoicePaper').innerHTML=`<div class="invoice-head">
+    <div class="invoice-brand-wrap">
+      <div class="invoice-logo-box">
+        <img src="favicon.png" alt="HY STORE Logo" onerror="this.style.display='none';this.nextElementSibling.style.display='block'">
+        <svg style="display:none" width="40" height="40" viewBox="0 0 64 64" fill="none">
+          <path d="M32 20C22 20 18 11 23 7C27 4 32 10 32 20Z" stroke="#E32936" stroke-width="5" stroke-linecap="round" stroke-linejoin="round"/>
+          <path d="M32 20C42 20 46 11 41 7C37 4 32 10 32 20Z" stroke="#E32936" stroke-width="5" stroke-linecap="round" stroke-linejoin="round"/>
+          <rect x="11" y="29" width="42" height="27" rx="3" fill="#173B70"/>
+          <rect x="8" y="20" width="48" height="9" rx="2.5" fill="#E32936"/>
+          <rect x="29" y="20" width="6" height="36" fill="#FFFFFF"/>
+        </svg>
+      </div>
+      <div class="invoice-brand">HY <span>STORE</span><small>CUSTOMIZED GIFTS &amp; PRINTING</small></div>
+    </div>
+    <div class="invoice-head-right"><div class="invoice-title"><h2>INVOICE</h2><small>OFFICIAL SALES DOCUMENT</small></div><div class="invoice-barcode-top"><svg id="invoiceLinearBarcode"></svg><small>INVOICE REFERENCE BARCODE</small></div><div class="invoice-qr-top"><div id="invoiceQrCode"></div><small>SCAN TO VERIFY</small></div></div>
+  </div>
+  <div class="invoice-meta"><div><small>INVOICE NUMBER</small><b>${escapeHtml(inv.invoiceId||'—')}</b></div><div><small>ORDER NUMBER</small><b>${escapeHtml(inv.orderId||'—')}</b></div><div><small>ISSUE DATE</small><b>${escapeHtml(inv.date||new Date().toLocaleDateString())}</b></div></div>
+  <div class="invoice-customer"><small>BILLED TO</small><b>${escapeHtml(inv.customer||'Customer')}</b><b>${escapeHtml(inv.phone||'')}</b><b>${escapeHtml(inv.email||'')}</b></div>
+  <table class="invoice-items"><thead><tr><th>PRODUCT / DESCRIPTION</th><th>QTY</th><th>UNIT PRICE</th><th>SUBTOTAL</th></tr></thead><tbody>${rows}</tbody></table>
+  <div class="invoice-bottom"><div></div><div class="invoice-totals"><div><span>Subtotal</span><b>${escapeHtml(money(subtotal))}</b></div><div><span>Discount</span><b>${escapeHtml(money(discount))}</b></div><div class="grand"><span>GRAND TOTAL</span><span>${escapeHtml(money(total))}</span></div></div></div>
+  <div class="invoice-foot">Thank you for choosing HY STORE · This invoice is digitally verifiable using its QR code.<br>Verification confirms invoice authenticity and order record, not payment settlement.</div>`;
+  const qr=$('invoiceQrCode');
+  if(window.QRCode&&verifyUrl)new QRCode(qr,{text:verifyUrl,width:128,height:128,colorDark:'#173B70',colorLight:'#ffffff',correctLevel:QRCode.CorrectLevel.M});
+  else qr.innerHTML='<small>QR library unavailable. Verification link: <a href="'+escapeHtml(verifyUrl||'#')+'" target="_blank">Open verify page</a></small>';
+  const barcodeValue=String(inv.invoiceId||inv.orderId||'HYSTORE').replace(/[^A-Za-z0-9-]/g,'').slice(0,35)||'HYSTORE';
+  if(window.JsBarcode){try{JsBarcode('#invoiceLinearBarcode',barcodeValue,{format:'CODE128',lineColor:'#173B70',width:1.35,height:34,displayValue:false,margin:0});}catch(e){const b=$('invoiceLinearBarcode');if(b)b.outerHTML='<small>'+escapeHtml(barcodeValue)+'</small>';}}
+  else {const b=$('invoiceLinearBarcode');if(b)b.outerHTML='<small>'+escapeHtml(barcodeValue)+'</small>';}
+}
+function openInvoice(inv,verifyUrl){makeInvoiceHtml(inv,verifyUrl);$('invoiceModalBack').classList.remove('hidden')}
+function closeInvoice(){$('invoiceModalBack').classList.add('hidden')}
+function printInvoice(){window.print()}
+
+async function downloadInvoicePDF(btn){
+  const button = btn || $('downloadInvoiceBtn');
+  const paper = $('invoicePaper');
+  if(!paper){toast('Invoice preview is not ready.',true);return}
+  if(!window.html2pdf){
+    toast('PDF download library could not load. Use Print → Save as PDF.',true);
+    window.print();
+    return;
+  }
+  await withBtnLoading(button, 'Preparing PDF...', async ()=>{
+    try{
+      await new Promise(resolve=>setTimeout(resolve,700));
+      const invoiceId=(paper.innerText.match(/INVOICE NUMBER\s+([^\n]+)/i)||[])[1]||'HY-STORE-Invoice';
+      const safeName=String(invoiceId).trim().replace(/[^A-Za-z0-9_-]+/g,'-');
+      const options={
+        margin:[8,8,8,8],
+        filename:(safeName||'HY-STORE-Invoice')+'.pdf',
+        image:{type:'jpeg',quality:0.97},
+        html2canvas:{scale:2,useCORS:true,allowTaint:false,backgroundColor:'#ffffff',logging:false,scrollY:0},
+        jsPDF:{unit:'mm',format:'a4',orientation:'portrait'},
+        pagebreak:{mode:['avoid-all','css','legacy']}
+      };
+      await window.html2pdf().set(options).from(paper).save();
+      toast('Professional invoice PDF downloaded.');
+    }catch(err){
+      console.error(err);
+      toast('PDF download failed. Please use Print → Save as PDF.',true);
+    }
+  });
+}
+
+async function createInvoiceForOrder(rowIndex, btn){
+  await withBtnLoading(btn, 'Creating...', async ()=>{
+    try{
+      const inv=await api({action:'erpAdminCreateInvoice',rowIndex});
+      openInvoice(inv,inv.verifyUrl);
+      toast('Invoice is ready. You can print it now.');
+    } catch(e){
+      toast(e.message,true);
+    }
+  });
+}
+
+function invoiceFromSheetRow(sh,row){
+  const get=(names)=>rowVal(sh,row,names);
+  let items=[];try{items=JSON.parse(String(get(['ItemsJSON','Items JSON','Items'])||'[]'))}catch(e){}
+  return {invoiceId:get(['InvoiceID','Invoice ID']),orderId:get(['OrderID','Order ID']),customer:get(['Customer','Name']),phone:get(['Phone']),email:get(['Email']),date:get(['Date']),items:Array.isArray(items)?items:[],subtotal:get(['Subtotal']),discount:get(['Discount']),total:get(['Total']),status:get(['Status'])};
+}
+
+async function openSavedInvoice(rowIndex, btn){
+  const sh=sheets.find(s=>String(s.name).toLowerCase()==='invoices');const r=sh&&sh.rows.find(x=>x._row===rowIndex);if(!r)return;
+  const inv=invoiceFromSheetRow(sh,r);
+  await withBtnLoading(btn, 'Loading...', async ()=>{
+    try{
+      const qr=await api({action:'erpAdminGetInvoiceQR',invoiceId:inv.invoiceId});
+      openInvoice(inv,qr.verifyUrl);
+    } catch(e){
+      toast(e.message,true);
+    }
+  });
+}
+
+let activeQrScanner=null;
+function openScanner(btn){
+  if(btn) setBtnLoading(btn, true, 'Starting...');
+  setTimeout(()=>{
+    try{
+      $('scanResult').innerHTML='';$('scannerModalBack').classList.remove('hidden');
+      if(!window.Html5Qrcode){$('qrReader').innerHTML='<p class="muted">Camera scanner library could not load. Please refresh while connected to the internet.</p>';return}
+      if(activeQrScanner)return;
+      activeQrScanner=new Html5Qrcode('qrReader');
+      activeQrScanner.start({facingMode:'environment'},{fps:10,qrbox:{width:240,height:240}},decoded=>{
+        stopQrScanner();verifyScannedInvoice(decoded);
+      },()=>{}).catch(err=>{$('scanResult').innerHTML='<div class="verify-result bad">Camera could not start. Allow camera permission and use HTTPS.</div>';activeQrScanner=null});
+    } finally {
+      if(btn) setBtnLoading(btn, false);
+    }
+  }, 60);
+}
+async function stopQrScanner(){
+  if(activeQrScanner){try{await activeQrScanner.stop();await activeQrScanner.clear()}catch(e){}activeQrScanner=null}
+}
+async function closeScanner(){await stopQrScanner();$('scannerModalBack').classList.add('hidden')}
+async function verifyScannedInvoice(raw){
+  let code=String(raw||'');
+  try{if(/^https?:/i.test(code)){const u=new URL(code);code=u.searchParams.get('code')||code}}catch(e){}
+  $('scanResult').innerHTML='<div class="loading">Checking QR against HY STORE database...</div>';
+  try{
+    const result=await api({action:'erpAdminVerifyInvoice',code});
+    if(result.valid){$('scanResult').innerHTML=`<div class="verify-result"><b>${ICONS.check} GENUINE HY STORE INVOICE</b><div style="margin-top:8px;font-size:12px">Invoice: ${escapeHtml(result.invoiceId)}<br>Order: ${escapeHtml(result.orderId)}<br>Order status: ${escapeHtml(result.orderStatus||'Recorded')}<br>Total: ${escapeHtml(money(result.total))}</div></div>`}
+    else $('scanResult').innerHTML=`<div class="verify-result bad"><b>${ICONS.alert} NOT VERIFIED</b><div>${escapeHtml(result.message||'This QR could not be authenticated.')}</div></div>`;
+  }catch(e){$('scanResult').innerHTML=`<div class="verify-result bad">${escapeHtml(e.message)}</div>`}
+}
+
+function escapeHtml(s){return String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]))}
+let toastTimer;function toast(msg,bad=false){$('toast').textContent=msg;$('toast').classList.remove('hidden','bad');if(bad)$('toast').classList.add('bad');clearTimeout(toastTimer);toastTimer=setTimeout(()=>$('toast').classList.add('hidden'),3500)}
+$('tokenInput').addEventListener('keydown',e=>{if(e.key==='Enter')connectERP()});
+</script>
+</body>
+</html>
